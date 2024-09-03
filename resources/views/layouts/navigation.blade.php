@@ -19,7 +19,7 @@
                         {{ __('Parent Folder') }}
                     </x-nav-link>
                     <x-nav-link :href="route('subFolder.index')" :active="request()->routeIs('subFolder.index')">
-                        {{ __('Sub Folder') }}
+                        {{ __('All Sub Folder') }}
                     </x-nav-link>
                     <x-nav-link :href="route('contactList.index')" :active="request()->routeIs('contactList.index')">
                         {{ __('All Contact List') }}

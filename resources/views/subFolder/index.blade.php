@@ -1,11 +1,14 @@
 <x-app-layout>
-
     <div class="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
-        {{-- Add Search Form --}}
-        <form action="{{ route('subFolder.index') }}" method="get" class="form-inline my-4">
-            <input type="search" name="squery" class="form-control mr-sm-2" placeholder="Search Sub Folder" aria-label="Search">
-            <button class="btn btn-outline-indigo my-2 my-sm-0" type="submit">{{ __('Search') }}</button>
-        </form>
+        {{-- Conditionally Add Search Form if Parent Folder is Passed --}}
+        @if(request()->has('parentFolder'))
+            <form action="{{ route('subFolder.index') }}" method="get" class="form-inline my-4">
+                <input type="hidden" name="parentFolder" value="{{ request('parentFolder') }}"> <!-- Hidden field for parentFolder ID -->
+                <input type="search" name="squery" class="form-control mr-sm-2" placeholder="Search Sub Folder" aria-label="Search">
+                <button class="btn btn-outline-indigo my-2 my-sm-0" type="submit">{{ __('Search') }}</button>
+            </form>
+        @endif
+
         {{-- Add paths --}}
         <div class="mt-6 bg-white shadow-sm rounded-lg divide-y">
             @foreach ($subFolders as $subFolder)
@@ -45,7 +48,7 @@
                                         <x-dropdown-link :href="route('subFolder.edit', $subFolder)">
                                             {{ __('Edit') }}
                                         </x-dropdown-link>
-                                        <x-dropdown-link :href="route('contactList.index', ['subFolder' => $subFolder->id])">
+                                        <x-dropdown-link :href="route('contactList.index',  ['subFolder' => $subFolder->id])">
                                             {{ __('View Contacts') }}
                                         </x-dropdown-link>
                                         <form method="POST" action="{{ route('subFolder.destroy', $subFolder) }}">

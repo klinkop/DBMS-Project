@@ -1,9 +1,6 @@
 <x-app-layout>
 
-
-
-
-    <div class="mx-auto p-4 sm:p-6 lg:p-8 max-w-full md:max-w-3xl lg:max-w-5xl xl:max-w-7xl">
+    <div class="mx-auto p-4 sm:p-6 lg:p-8 w-full max-w-full md:max-w-3xl lg:max-w-5xl xl:max-w-7xl">
         {{-- <a href="{{ route('contactList.create') }}"
             class="inline-flex items-center px-4 py-2 mt-4 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
             {{ __('Create Contact') }}
@@ -108,8 +105,7 @@
                     Import Contacts</button>
             </form>
 
-
-        <div class="mt-6 divide-y rounded-lg bg-white shadow-sm">
+        <div class="mt-6 divide-y rounded-lg bg-white shadow-sm overflow-x-auto">
             @if(request()->has('subfolder_id'))
                 <h2 class="text-xl font-bold mb-4">Contacts for Subfolder ID: {{ request('subfolder_id') }}</h2>
             @endif
@@ -242,21 +238,19 @@
         </div>
     </div>
 
-
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Function to handle state change and populate cities
             function handleStateChange(stateSelectId, citySelectId) {
                 const stateSelect = document.getElementById(stateSelectId);
                 const citySelect = document.getElementById(citySelectId);
-    
+
                 stateSelect.addEventListener('change', function() {
                     const stateId = stateSelect.value;
-    
+
                     // Reset city selection
                     citySelect.value = '';
-    
+
                     // Fetch cities for selected state
                     if (stateId) {
                         fetch(`/api/cities?state_id=${stateId}`)
@@ -264,7 +258,7 @@
                             .then(data => {
                                 // Clear existing options
                                 citySelect.innerHTML = '<option value="">Select City</option>';
-    
+
                                 // Populate new options
                                 data.forEach(city => {
                                     const option = document.createElement('option');
@@ -280,14 +274,14 @@
                     }
                 });
             }
-    
+
             // Initialize the function for different state and city pairs
             handleStateChange('state', 'city');
             handleStateChange('state1', 'city1');
             handleStateChange('state2', 'city2');
         });
     </script>
-    
+
     <script>
         document.getElementById('toggle-columns').addEventListener('click', function() {
             const columns = document.querySelectorAll('.hidden-column');
@@ -356,12 +350,12 @@
         });
 
     </script>
-       
+
         <script>
             // Function to handle checkbox changes and update the form
             function updateFormVisibility() {
                 const selectedContacts = Array.from(document.querySelectorAll('.contact-checkbox:checked'));
-        
+
                 // Toggle the form visibility based on checkbox selection
                 if (selectedContacts.length > 0) {
                     document.getElementById('mass-edit-form-container').classList.remove('hidden');
@@ -373,12 +367,12 @@
                     document.getElementById('contact-ids').value = '';
                 }
             }
-        
+
             // Apply the updateFormVisibility function to each individual checkbox
             document.querySelectorAll('.contact-checkbox').forEach(function(checkbox) {
                 checkbox.addEventListener('change', updateFormVisibility);
             });
-        
+
             // Apply the updateFormVisibility function to the select-all checkbox
             document.getElementById('select-all').addEventListener('click', function() {
                 const isChecked = this.checked;

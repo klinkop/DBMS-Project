@@ -16,33 +16,38 @@ class SubFolderController extends Controller
      */
     public function index(Request $request): View
     {
-        // Get the search query from the input
+        // Get the search query and parentFolder ID from the input
         $query = $request->input('squery');
+        $parentFolderId = $request->input('parentFolder');
 
         // Get the authenticated user's ID
         $userId = auth()->id();
 
+        // Initialize the query builder for SubFolder
+        $subFolderQuery = SubFolder::with('user')
+            ->where('user_id', $userId); // Filter by user ID
+
+        // Check if a parentFolder ID is provided
+        if ($parentFolderId) {
+            // Filter subfolders by the provided parentFolder ID
+            $subFolderQuery->where('parent_folder_id', $parentFolderId);
+        }
+
         // Check if a search query is provided
         if ($query) {
-            // Search for subfolders by name, include the user relationship, and filter by the authenticated user's ID
-            $subFolders = SubFolder::with('user')
-                ->where('user_id', $userId) // Filter by user ID
-                ->where('name', 'LIKE', "%{$query}%")
-                ->latest()
-                ->get();
-        } else {
-            // Otherwise, get all subfolders for the authenticated user and include the user relationship
-            $subFolders = SubFolder::with('user')
-                ->where('user_id', $userId) // Filter by user ID
-                ->latest()
-                ->get();
+            // Further filter the subfolders by the search query
+            $subFolderQuery->where('name', 'LIKE', "%{$query}%");
         }
+
+        // Get the final list of subfolders, ordered by the latest
+        $subFolders = $subFolderQuery->latest()->get();
 
         // Return the view with the subfolders (either filtered or all)
         return view('subFolder.index', [
             'subFolders' => $subFolders,
         ]);
     }
+
 
 
     /**

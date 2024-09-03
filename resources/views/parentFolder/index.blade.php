@@ -51,6 +51,9 @@
                                         <x-dropdown-link :href="route('parentFolder.edit', $parentFolder)">
                                             {{ __('Edit') }}
                                         </x-dropdown-link>
+                                        <x-dropdown-link :href="route('subFolder.index', ['parentFolder' => $parentFolder->id])">
+                                            {{ __('View Subfolders') }}
+                                        </x-dropdown-link>
                                         <form action="{{ route('parentFolder.destroy', $parentFolder) }}"
                                             method="post">
                                             @csrf
