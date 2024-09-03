@@ -10,11 +10,13 @@ class ContactListsExport implements FromCollection
 {
     protected $startDate;
     protected $endDate;
+    protected $subFolderId;
 
-    public function __construct($startDate, $endDate)
+    public function __construct($startDate, $endDate, $subFolderId)
     {
         $this->startDate = $startDate;
         $this->endDate = $endDate;
+        $this->subFolderId = $subFolderId;
     }
 
     public function collection()
@@ -25,7 +27,11 @@ class ContactListsExport implements FromCollection
         // Filter the contact lists based on date range and user ID
         $contactListsQuery = ContactList::with('city', 'state')
             ->where('user_id', $userId); // Add filter for user ID
-
+            
+        if ($this->subFolderId) {
+            $contactListsQuery->where('sub_folder_id', $this->subFolderId); // Filter by subFolderId
+        }
+    
         if ($this->startDate && $this->endDate) {
             $contactListsQuery->whereBetween('created_at', [$this->startDate, $this->endDate]);
         }

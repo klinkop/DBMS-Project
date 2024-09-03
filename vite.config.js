@@ -12,4 +12,7 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    build: {
+        outDir: 'public/build', // Ensure this matches where you want your build files
+    },
 });

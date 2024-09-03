@@ -108,30 +108,43 @@ class ContactListController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request):RedirectResponse
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'sub_folder_id' => 'required|integer|exists:sub_folders,id',
-            'status' => 'required|string|max:255',
-            'company' => 'required|string|max:255',
-            'pic' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255',
-            'contact1' => 'required|string|max:20',
-            'contact2' => 'required|string|max:20',
-            'industry' => 'required|string|max:255',
-            'city_id' => 'required|integer|exists:cities,id',
-            'state_id' => 'required|integer|exists:states,id',
-        ]);
+    public function store(Request $request): RedirectResponse
+{
+    $validated = $request->validate([
+        'name' => 'nullable|string|max:255',
+        'sub_folder_id' => 'nullable|integer|exists:sub_folders,id',
+        'status' => 'nullable|string|max:255',
+        'company' => 'nullable|string|max:255',
+        'pic' => 'nullable|string|max:255',
+        'email' => 'nullable|string|email|max:255',
+        'contact1' => 'nullable|string|max:20',
+        'contact2' => 'nullable|string|max:20',
+        'industry' => 'nullable|string|max:255',
+        'city_id' => 'nullable|integer|exists:cities,id',
+        'state_id' => 'nullable|integer|exists:states,id',
+    ]);
 
-        $contactList = new ContactList();
-        $contactList->fill($validated);
-        $contactList->sub_folder_id = $validated['sub_folder_id'];
-        $contactList->user_id = $request->user()->id;
-        $contactList->save();
+    $contactList = new ContactList();
+    $contactList->fill($validated);
+    $contactList->user_id = $request->user()->id;
 
-        return redirect(route('contactList.index'));
-    }
+    // Set default values for required fields if they are not provided
+    $contactList->sub_folder_id = $validated['sub_folder_id'] ?? null;
+    $contactList->status = $validated['status'] ?? '';
+    $contactList->company = $validated['company'] ?? '';
+    $contactList->pic = $validated['pic'] ?? '';
+    $contactList->email = $validated['email'] ?? '';
+    $contactList->contact1 = $validated['contact1'] ?? '';
+    $contactList->contact2 = $validated['contact2'] ?? '';
+    $contactList->industry = $validated['industry'] ?? '';
+    $contactList->city_id = $validated['city_id'] ?? 999;
+    $contactList->state_id = $validated['state_id'] ?? 999;
+
+    $contactList->save();
+
+    return redirect(route('contactList.index'));
+}
+
 
     /**
      * Display the specified resource.
@@ -182,19 +195,23 @@ class ContactListController extends Controller
 
     public function export(Request $request)
     {
-        // Get date range from request
+        // Get filters from request
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
+        $subFolderId = $request->input('subFolder'); // Add this to get the subFolderId from the request
 
-        // Validate the dates
+
+        // Validate the date range
         $validated = $request->validate([
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
         ]);
 
-        // Pass the date range to the export class
-        return Excel::download(new ContactListsExport($startDate, $endDate), 'contact_lists.xlsx');
+        // Pass all filters to the export class
+        return Excel::download(new ContactListsExport($startDate, $endDate, $subFolderId), 'contact_lists.xlsx');
     }
+
+
 
     public function import(Request $request)
     {
@@ -213,6 +230,27 @@ class ContactListController extends Controller
         // Redirect or return a response as needed
         return redirect()->back()->with('success', 'Contacts imported successfully!');
     }
+
+    public function massEdit(Request $request)
+    {
+        // Extract selected contact IDs
+        $contactIds = explode(',', $request->input('contact_ids'));
+
+        // Prepare data for update
+        $data = $request->only(['status', 'company', 'industry', 'city_id', 'state_id']);
+
+        // Filter out any null or empty fields
+        $filteredData = array_filter($data, function($value) {
+            return !is_null($value) && $value !== '';
+        });
+
+        // Update the selected contacts
+        ContactList::whereIn('id', $contactIds)->update($filteredData);
+
+        return redirect()->back()->with('success', 'Contacts updated successfully!');
+    }
+
+
 }
 
 

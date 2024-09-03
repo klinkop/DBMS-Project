@@ -6,8 +6,9 @@ use App\Models\City;
 use App\Models\State;
 use App\Models\ContactList;
 use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
-class ContactListsImport implements ToModel
+class ContactListsImport implements ToModel, WithHeadingRow
 {
     protected $subFolderId;
 
@@ -16,7 +17,7 @@ class ContactListsImport implements ToModel
     {
         $this->subFolderId = $subFolderId;
     }
-
+ 
     /**
     * @param array $row
     *
@@ -24,29 +25,33 @@ class ContactListsImport implements ToModel
     */
     public function model(array $row)
     {
-        // Assuming 'contact1' and 'contact2' are in columns 7 and 8 respectively
-        $contact1 = isset($row[5]) ? (string) $row[5] : null;
-        $contact2 = isset($row[6]) ? (string) $row[6] : null;
+        // Use column headers from the file
+        $contact1 = isset($row['contact1']) ? (string) $row['contact1'] : '';
+        $contact2 = isset($row['contact2']) ? (string) $row['contact2'] : '';
+        $name = isset($row['name']) ? (string) $row['name'] : '';
+        $status = isset($row['status']) ? (string) $row['status'] : '';
+        $company = isset($row['company']) ? (string) $row['company'] : '';
+        $pic = isset($row['pic']) ? (string) $row['pic'] : '';
+        $email = isset($row['email']) ? (string) $row['email'] : '';
+        $industry = isset($row['industry']) ? (string) $row['industry'] : '';
 
         // Look up city and state by name
-        $city = isset($row[8]) ? City::where('name', $row[8])->first() : null;
-        $state = isset($row[9]) ? State::where('name', $row[9])->first() : null;
+        $city = isset($row['city']) ? City::where('name', $row['city'])->first() : null;
+        $state = isset($row['state']) ? State::where('name', $row['state'])->first() : null;
 
         return new ContactList([
             'user_id'      => auth()->id(),
             'sub_folder_id' => $this->subFolderId, // Use the passed subfolder ID
-            'name'         => $row[0] ?? null,
-            'status'       => $row[1] ?? null,
-            'company'      => $row[2] ?? null,
-            'pic'          => $row[3] ?? null,
-            'email'        => $row[4] ?? null,
+            'name'         => $name,
+            'status'       => $status,
+            'company'      => $company,
+            'pic'          => $pic,
+            'email'        => $email,
             'contact1'     => $contact1,
             'contact2'     => $contact2,
-            'industry'     => $row[7] ?? null,
-            'city_id'      => $city ? $city->id : null,
-            'state_id'     => $state ? $state->id : null,
+            'industry'     => $industry,
+            'city_id'      => $city ? $city->id : 999,
+            'state_id'     => $state ? $state->id : 999,
         ]);
     }
-
 }
-

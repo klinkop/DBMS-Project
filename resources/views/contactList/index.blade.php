@@ -63,52 +63,40 @@
                 Export Contact Lists
             </button>
 
-        <!-- Export Modal with Date Range Picker -->
-        <div id="export-modal" class="fixed inset-0 z-10 flex items-center justify-center p-4" style="display:none;">
-            <div class="bg-white rounded-lg shadow-lg max-w-md mx-auto p-6">
-                <h2 class="text-lg font-medium mb-4">Export Contact Lists</h2>
-                <p>Select a date range to export the contact lists:</p>
-                <div class="mt-4">
-                    <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
-                    <input type="text" id="start_date" name="start_date" placeholder="Select Start Date"
-                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
-                </div>
-                <div class="mt-4">
-                    <label for="end_date" class="block text-sm font-medium text-gray-700">End Date</label>
-                    <input type="text" id="end_date" name="end_date" placeholder="Select End Date"
-                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
-                </div>
-                <div class="mt-4">
-                    <a href="#" id="confirm-export"
-                        class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                        Confirm Export
-                    </a>
-                    <button type="button" class="ml-2 inline-flex items-center rounded-md border border-transparent bg-gray-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                        onclick="document.getElementById('export-modal').style.display='none';">Cancel</button>
+            <!-- Export Modal with Date Range Picker and Additional Filters -->
+            <div id="export-modal" class="fixed inset-0 z-10 flex items-center justify-center p-4" style="display:none;">
+                <div class="bg-white rounded-lg shadow-lg max-w-md mx-auto p-6">
+                    <h2 class="text-lg font-medium mb-4">Export Contact Lists</h2>
+                    <p>Select filters to export the contact lists:</p>
+
+                    <!-- Start Date -->
+                    <div class="mt-4">
+                        <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
+                        <input type="text" id="start_date" name="start_date" placeholder="Select Start Date"
+                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
+                    </div>
+
+                    <!-- End Date -->
+                    <div class="mt-4">
+                        <label for="end_date" class="block text-sm font-medium text-gray-700">End Date</label>
+                        <input type="text" id="end_date" name="end_date" placeholder="Select End Date"
+                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
+                    </div>
+
+                    <!-- Confirm and Cancel Buttons -->
+                    <div class="mt-4">
+                        <a href="#" id="confirm-export"
+                            class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" >
+                            Confirm Export
+                        </a>
+                        <button type="button" class="ml-2 inline-flex items-center rounded-md border border-transparent bg-gray-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                            onclick="document.getElementById('export-modal').style.display='none';">Cancel</button>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Export Button -->
-        <a href="{{ url('export-contact-lists') }}"
-            class="mt-4 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-            Export All Contact Lists
-        </a>
 
             <form action="{{ route('contactList.import') }}" method="POST" enctype="multipart/form-data">
                 @csrf <!-- CSRF token for security -->
-
-                <!-- Subfolder ID Input -->
-                <div>
-                    <label for="sub_folder_id">Select Subfolder:</label>
-                    <select name="sub_folder_id" id="sub_folder_id" required>
-                        <option value="">Select a subfolder</option>
-                        @foreach($subfolders as $subfolder)
-                            <option value="{{ $subfolder->id }}">{{ $subfolder->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
                 <!-- File Input -->
                 <div>
                     <label for="file">Upload File:</label>
@@ -116,7 +104,8 @@
                 </div>
 
                 <!-- Submit Button -->
-                <button type="submit">Import Contacts</button>
+                <button type="submit" class="ml-2 inline-flex items-center rounded-md border border-transparent bg-gray-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                    Import Contacts</button>
             </form>
 
 
@@ -127,32 +116,29 @@
             <table class="min-w-full bg-white">
                 <thead class="bg-gray-50">
                     <tr>
+                        <th><input type="checkbox" id="select-all"></th>
                         <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Sub
                             Folder</th>
                         <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                             Created By</th>
-                        <th
-                            class="hidden-column px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500" style="display: none;">
+                        <th class="hidden-column px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500" style="display: none;">
                             Status</th>
-                        <th
-                            class="hidden-column px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500" style="display: none;">
+                        <th class="hidden-column px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500" style="display: none;">
+                            Industry</th>
+                        <th class="hidden-column px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500" style="display: none;">
                             Company</th>
-                        <th
-                            class="hidden-column px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500" style="display: none;">
+                        <th class="hidden-column px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500" style="display: none;">
                             PIC</th>
-                        <th
-                            class="hidden-column px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500" style="display: none;">
+                        <th class="hidden-column px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500" style="display: none;">
                             Email</th>
                         <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                             Contact 1</th>
                         <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                             Contact 2</th>
                         <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                            Industry</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">City
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">State
-                        </th>
+                            City</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                            State</th>
                         <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                             Actions</th>
                     </tr>
@@ -160,15 +146,16 @@
                 <tbody class="divide-y divide-gray-200 bg-white">
                     @foreach ($contactLists as $contactList)
                         <tr>
+                            <td><input type="checkbox" class="contact-checkbox" value="{{ $contactList->id }}"></td>
                             <td class="whitespace-nowrap px-6 py-4" >{{ $contactList->subFolder->name }}</td>
                             <td class="whitespace-nowrap px-6 py-4">{{ $contactList->user->name }}</td>
                             <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">{{ $contactList->status }}</td>
+                            <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">{{ $contactList->industry }}</td>
                             <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">{{ $contactList->company }}</td>
                             <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">{{ $contactList->pic }}</td>
                             <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">{{ $contactList->email }}</td>
                             <td class="whitespace-nowrap px-6 py-4">{{ $contactList->contact1 }}</td>
                             <td class="whitespace-nowrap px-6 py-4">{{ $contactList->contact2 }}</td>
-                            <td class="whitespace-nowrap px-6 py-4">{{ $contactList->industry }}</td>
                             <td class="whitespace-nowrap px-6 py-4">{{ $contactList->city->name }}</td>
                             <td class="whitespace-nowrap px-6 py-4">{{ $contactList->state->name }}</td>
                             <td class="whitespace-nowrap px-6 py-4">
@@ -208,43 +195,99 @@
         <div class="mt-4">
             {{ $contactLists->links('pagination::tailwind') }}
         </div>
+        <div id="mass-edit-form-container" class="hidden p-4 bg-white rounded-lg shadow-md max-w-sm mx-auto">
+            <form id="mass-edit-form" method="POST" action="{{ route('contacts.mass_edit') }}">
+                @csrf
+                <input type="hidden" name="contact_ids" id="contact-ids">
+                <h1 class="center">Mass Edit Form</h1>
+
+                <div class="mb-4">
+                    <label for="status" class="block text-gray-700">Status:</label>
+                    <input type="text" name="status" id="status" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+                </div>
+                <div class="mb-4">
+                    <label for="company" class="block text-gray-700">Company:</label>
+                    <input type="text" name="company" id="company" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+                </div>
+                <div class="mb-4">
+                    <label for="industry" class="block text-gray-700">Industry:</label>
+                    <input type="text" name="industry" id="industry" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+                </div>
+                <div class="mb-4">
+                    <label for="state_id" class="block text-gray-700">State:</label>
+                    <select id="state1" name="state_id" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+                    <option value="">Select State</option>
+                    @foreach ($states as $state)
+                    <option value="{{ $state->id }}"
+                        {{ request('state_id') == $state->id ? 'selected' : '' }}>
+                        {{ $state->name }}</option>
+                    @endforeach
+                </select>
+                </div>
+                <div class="mb-4">
+                    <label for="city_id" class="block text-gray-700">City:</label>
+                    <select id="city1" name="city_id"
+                            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+                            <option value="">Select City</option>
+                            @foreach ($cities as $city)
+                            <option value="{{ $city->id }}" {{ request('city_id') == $city->id ? 'selected' : '' }}>
+                                {{ $city->name }}</option>
+                            @endforeach
+                        </select>
+                </div>
+                <!-- Add other fields as needed -->
+
+                <button type="submit" class="px-4 py-2 text-black bg-blue-600 rounded-lg hover:bg-blue-700">Mass Edit</button>
+            </form>
+        </div>
     </div>
+
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const stateSelect = document.getElementById('state');
-            const citySelect = document.getElementById('city');
-
-            stateSelect.addEventListener('change', function() {
-                const stateId = stateSelect.value;
-
-                // Reset city selection
-                citySelect.value = '';
-
-                // Fetch cities for selected state
-                if (stateId) {
-                    fetch(`/api/cities?state_id=${stateId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            // Clear existing options
-                            citySelect.innerHTML = '<option value="">Select City</option>';
-
-                            // Populate new options
-                            data.forEach(city => {
-                                const option = document.createElement('option');
-                                option.value = city.id;
-                                option.textContent = city.name;
-                                citySelect.appendChild(option);
-                            });
-                        })
-                        .catch(error => console.error('Error fetching cities:', error));
-                } else {
-                    // If no state is selected, reset city options
-                    citySelect.innerHTML = '<option value="">Select City</option>';
-                }
-            });
+            // Function to handle state change and populate cities
+            function handleStateChange(stateSelectId, citySelectId) {
+                const stateSelect = document.getElementById(stateSelectId);
+                const citySelect = document.getElementById(citySelectId);
+    
+                stateSelect.addEventListener('change', function() {
+                    const stateId = stateSelect.value;
+    
+                    // Reset city selection
+                    citySelect.value = '';
+    
+                    // Fetch cities for selected state
+                    if (stateId) {
+                        fetch(`/api/cities?state_id=${stateId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                // Clear existing options
+                                citySelect.innerHTML = '<option value="">Select City</option>';
+    
+                                // Populate new options
+                                data.forEach(city => {
+                                    const option = document.createElement('option');
+                                    option.value = city.id;
+                                    option.textContent = city.name;
+                                    citySelect.appendChild(option);
+                                });
+                            })
+                            .catch(error => console.error('Error fetching cities:', error));
+                    } else {
+                        // If no state is selected, reset city options
+                        citySelect.innerHTML = '<option value="">Select City</option>';
+                    }
+                });
+            }
+    
+            // Initialize the function for different state and city pairs
+            handleStateChange('state', 'city');
+            handleStateChange('state1', 'city1');
+            handleStateChange('state2', 'city2');
         });
     </script>
+    
     <script>
         document.getElementById('toggle-columns').addEventListener('click', function() {
             const columns = document.querySelectorAll('.hidden-column');
@@ -280,6 +323,15 @@
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Function to get URL parameters
+            function getQueryParam(name) {
+                const params = new URLSearchParams(window.location.search);
+                return params.get(name);
+            }
+
+            // Extract subFolderId from URL parameters
+            const subFolderId = getQueryParam('subFolder');
+
             flatpickr('#start_date', {
                 dateFormat: 'Y-m-d',
                 defaultDate: new Date(),
@@ -290,24 +342,70 @@
                 defaultDate: new Date(),
             });
 
-            // Show the modal when the export button is clicked
-            document.querySelector('[data-modal-target]').addEventListener('click', function() {
-                var modalTarget = document.querySelector(this.getAttribute('data-modal-target'));
-                if (modalTarget) {
-                    modalTarget.style.display = 'block';
-                }
-            });
-
             // Handle the export button click
             document.getElementById('confirm-export').addEventListener('click', function() {
-                var startDate = document.getElementById('start_date').value;
-                var endDate = document.getElementById('end_date').value;
+                const startDate = document.getElementById('start_date').value;
+                const endDate = document.getElementById('end_date').value;
+
                 if (startDate && endDate) {
-                    window.location.href = `/export-contact-lists?start_date=${startDate}&end_date=${endDate}`;
+                    window.location.href = `/export-contact-lists?start_date=${startDate}&end_date=${endDate}&subfolder_id=${subFolderId}`;
                 } else {
                     alert('Please select both start and end dates.');
                 }
             });
         });
+
     </script>
+       
+        <script>
+            // Function to handle checkbox changes and update the form
+            function updateFormVisibility() {
+                const selectedContacts = Array.from(document.querySelectorAll('.contact-checkbox:checked'));
+        
+                // Toggle the form visibility based on checkbox selection
+                if (selectedContacts.length > 0) {
+                    document.getElementById('mass-edit-form-container').classList.remove('hidden');
+                    // Update the hidden input with the selected contact IDs
+                    const contactIds = selectedContacts.map(cb => cb.value).join(',');
+                    document.getElementById('contact-ids').value = contactIds;
+                } else {
+                    document.getElementById('mass-edit-form-container').classList.add('hidden');
+                    document.getElementById('contact-ids').value = '';
+                }
+            }
+        
+            // Apply the updateFormVisibility function to each individual checkbox
+            document.querySelectorAll('.contact-checkbox').forEach(function(checkbox) {
+                checkbox.addEventListener('change', updateFormVisibility);
+            });
+        
+            // Apply the updateFormVisibility function to the select-all checkbox
+            document.getElementById('select-all').addEventListener('click', function() {
+                const isChecked = this.checked;
+                document.querySelectorAll('.contact-checkbox').forEach(function(checkbox) {
+                    checkbox.checked = isChecked;
+                });
+                // Update the form visibility and hidden input based on the select-all state
+                updateFormVisibility();
+            });
+        </script>
+       {{--  <script>
+            document.querySelectorAll('.contact-checkbox').forEach(function(checkbox) {
+                checkbox.addEventListener('change', function() {
+                    const selectedContacts = Array.from(document.querySelectorAll('.contact-checkbox:checked'));
+
+                    // Toggle the form visibility based on checkbox selection
+                    if (selectedContacts.length > 0) {
+                        document.getElementById('mass-edit-form-container').classList.remove('hidden');
+                        // Update the hidden input with the selected contact IDs
+                        const contactIds = selectedContacts.map(cb => cb.value).join(',');
+                        document.getElementById('contact-ids').value = contactIds;
+                    } else {
+                        document.getElementById('mass-edit-form-container').classList.add('hidden');
+                        document.getElementById('contact-ids').value = '';
+                    }
+                });
+            });
+        </script> --}}
+
 </x-app-layout>

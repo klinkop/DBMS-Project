@@ -55,6 +55,9 @@ Route::middleware('auth')->group(function () {
 
     // Extra Contact List route
     Route::get('/contact-list', [ContactListController::class, 'index'])->name('contactList.index');
+
+    Route::post('/contacts/mass_edit', [ContactListController::class, 'massEdit'])->name('contacts.mass_edit');
+
 });
 
 require __DIR__.'/auth.php';

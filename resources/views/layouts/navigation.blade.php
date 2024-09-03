@@ -22,7 +22,7 @@
                         {{ __('Sub Folder') }}
                     </x-nav-link>
                     <x-nav-link :href="route('contactList.index')" :active="request()->routeIs('contactList.index')">
-                        {{ __('Contact List') }}
+                        {{ __('All Contact List') }}
                     </x-nav-link>
                 </div>
             </div>
