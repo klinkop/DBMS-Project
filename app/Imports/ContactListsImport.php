@@ -5,7 +5,7 @@ namespace App\Imports;
 use App\Models\ContactList;
 use App\Models\State;
 use App\Models\City;
-use Illuminate\Support\Facades\Auth; // Import the Auth facade
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
@@ -27,7 +27,7 @@ class ContactListsImport implements ToModel, WithHeadingRow
             return null;
         }
 
-        // Check if the row contains headers or data directly
+        // Normalize headers to ensure correct detection
         if ($this->isHeaderRow($row)) {
             return null; // Ignore header row
         }
@@ -39,18 +39,18 @@ class ContactListsImport implements ToModel, WithHeadingRow
         $cityId = $this->getCityId($row['city'] ?? $row[8]); // Assuming city name is in column 8 if header is not available
 
         return new ContactList([
-            'user_id'         => $this->userId, // Use the authenticated user's ID
-            'sub_folder_id'   => $this->subFolderId,   // Use the passed subFolder ID
-            'name'            => $row['name'] ?? $row[0] ?? 'unknown', // Use column index if header is missing
+            'user_id'         => $this->userId,
+            'sub_folder_id'   => $this->subFolderId,
+            'name'            => $row['name'] ?? $row[0] ?? 'unknown',
             'status'          => $row['status'] ?? $row[1] ?? 'unknown',
             'company'         => $row['company'] ?? $row[2] ?? 'unknown',
             'pic'             => $row['pic'] ?? $row[3] ?? 'unknown',
             'email'           => $row['email'] ?? $row[4] ?? 'unknown',
-            'contact1'        => (string) ($row['contact1'] ?? $row[5] ?? 'unknown'), // Explicitly cast to string
-            'contact2'        => (string) ($row['contact2'] ?? $row[6] ?? 'unknown'), // Explicitly cast to string
+            'contact1'        => (string) ($row['contact1'] ?? $row[5] ?? 'unknown'),
+            'contact2'        => (string) ($row['contact2'] ?? $row[6] ?? 'unknown'),
             'industry'        => $row['industry'] ?? $row[7] ?? 'unknown',
-            'city_id'         => $cityId, // Use city ID
-            'state_id'        => $stateId, // Use state ID
+            'city_id'         => $cityId,
+            'state_id'        => $stateId,
         ]);
     }
 
@@ -62,17 +62,16 @@ class ContactListsImport implements ToModel, WithHeadingRow
      */
     protected function isHeaderRow(array $row): bool
     {
-        // Define expected header names
-        $headers = ['name', 'status', 'company', 'pic', 'email', 'contact1', 'contact2', 'industry', 'city', 'state'];
+        // Define expected header names in lowercase
+        $expectedHeaders = ['name', 'status', 'company', 'pic', 'email', 'contact1', 'contact2', 'industry', 'city', 'state'];
 
-        // Check if row contains any of the expected headers
-        foreach ($headers as $header) {
-            if (in_array($header, array_map('strtolower', array_keys($row)))) {
-                return true;
-            }
-        }
+        // Normalize and convert row keys to lowercase
+        $rowKeys = array_map(function ($key) {
+            return strtolower(trim($key));
+        }, array_keys($row));
 
-        return false;
+        // Check if any of the normalized keys match the expected headers
+        return !empty(array_intersect($expectedHeaders, $rowKeys));
     }
 
     /**
@@ -84,7 +83,7 @@ class ContactListsImport implements ToModel, WithHeadingRow
     protected function getStateId($stateName)
     {
         $stateId = State::where('name', $stateName)->pluck('id')->first();
-        return $stateId ? $stateId : 999; // Default to 999 if not found
+        return $stateId ? $stateId : 999;
     }
 
     /**
@@ -96,6 +95,6 @@ class ContactListsImport implements ToModel, WithHeadingRow
     protected function getCityId($cityName)
     {
         $cityId = City::where('name', $cityName)->pluck('id')->first();
-        return $cityId ? $cityId : 999; // Default to 999 if not found
+        return $cityId ? $cityId : 999;
     }
 }
