@@ -213,22 +213,20 @@ class ContactListController extends Controller
 
 
 
-    public function import(Request $request)
+     public function import(Request $request)
     {
-        // Validate the uploaded file and subfolder ID
+        // Validate the request to ensure the subFolder ID is present and valid
         $request->validate([
-            'file' => 'required|mimes:xlsx,csv',
-            'sub_folder_id' => 'sometimes|exists:sub_folders,id',
+            'subFolder' => 'required|exists:sub_folders,id', // Ensure subFolder exists
+            'file' => 'required|file|mimes:xlsx,csv', // Validate file input
         ]);
 
-        // Retrieve the subfolder ID from the request
-        $subFolderId = $request->input('sub_folder_id', 1);
+        $subFolderId = $request->input('subFolder'); // Get subFolder ID from request
 
-        // Perform the import
-        Excel::import(new ContactListsImport(auth()->id(), $subFolderId), $request->file('file'));
+        // Pass the subFolder ID to the import class
+        Excel::import(new ContactListsImport($subFolderId), $request->file('file'));
 
-        // Redirect or return a response as needed
-        return redirect()->back()->with('success', 'Contacts imported successfully!');
+        return redirect()->back()->with('success', 'Contacts imported successfully.');
     }
 
     public function massEdit(Request $request)
