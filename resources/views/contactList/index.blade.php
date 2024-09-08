@@ -94,6 +94,7 @@
 
             <form action="{{ route('contactList.import') }}" method="POST" enctype="multipart/form-data">
                 @csrf <!-- CSRF token for security -->
+                <input type="hidden" name="subFolder" value="{{ $subFolderId }}"> <!-- Hidden input for subFolder ID -->
                 <!-- File Input -->
                 <div>
                     <label for="file">Upload File:</label>
