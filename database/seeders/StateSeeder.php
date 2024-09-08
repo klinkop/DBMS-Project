@@ -35,5 +35,11 @@ class StateSeeder extends Seeder
         foreach ($states as $state) {
             State::create($state);
         }
+        // Insert the 'oth' state with ID 999
+        State::insert([
+            'id' => 999,
+            'name' => 'oth',
+            'abbreviation' => 'OTH',
+        ]);
     }
 }
