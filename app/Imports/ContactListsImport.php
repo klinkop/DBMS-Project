@@ -1,57 +1,72 @@
 <?php
 
-namespace App\Imports;
+namespace App\Exports;
 
-use App\Models\City;
-use App\Models\State;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 use App\Models\ContactList;
-use Maatwebsite\Excel\Concerns\ToModel;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Illuminate\Support\Facades\Auth;
 
-class ContactListsImport implements ToModel, WithHeadingRow
+class ContactListsExport implements FromCollection, WithHeadings
 {
+    protected $startDate;
+    protected $endDate;
     protected $subFolderId;
 
-    // Constructor to accept the subFolder ID
-    public function __construct($subFolderId)
+    public function __construct($startDate, $endDate, $subFolderId)
     {
+        $this->startDate = $startDate;
+        $this->endDate = $endDate;
         $this->subFolderId = $subFolderId;
     }
- 
-    /**
-    * @param array $row
-    *
-    * @return \Illuminate\Database\Eloquent\Model|null
-    */
-    public function model(array $row)
+
+    public function collection()
     {
-        // Use column headers from the file
-        $contact1 = isset($row['contact1']) ? (string) $row['contact1'] : '';
-        $contact2 = isset($row['contact2']) ? (string) $row['contact2'] : '';
-        $name = isset($row['name']) ? (string) $row['name'] : '';
-        $status = isset($row['status']) ? (string) $row['status'] : '';
-        $company = isset($row['company']) ? (string) $row['company'] : '';
-        $pic = isset($row['pic']) ? (string) $row['pic'] : '';
-        $email = isset($row['email']) ? (string) $row['email'] : '';
-        $industry = isset($row['industry']) ? (string) $row['industry'] : '';
+        // Get the ID of the currently authenticated user
+        $userId = Auth::id();
 
-        // Look up city and state by name
-        $city = isset($row['city']) ? City::where('name', $row['city'])->first() : null;
-        $state = isset($row['state']) ? State::where('name', $row['state'])->first() : null;
+        // Filter the contact lists based on date range and user ID
+        $contactListsQuery = ContactList::with('city', 'state')
+            ->where('user_id', $userId); // Add filter for user ID
 
-        return new ContactList([
-            'user_id'      => auth()->id(),
-            'sub_folder_id' => $this->subFolderId, // Use the passed subfolder ID
-            'name'         => $name,
-            'status'       => $status,
-            'company'      => $company,
-            'pic'          => $pic,
-            'email'        => $email,
-            'contact1'     => $contact1,
-            'contact2'     => $contact2,
-            'industry'     => $industry,
-            'city_id'      => $city ? $city->id : 999,
-            'state_id'     => $state ? $state->id : 999,
-        ]);
+        if ($this->subFolderId) {
+            $contactListsQuery->where('sub_folder_id', $this->subFolderId); // Filter by subFolderId
+        }
+
+        if ($this->startDate && $this->endDate) {
+            $contactListsQuery->whereBetween('created_at', [$this->startDate, $this->endDate]);
+        }
+
+        return $contactListsQuery->get()->map(function ($contactList) {
+            return [
+                'name'          => $contactList->name,
+                'status'        => $contactList->status,
+                'company'       => $contactList->company,
+                'pic'           => $contactList->pic,
+                'email'         => $contactList->email,
+                'contact1'      => $contactList->contact1,
+                'contact2'      => $contactList->contact2,
+                'industry'      => $contactList->industry,
+                'city'          => $contactList->city ? $contactList->city->name : 'Unknown',
+                'state'         => $contactList->state ? $contactList->state->name : 'Unknown',
+            ];
+        });
+    }
+
+    public function headings(): array
+    {
+        return [
+            'Name',
+            'Status',
+            'Company',
+            'PIC',
+            'Email',
+            'Contact 1',
+            'Contact 2',
+            'Industry',
+            'City',
+            'State',
+        ];
     }
 }
+
