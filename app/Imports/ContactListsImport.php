@@ -1,72 +1,101 @@
 <?php
 
-namespace App\Exports;
+namespace App\Imports;
 
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
 use App\Models\ContactList;
-use Illuminate\Support\Facades\Auth;
+use App\Models\State;
+use App\Models\City;
+use Illuminate\Support\Facades\Auth; // Import the Auth facade
+use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
-class ContactListsExport implements FromCollection, WithHeadings
+class ContactListsImport implements ToModel, WithHeadingRow
 {
-    protected $startDate;
-    protected $endDate;
     protected $subFolderId;
+    protected $userId;
 
-    public function __construct($startDate, $endDate, $subFolderId)
+    public function __construct($subFolderId)
     {
-        $this->startDate = $startDate;
-        $this->endDate = $endDate;
         $this->subFolderId = $subFolderId;
+        $this->userId = Auth::id(); // Get the authenticated user's ID
     }
 
-    public function collection()
+    public function model(array $row)
     {
-        // Get the ID of the currently authenticated user
-        $userId = Auth::id();
-
-        // Filter the contact lists based on date range and user ID
-        $contactListsQuery = ContactList::with('city', 'state')
-            ->where('user_id', $userId); // Add filter for user ID
-
-        if ($this->subFolderId) {
-            $contactListsQuery->where('sub_folder_id', $this->subFolderId); // Filter by subFolderId
+        // Skip processing if row is empty
+        if (empty(array_filter($row))) {
+            return null;
         }
 
-        if ($this->startDate && $this->endDate) {
-            $contactListsQuery->whereBetween('created_at', [$this->startDate, $this->endDate]);
+        // Check if the row contains headers or data directly
+        if ($this->isHeaderRow($row)) {
+            return null; // Ignore header row
         }
 
-        return $contactListsQuery->get()->map(function ($contactList) {
-            return [
-                'name'          => $contactList->name,
-                'status'        => $contactList->status,
-                'company'       => $contactList->company,
-                'pic'           => $contactList->pic,
-                'email'         => $contactList->email,
-                'contact1'      => $contactList->contact1,
-                'contact2'      => $contactList->contact2,
-                'industry'      => $contactList->industry,
-                'city'          => $contactList->city ? $contactList->city->name : 'Unknown',
-                'state'         => $contactList->state ? $contactList->state->name : 'Unknown',
-            ];
-        });
+        // Get state ID based on state name or column index
+        $stateId = $this->getStateId($row['state'] ?? $row[9]); // Assuming state name is in column 9 if header is not available
+
+        // Get city ID based on city name or column index
+        $cityId = $this->getCityId($row['city'] ?? $row[8]); // Assuming city name is in column 8 if header is not available
+
+        return new ContactList([
+            'user_id'         => $this->userId, // Use the authenticated user's ID
+            'sub_folder_id'   => $this->subFolderId,   // Use the passed subFolder ID
+            'name'            => $row['name'] ?? $row[0] ?? 'unknown', // Use column index if header is missing
+            'status'          => $row['status'] ?? $row[1] ?? 'unknown',
+            'company'         => $row['company'] ?? $row[2] ?? 'unknown',
+            'pic'             => $row['pic'] ?? $row[3] ?? 'unknown',
+            'email'           => $row['email'] ?? $row[4] ?? 'unknown',
+            'contact1'        => (string) ($row['contact1'] ?? $row[5] ?? 'unknown'), // Explicitly cast to string
+            'contact2'        => (string) ($row['contact2'] ?? $row[6] ?? 'unknown'), // Explicitly cast to string
+            'industry'        => $row['industry'] ?? $row[7] ?? 'unknown',
+            'city_id'         => $cityId, // Use city ID
+            'state_id'        => $stateId, // Use state ID
+        ]);
     }
 
-    public function headings(): array
+    /**
+     * Determine if the row contains headers based on the column names.
+     *
+     * @param array $row
+     * @return bool
+     */
+    protected function isHeaderRow(array $row): bool
     {
-        return [
-            'Name',
-            'Status',
-            'Company',
-            'PIC',
-            'Email',
-            'Contact 1',
-            'Contact 2',
-            'Industry',
-            'City',
-            'State',
-        ];
+        // Define expected header names
+        $headers = ['name', 'status', 'company', 'pic', 'email', 'contact1', 'contact2', 'industry', 'city', 'state'];
+
+        // Check if row contains any of the expected headers
+        foreach ($headers as $header) {
+            if (in_array($header, array_map('strtolower', array_keys($row)))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Get the ID of the state based on its name or return 999 if not found.
+     *
+     * @param string $stateName
+     * @return int
+     */
+    protected function getStateId($stateName)
+    {
+        $stateId = State::where('name', $stateName)->pluck('id')->first();
+        return $stateId ? $stateId : 999; // Default to 999 if not found
+    }
+
+    /**
+     * Get the ID of the city based on its name or return 999 if not found.
+     *
+     * @param string $cityName
+     * @return int
+     */
+    protected function getCityId($cityName)
+    {
+        $cityId = City::where('name', $cityName)->pluck('id')->first();
+        return $cityId ? $cityId : 999; // Default to 999 if not found
     }
 }
-
