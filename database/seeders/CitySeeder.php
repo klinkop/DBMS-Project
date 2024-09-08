@@ -295,7 +295,8 @@ class CitySeeder extends Seeder
             ['name' => 'Labuan', 'state_id' => 15],
 
             // Putrajaya cities
-            ['name' => 'Putrajaya', 'state_id' => 16]
+            ['name' => 'Putrajaya', 'state_id' => 16],
+            ['name' => 'other', 'state_id' => 999]
         ];
 
         foreach ($cities as $city){
