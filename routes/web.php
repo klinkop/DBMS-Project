@@ -10,7 +10,7 @@ use App\Http\Controllers\ParentFolderController;
 use App\Http\Controllers\CityController;
 
 Route::get('/', function () {
-    return view('dashboard');
+    return redirect()->route('parentFolder.index');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
