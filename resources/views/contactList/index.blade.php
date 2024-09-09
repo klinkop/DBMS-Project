@@ -1,5 +1,9 @@
 <x-app-layout>
-
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Sub Folder') }}
+        </h2>
+    </x-slot>
     <div class="mx-auto p-4 sm:p-6 lg:p-8 w-full max-w-full md:max-w-3xl lg:max-w-5xl xl:max-w-7xl">
         {{-- <a href="{{ route('contactList.create') }}"
             class="inline-flex items-center px-4 py-2 mt-4 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
