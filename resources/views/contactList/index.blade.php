@@ -12,6 +12,8 @@
 
         {{-- Add Search Form --}}
         <form action="{{ route('contactList.index') }}" method="get" class="mt-4 space-y-4">
+            <!-- Hidden input for subFolder_id -->
+            <input type="hidden" name="subFolder" value="{{ $subFolderId }}">
             <!-- Search Bar -->
             <div>
                 <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
@@ -194,7 +196,13 @@
             </button>
         </div>
         <div class="mt-4">
-            {{ $contactLists->links('pagination::tailwind') }}
+            {{ $contactLists->appends([
+                'subFolder' => request()->query('subFolder'),
+                'search' => request()->query('search'),
+                'state_id' => request()->query('state_id'),
+                'city_id' => request()->query('city_id'),
+                'industry' => request()->query('industry')
+            ])->links('pagination::tailwind') }}
         </div>
         <div id="mass-edit-form-container" class="hidden p-4 bg-white rounded-lg shadow-md max-w-sm mx-auto">
             <form id="mass-edit-form" method="POST" action="{{ route('contacts.mass_edit') }}">
