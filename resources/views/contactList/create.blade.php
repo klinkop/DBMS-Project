@@ -23,17 +23,38 @@
             </div> --}}
 
             <div class="mb-4">
-                <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
-                <input id="status" type="text" name="status"
+                <label for="status_id" class="block text-sm font-medium text-gray-700">Status</label>
+                <select id="status_id" name="status_id"
                     class="block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm">
-                <x-input-error :messages="$errors->get('status')" class="mt-2" />
+                    <option value="">-- Select Status --</option>
+                    @foreach ($statuses as $status)
+                        @if (!empty($status) && isset($status->id))
+                            <option value="{{ $status->id }}">{{ $status->name }}</option>
+                        @endif
+                    @endforeach
+                </select>
+                <x-input-error :messages="$errors->get('status_id')" class="mt-2" />
             </div>
 
             <div class="mb-4">
-                <label for="pic" class="block text-sm font-medium text-gray-700">PIC</label>
-                <input id="pic" type="text" name="pic"
+                <label for="type_id" class="block text-sm font-medium text-gray-700">Type</label>
+                <select id="type_id" name="type_id"
                     class="block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm">
-                <x-input-error :messages="$errors->get('pic')" class="mt-2" />
+                    <option value="">-- Select Type --</option>
+                    @foreach ($types as $type)
+                        @if (!empty($type) && isset($type->id))
+                            <option value="{{ $type->id }}">{{ $type->name }}</option>
+                        @endif
+                    @endforeach
+                </select>
+                <x-input-error :messages="$errors->get('type_id')" class="mt-2" />
+            </div>
+
+            <div class="mb-4">
+                <label for="industry" class="block text-sm font-medium text-gray-700">Industry</label>
+                <input id="industry" type="text" name="industry"
+                    class="block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm">
+                <x-input-error :messages="$errors->get('industry')" class="mt-2" />
             </div>
 
             <div class="mb-4">
@@ -41,6 +62,20 @@
                 <input id="company" type="text" name="company"
                     class="block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm">
                 <x-input-error :messages="$errors->get('company')" class="mt-2" />
+            </div>
+
+            <div class="mb-4">
+                <label for="product" class="block text-sm font-medium text-gray-700">Product</label>
+                <input id="product" type="text" name="product"
+                    class="block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm">
+                <x-input-error :messages="$errors->get('product')" class="mt-2" />
+            </div>
+
+            <div class="mb-4">
+                <label for="pic" class="block text-sm font-medium text-gray-700">PIC</label>
+                <input id="pic" type="text" name="pic"
+                    class="block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm">
+                <x-input-error :messages="$errors->get('pic')" class="mt-2" />
             </div>
 
             <div class="mb-4">
@@ -65,10 +100,10 @@
             </div>
 
             <div class="mb-4">
-                <label for="industry" class="block text-sm font-medium text-gray-700">Industry</label>
-                <input id="industry" type="text" name="industry"
+                <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
+                <input id="address" type="text" name="address"
                     class="block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm">
-                <x-input-error :messages="$errors->get('industry')" class="mt-2" />
+                <x-input-error :messages="$errors->get('address')" class="mt-2" />
             </div>
 
             <div class="mb-4">
@@ -93,6 +128,13 @@
                     <option value="">-- Select a City --</option>
                 </select>
                 <x-input-error :messages="$errors->get('city_id')" class="mt-2" />
+            </div>
+
+            <div class="mb-4">
+                <label for="remarks" class="block text-sm font-medium text-gray-700">Remarks</label>
+                <input id="remarks" type="text" name="remarks"
+                    class="block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm">
+                <x-input-error :messages="$errors->get('remarks')" class="mt-2" />
             </div>
 
             {{-- hidden input: subFolder id --}}
