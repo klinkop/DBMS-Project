@@ -120,28 +120,43 @@
                 <thead class="bg-gray-50">
                     <tr>
                         <th><input type="checkbox" id="select-all"></th>
-                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Sub
+                        <th class="hidden-column px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                            style="display: none;">Sub
                             Folder</th>
                         <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                             Created By</th>
-                        <th class="hidden-column px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500" style="display: none;">
+                        <th class="hidden-column px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                            style="display: none;">
                             Status</th>
-                        <th class="hidden-column px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500" style="display: none;">
+                        <th class="hidden-column px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                            style="display: none;">
+                            Type</th>
+                        <th class="hidden-column px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                            style="display: none;">
                             Industry</th>
-                        <th class="hidden-column px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500" style="display: none;">
+                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                             Company</th>
-                        <th class="hidden-column px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500" style="display: none;">
+                        <th class="hidden-column px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                            style="display: none;">
+                            Product</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                             PIC</th>
-                        <th class="hidden-column px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500" style="display: none;">
+                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                             Email</th>
                         <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                             Contact 1</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                        <th class="hidden-column px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                            style="display: none;">
                             Contact 2</th>
+                        <th class="hidden-column px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                            style="display: none;">
+                            Address</th>
                         <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                             City</th>
                         <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                             State</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                            Remarks</th>
                         <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                             Actions</th>
                     </tr>
@@ -150,41 +165,56 @@
                     @foreach ($contactLists as $contactList)
                         <tr>
                             <td><input type="checkbox" class="contact-checkbox" value="{{ $contactList->id }}"></td>
-                            <td class="whitespace-nowrap px-6 py-4" >{{ $contactList->subFolder->name }}</td>
+                            <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">
+                                {{ $contactList->subFolder->name }}</td>
                             <td class="whitespace-nowrap px-6 py-4">{{ $contactList->user->name }}</td>
-                            <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">{{ $contactList->status }}</td>
-                            <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">{{ $contactList->industry }}</td>
-                            <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">{{ $contactList->company }}</td>
-                            <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">{{ $contactList->pic }}</td>
-                            <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">{{ $contactList->email }}</td>
+                            <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">
+                                {{ $contactList->status->name }}</td>
+                            <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">
+                                {{ $contactList->type->name }}</td>
+                            <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">
+                                {{ $contactList->industry }}</td>
+                            <td class="whitespace-nowrap px-6 py-4">{{ $contactList->company }}</td>
+                            <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">
+                                {{ $contactList->product }}</td>
+                            <td class="whitespace-nowrap px-6 py-4">{{ $contactList->pic }}</td>
+                            <td class="whitespace-nowrap px-6 py-4">{{ $contactList->email }}</td>
                             <td class="whitespace-nowrap px-6 py-4">{{ $contactList->contact1 }}</td>
-                            <td class="whitespace-nowrap px-6 py-4">{{ $contactList->contact2 }}</td>
+                            <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">
+                                {{ $contactList->contact2 }}</td>
+                            <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">
+                                {{ $contactList->address }}</td>
                             <td class="whitespace-nowrap px-6 py-4">{{ $contactList->city->name }}</td>
                             <td class="whitespace-nowrap px-6 py-4">{{ $contactList->state->name }}</td>
+                            <td class="whitespace-nowrap px-6 py-4">{{ $contactList->remarks }}</td>
                             <td class="whitespace-nowrap px-6 py-4">
                                 @if ($contactList->user->is(auth()->user()))
-                                <x-dropdown>
-                                    <x-slot name="trigger">
-                                        <button>
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                                                <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
-                                            </svg>
-                                        </button>
-                                    </x-slot>
-                                    <x-slot name="content">
-                                        <x-dropdown-link :href="route('contactList.edit', $contactList)">
-                                            {{ __('Edit') }}
-                                        </x-dropdown-link>
-                                        <form method="POST" action="{{ route('contactList.destroy', $contactList) }}">
-                                            @csrf
-                                            @method('delete')
-                                            <x-dropdown-link :href="route('contactList.destroy', $contactList)" onclick="event.preventDefault(); this.closest('form').submit();">
-                                                {{ __('Delete') }}
+                                    <x-dropdown>
+                                        <x-slot name="trigger">
+                                            <button>
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400"
+                                                    viewBox="0 0 20 20" fill="currentColor">
+                                                    <path
+                                                        d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
+                                                </svg>
+                                            </button>
+                                        </x-slot>
+                                        <x-slot name="content">
+                                            <x-dropdown-link :href="route('contactList.edit', $contactList)">
+                                                {{ __('Edit') }}
                                             </x-dropdown-link>
-                                        </form>
-                                    </x-slot>
-                                </x-dropdown>
-                            @endif
+                                            <form method="POST"
+                                                action="{{ route('contactList.destroy', $contactList) }}">
+                                                @csrf
+                                                @method('delete')
+                                                <x-dropdown-link :href="route('contactList.destroy', $contactList)"
+                                                    onclick="event.preventDefault(); this.closest('form').submit();">
+                                                    {{ __('Delete') }}
+                                                </x-dropdown-link>
+                                            </form>
+                                        </x-slot>
+                                    </x-dropdown>
+                                @endif
                             </td>
                         </tr>
                     @endforeach
@@ -211,38 +241,48 @@
                 <h1 class="center">Mass Edit Form</h1>
 
                 <div class="mb-4">
-                    <label for="status" class="block text-gray-700">Status:</label>
-                    <input type="text" name="status" id="status" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
-                </div>
-                <div class="mb-4">
                     <label for="company" class="block text-gray-700">Company:</label>
-                    <input type="text" name="company" id="company" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+                    <input type="text" name="company" id="company"
+                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
                 </div>
                 <div class="mb-4">
                     <label for="industry" class="block text-gray-700">Industry:</label>
-                    <input type="text" name="industry" id="industry" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+                    <input type="text" name="industry" id="industry"
+                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+                </div>
+                <div class="mb-4">
+                    <label for="product" class="block text-gray-700">Product:</label>
+                    <input type="text" name="product" id="product"
+                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+                </div>
+                <div class="mb-4">
+                    <label for="address" class="block text-gray-700">Address:</label>
+                    <input type="text" name="address" id="address"
+                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
                 </div>
                 <div class="mb-4">
                     <label for="state_id" class="block text-gray-700">State:</label>
-                    <select id="state1" name="state_id" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
-                    <option value="">Select State</option>
-                    @foreach ($states as $state)
-                    <option value="{{ $state->id }}"
-                        {{ request('state_id') == $state->id ? 'selected' : '' }}>
-                        {{ $state->name }}</option>
-                    @endforeach
-                </select>
+                    <select id="state1" name="state_id"
+                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+                        <option value="">Select State</option>
+                        @foreach ($states as $state)
+                            <option value="{{ $state->id }}"
+                                {{ request('state_id') == $state->id ? 'selected' : '' }}>
+                                {{ $state->name }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="mb-4">
                     <label for="city_id" class="block text-gray-700">City:</label>
                     <select id="city1" name="city_id"
-                            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
-                            <option value="">Select City</option>
-                            @foreach ($cities as $city)
-                            <option value="{{ $city->id }}" {{ request('city_id') == $city->id ? 'selected' : '' }}>
+                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+                        <option value="">Select City</option>
+                        @foreach ($cities as $city)
+                            <option value="{{ $city->id }}"
+                                {{ request('city_id') == $city->id ? 'selected' : '' }}>
                                 {{ $city->name }}</option>
-                            @endforeach
-                        </select>
+                        @endforeach
+                    </select>
                 </div>
                 <!-- Add other fields as needed -->
 
