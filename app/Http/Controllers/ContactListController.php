@@ -74,11 +74,13 @@ class ContactListController extends Controller
     $contactLists = $query->latest()->paginate(10);
 
     // Get states and cities for the dropdowns
+    $statuses = Status::all();
+    $types = Type::all();
     $states = State::all();
     $cities = $stateId ? City::where('state_id', $stateId)->get() : collect();
 
     // Return the view with the required data
-    return view('contactList.index', compact('contactLists', 'subFolders', 'states', 'cities', 'subFolderId'));
+    return view('contactList.index', compact('contactLists', 'subFolders', 'statuses', 'types', 'states', 'cities', 'subFolderId'));
 }
 
     /**
@@ -86,10 +88,14 @@ class ContactListController extends Controller
      */
     public function create(SubFolder $subFolder)
     {
+        $statuses = Status::all();
+        $types = Type::all();
         $states = State::all();
         $cities = City::all();
 
         return view('contactList.create', [
+            'statuses' => $statuses,
+            'types' => $types,
             'states' => $states,
             'cities' => $cities,
             'subFolder' => $subFolder,
@@ -104,15 +110,19 @@ class ContactListController extends Controller
     $validated = $request->validate([
         'name' => 'nullable|string|max:255',
         'sub_folder_id' => 'nullable|integer|exists:sub_folders,id',
-        'status' => 'nullable|string|max:255',
+        'status_id' => 'nullable|integer|exists:statuses,id',
+        'type_id' => 'nullable|integer|exists:types,id',
+        'industry' => 'nullable|string|max:255',
         'company' => 'nullable|string|max:255',
+        'product' => 'nullable|string|max:255',
         'pic' => 'nullable|string|max:255',
         'email' => 'nullable|string|email|max:255',
         'contact1' => 'nullable|string|max:20',
         'contact2' => 'nullable|string|max:20',
-        'industry' => 'nullable|string|max:255',
+        'address' => 'nullable|string|max:255',
         'city_id' => 'nullable|integer|exists:cities,id',
         'state_id' => 'nullable|integer|exists:states,id',
+        'remarks' => 'nullable|string|max:1000',
     ]);
 
     $contactList = new ContactList();
@@ -121,15 +131,19 @@ class ContactListController extends Controller
 
     // Set default values for required fields if they are not provided
     $contactList->sub_folder_id = $validated['sub_folder_id'] ?? null;
-    $contactList->status = $validated['status'] ?? '';
-    $contactList->company = $validated['company'] ?? '';
-    $contactList->pic = $validated['pic'] ?? '';
-    $contactList->email = $validated['email'] ?? '';
-    $contactList->contact1 = $validated['contact1'] ?? '';
-    $contactList->contact2 = $validated['contact2'] ?? '';
-    $contactList->industry = $validated['industry'] ?? '';
+    $contactList->status_id = $validated['status_id'] ?? null;
+    $contactList->type_id = $validated['type_id'] ?? null;
+    $contactList->industry = $validated['industry'] ?? null;
+    $contactList->company = $validated['company'] ?? null;
+    $contactList->product = $validated['product'] ?? null;
+    $contactList->pic = $validated['pic'] ?? null;
+    $contactList->email = $validated['email'] ?? null;
+    $contactList->contact1 = $validated['contact1'] ?? null;
+    $contactList->contact2 = $validated['contact2'] ?? null;
+    $contactList->address = $validated['address'] ?? null;
     $contactList->city_id = $validated['city_id'] ?? 999;
     $contactList->state_id = $validated['state_id'] ?? 999;
+    $contactList->remarks = $validated['remarks'] ?? null;
 
     $contactList->save();
 
@@ -150,12 +164,16 @@ class ContactListController extends Controller
      */
     public function edit(ContactList $contactList): View
     {
+        $statuses = Status::all();
+        $types = Type::all();
         $states = State::all();
         $cities = City::all();
 
         Gate::authorize('update', $contactList);
 
         return view('contactList.edit', [
+            'statuses' => $statuses,
+            'types' => $types,
             'states' => $states,
             'cities' => $cities,
             'contactList' => $contactList,
