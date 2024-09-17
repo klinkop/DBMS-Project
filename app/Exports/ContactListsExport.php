@@ -40,15 +40,19 @@ class ContactListsExport implements FromCollection, WithHeadings
         return $contactListsQuery->get()->map(function ($contactList) {
             return [
                 'name'          => $contactList->name,
-                'status'        => $contactList->status,
+                'status'     => $contactList->status ? $contactList->status->name : '-',
+                'type'       => $contactList->type ? $contactList->type->name : '-',
+                'industry'      => $contactList->industry,
                 'company'       => $contactList->company,
+                'product'       => $contactList->product,
                 'pic'           => $contactList->pic,
                 'email'         => $contactList->email,
                 'contact1'      => $contactList->contact1,
                 'contact2'      => $contactList->contact2,
-                'industry'      => $contactList->industry,
-                'city'          => $contactList->city ? $contactList->city->name : 'Unknown',
-                'state'         => $contactList->state ? $contactList->state->name : 'Unknown',
+                'address'      => $contactList->address,
+                'city'          => $contactList->city ? $contactList->city->name : '-',
+                'state'         => $contactList->state ? $contactList->state->name : '-',
+                'remarks'      => $contactList->remarks,
             ];
         });
     }
@@ -58,14 +62,18 @@ class ContactListsExport implements FromCollection, WithHeadings
         return [
             'Name',
             'Status',
+            'Type',
+            'Industry',
             'Company',
+            'Product',
             'PIC',
             'Email',
             'Contact 1',
             'Contact 2',
-            'Industry',
+            'Address',
             'City',
             'State',
+            'Remarks'
         ];
     }
 }
