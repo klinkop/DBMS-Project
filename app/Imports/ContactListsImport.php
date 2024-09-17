@@ -5,6 +5,8 @@ namespace App\Imports;
 use App\Models\ContactList;
 use App\Models\State;
 use App\Models\City;
+use App\Models\Status;
+use App\Models\Type;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -32,25 +34,35 @@ class ContactListsImport implements ToModel, WithHeadingRow
             return null; // Ignore header row
         }
 
+        // Get status ID based on state name or column index
+        $statusId = $this->getStatusId($row['status'] ?? $row[1]);
+
+        // Get type ID based on state name or column index
+        $typeId = $this->getTypeId($row['type'] ?? $row[2]);
+
         // Get state ID based on state name or column index
-        $stateId = $this->getStateId($row['state'] ?? $row[9]); // Assuming state name is in column 9 if header is not available
+        $stateId = $this->getStateId($row['state'] ?? $row[11]);
 
         // Get city ID based on city name or column index
-        $cityId = $this->getCityId($row['city'] ?? $row[8]); // Assuming city name is in column 8 if header is not available
+        $cityId = $this->getCityId($row['city'] ?? $row[12]);
 
         return new ContactList([
             'user_id'         => $this->userId,
             'sub_folder_id'   => $this->subFolderId,
-            'name'            => $row['name'] ?? $row[0] ?? 'unknown',
-            'status'          => $row['status'] ?? $row[1] ?? 'unknown',
-            'company'         => $row['company'] ?? $row[2] ?? 'unknown',
-            'pic'             => $row['pic'] ?? $row[3] ?? 'unknown',
-            'email'           => $row['email'] ?? $row[4] ?? 'unknown',
-            'contact1'        => (string) ($row['contact1'] ?? $row[5] ?? 'unknown'),
-            'contact2'        => (string) ($row['contact2'] ?? $row[6] ?? 'unknown'),
-            'industry'        => $row['industry'] ?? $row[7] ?? 'unknown',
+            'name'            => $row['name'] ?? $row[0] ?? '-',
+            'status_id'       => $statusId,
+            'type_id'         => $typeId,
+            'industry'        => $row['industry'] ?? $row[3] ?? '-',
+            'company'         => $row['company'] ?? $row[4] ?? '-',
+            'product'         => $row['product'] ?? $row[5] ?? '-',
+            'pic'             => $row['pic'] ?? $row[6] ?? '-',
+            'email'           => $row['email'] ?? $row[7] ?? '-',
+            'contact1'        => isset($row['contact1']) ? (is_string($row['contact1']) ? $row['contact1'] : (string) $row['contact1']) : '-',
+            'contact2'        => isset($row['contact2']) ? (is_string($row['contact2']) ? $row['contact2'] : (string) $row['contact2']) : '-',
+            'address'         => $row['address'] ?? $row[10] ?? '-',
             'city_id'         => $cityId,
             'state_id'        => $stateId,
+            'remarks'         => $row['remarks'] ?? $row[13] ?? '-',
         ]);
     }
 
@@ -63,7 +75,7 @@ class ContactListsImport implements ToModel, WithHeadingRow
     protected function isHeaderRow(array $row): bool
     {
         // Define expected header names in lowercase
-        $expectedHeaders = ['name', 'status', 'company', 'pic', 'email', 'contact1', 'contact2', 'industry', 'city', 'state'];
+        $expectedHeaders = ['Name', 'Status', 'Type', 'Industry', 'Company', 'Product', 'PIC', 'Email', 'Contact 1', 'Contact 2', 'Address', 'Industry', 'City', 'State', 'Remarks'];
 
         // Normalize and convert row keys to lowercase
         $rowKeys = array_map(function ($key) {
@@ -97,4 +109,17 @@ class ContactListsImport implements ToModel, WithHeadingRow
         $cityId = City::where('name', $cityName)->pluck('id')->first();
         return $cityId ? $cityId : 999;
     }
+
+    protected function getStatusId($statusName)
+    {
+        $statusId = Status::where('name', $statusName)->pluck('id')->first();
+        return $statusId ? $statusId :  1;
+    }
+
+    protected function getTypeId($typeName)
+    {
+        $typeId = Type::where('name', $typeName)->pluck('id')->first();
+        return $typeId ? $typeId : 1;
+    }
 }
+
