@@ -15,12 +15,12 @@
             <!-- Hidden input for subFolder_id -->
             <input type="hidden" name="subFolder" value="{{ $subFolderId }}">
             <!-- Search Bar -->
-            <div>
+            {{-- <div>
                 <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
                 <input type="text" name="search" id="search" value="{{ request('search') }}"
                     class="mt-1 block w-full rounded-md border border-gray-300 py-2 pl-3 pr-10 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
                     placeholder="Search...">
-            </div>
+            </div> --}}
             <div class="-mx-2 flex flex-wrap">
                 <div class="w-full px-2 md:w-1/3">
                     <label for="state" class="block text-sm font-medium text-gray-700">State</label>
@@ -53,6 +53,80 @@
                         class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
                         placeholder="Search Industry">
                 </div>
+
+                <div class="w-full px-2 md:w-1/3">
+                    <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                    <select id="status" name="status_id"
+                        class="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
+                        <option value="">Select Status</option>
+                        @foreach ($statuses as $status)
+                            <option value="{{ $status->id }}" {{ request('status_id') == $status->id ? 'selected' : '' }}>
+                                {{ $status->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="w-full px-2 md:w-1/3">
+                    <label for="type" class="block text-sm font-medium text-gray-700">Type</label>
+                    <select id="type" name="type_id"
+                        class="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
+                        <option value="">Select Type</option>
+                        @foreach ($types as $type)
+                            <option value="{{ $type->id }}" {{ request('type_id') == $type->id ? 'selected' : '' }}>
+                                {{ $type->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="w-full px-2 md:w-1/3">
+                    <label for="company" class="block text-sm font-medium text-gray-700">Company</label>
+                    <input type="text" name="company" id="company" value="{{ request('company') }}"
+                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                        placeholder="Search Company">
+                </div>
+
+                <div class="w-full px-2 md:w-1/3">
+                    <label for="product" class="block text-sm font-medium text-gray-700">Product</label>
+                    <input type="text" name="product" id="product" value="{{ request('product') }}"
+                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                        placeholder="Search Product">
+                </div>
+
+                <div class="w-full px-2 md:w-1/3">
+                    <label for="contact1" class="block text-sm font-medium text-gray-700">contact1</label>
+                    <input type="text" name="contact1" id="contact1" value="{{ request('contact1') }}"
+                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                        placeholder="Search contact1">
+                </div>
+
+                <div class="w-full px-2 md:w-1/3">
+                    <label for="contact2" class="block text-sm font-medium text-gray-700">contact2</label>
+                    <input type="text" name="contact2" id="contact2" value="{{ request('contact2') }}"
+                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                        placeholder="Search Contact2">
+                </div>
+
+                <div class="w-full px-2 md:w-1/3">
+                    <label for="pic" class="block text-sm font-medium text-gray-700">PIC</label>
+                    <input type="text" name="pic" id="pic" value="{{ request('pic') }}"
+                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                        placeholder="Search PIC">
+                </div>
+
+                <div class="w-full px-2 md:w-1/3">
+                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="text" name="email" id="email" value="{{ request('email') }}"
+                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                        placeholder="Search email">
+                </div>
+
+                <div class="w-full px-2 md:w-1/3">
+                    <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
+                    <input type="text" name="address" id="address" value="{{ request('address') }}"
+                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                        placeholder="Search Address">
+                </div>
+
             </div>
 
             <div>
@@ -225,15 +299,26 @@
                 Show Less
             </button>
         </div>
+
         <div class="mt-4">
             {{ $contactLists->appends([
                 'subFolder' => request()->query('subFolder'),
                 'search' => request()->query('search'),
                 'state_id' => request()->query('state_id'),
                 'city_id' => request()->query('city_id'),
-                'industry' => request()->query('industry')
+                'status_id' => request()->query('status_id'),
+                'type_id' => request()->query('type_id'),
+                'company' => request()->query('company'),
+                'product' => request()->query('product'),
+                'industry' => request()->query('industry'),
+                'contact1' => request()->query('contact1'),
+                'contact2' => request()->query('contact2'),
+                'pic' => request()->query('pic'),
+                'email' => request()->query('email'),
+                'address' => request()->query('address')
             ])->links('pagination::tailwind') }}
         </div>
+
         <div id="mass-edit-form-container" class="hidden p-4 bg-white rounded-lg shadow-md max-w-sm mx-auto">
             <form id="mass-edit-form" method="POST" action="{{ route('contacts.mass_edit') }}">
                 @csrf
