@@ -19,69 +19,115 @@ class ContactListController extends Controller
     /**
      * Display a listing of the resource.
      */
-       public function index(Request $request): View
-{
-    $stateId = $request->input('state_id');
-    $cityId = $request->input('city_id');
-    $search = $request->input('search');
-    $industry = $request->input('industry');
+ public function index(Request $request): View
+    {
+        $stateId = $request->input('state_id');
+        $cityId = $request->input('city_id');
+        $search = $request->input('search');
+        $industry = $request->input('industry');
+        $statusId = $request->input('status_id');
+        $typeId = $request->input('type_id');
+        $company = $request->input('company');
+        $product = $request->input('product');
+        $contact1 = $request->input('contact1');
+        $contact2 = $request->input('contact2');
+        $pic = $request->input('pic');
+        $email = $request->input('email');
+        $address = $request->input('address');
 
-    // Get the subFolder ID from the request query parameters
-    $subFolderId = $request->query('subFolder');
 
-    // Prepare the query for ContactList for the logged-in user
-    $query = ContactList::with('city', 'state', 'user', 'subFolder')
-                        ->where('user_id', auth()->id());
+        // Get the subFolder ID from the request query parameters
+        $subFolderId = $request->query('subFolder');
 
-    // Apply filters based on the input
-    if ($stateId) {
-        $query->where('state_id', $stateId);
+        // Prepare the query for ContactList for the logged-in user
+        $query = ContactList::with('city', 'state', 'user', 'subFolder')
+            ->where('user_id', auth()->id());
+
+        // Apply filters based on the input
+        if ($stateId) {
+            $query->where('state_id', $stateId);
+        }
+
+        if ($cityId) {
+            $query->where('city_id', $cityId);
+        }
+
+        if ($industry) {
+            $query->where('industry', 'like', '%' . $industry . '%');
+        }
+
+        if ($statusId) {
+            $query->where('status_id', 'like', '%' . $statusId . '%');
+        }
+
+        if ($typeId) {
+            $query->where('type_id', 'like', '%' . $typeId . '%');
+        }
+
+        if ($company) {
+            $query->where('company', 'like', '%' . $company . '%');
+        }
+
+        if ($product) {
+            $query->where('product', 'like', '%' . $product . '%');
+        }
+
+        if ($contact1) {
+            $query->where('contact1', 'like', '%' . $contact1 . '%');
+        }
+
+        if ($contact2) {
+            $query->where('contact2', 'like', '%' . $contact2 . '%');
+        }
+
+        if ($pic) {
+            $query->where('pic', 'like', '%' . $pic . '%');
+        }
+
+        if ($email) {
+            $query->where('email', 'like', '%' . $email . '%');
+        }
+
+        if ($address) {
+            $query->where('address', 'like', '%' . $address . '%');
+        }
+
+        // Apply search functionality
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('company', 'like', '%' . $search . '%')
+                    ->orWhere('pic', 'like', '%' . $search . '%')
+                    ->orWhere('email', 'like', '%' . $search . '%')
+                    ->orWhere('contact1', 'like', '%' . $search . '%')
+                    ->orWhere('contact2', 'like', '%' . $search . '%')
+                    ->orWhere('industry', 'like', '%' . $search . '%')
+                    ->orWhereHas('subFolder', function ($q) use ($search) {
+                        $q->where('name', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+
+        // Apply subFolder filter if provided
+        if ($subFolderId) {
+            $query->where('sub_folder_id', $subFolderId);
+        }
+
+        // Fetch subfolders for the logged-in user
+        $subFolders = SubFolder::where('user_id', auth()->id())->latest()->get();
+
+        // Get paginated contact lists
+        $contactLists = $query->latest()->paginate(10);
+
+        // Get states and cities for the dropdowns
+        $statuses = Status::all();
+        $types = Type::all();
+        $states = State::all();
+        $cities = $stateId ? City::where('state_id', $stateId)->get() : collect();
+
+        // Return the view with the required data
+        return view('contactList.index', compact('contactLists', 'subFolders', 'statuses', 'types', 'states', 'cities', 'subFolderId'));
     }
-
-    if ($cityId) {
-        $query->where('city_id', $cityId);
-    }
-
-    if ($industry) {
-        $query->where('industry', 'like', '%' . $industry . '%');
-    }
-
-    // Apply search functionality
-    if ($search) {
-        $query->where(function ($q) use ($search) {
-            $q->where('name', 'like', '%' . $search . '%')
-                ->orWhere('company', 'like', '%' . $search . '%')
-                ->orWhere('pic', 'like', '%' . $search . '%')
-                ->orWhere('email', 'like', '%' . $search . '%')
-                ->orWhere('contact1', 'like', '%' . $search . '%')
-                ->orWhere('contact2', 'like', '%' . $search . '%')
-                ->orWhere('industry', 'like', '%' . $search . '%')
-                ->orWhereHas('subFolder', function ($q) use ($search) {
-                    $q->where('name', 'like', '%' . $search . '%');
-                });
-        });
-    }
-
-    // Apply subFolder filter if provided
-    if ($subFolderId) {
-        $query->where('sub_folder_id', $subFolderId);
-    }
-
-    // Fetch subfolders for the logged-in user
-    $subFolders = SubFolder::where('user_id', auth()->id())->latest()->get();
-
-    // Get paginated contact lists
-    $contactLists = $query->latest()->paginate(10);
-
-    // Get states and cities for the dropdowns
-    $statuses = Status::all();
-    $types = Type::all();
-    $states = State::all();
-    $cities = $stateId ? City::where('state_id', $stateId)->get() : collect();
-
-    // Return the view with the required data
-    return view('contactList.index', compact('contactLists', 'subFolders', 'statuses', 'types', 'states', 'cities', 'subFolderId'));
-}
 
     /**
      * Show the form for creating a new resource.
