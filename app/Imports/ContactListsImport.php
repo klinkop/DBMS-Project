@@ -75,7 +75,7 @@ class ContactListsImport implements ToModel, WithHeadingRow
     protected function isHeaderRow(array $row): bool
     {
         // Define expected header names in lowercase
-        $expectedHeaders = ['Name', 'Status', 'Type', 'Industry', 'Company', 'Product', 'PIC', 'Email', 'Contact 1', 'Contact 2', 'Address', 'Industry', 'City', 'State', 'Remarks'];
+        $expectedHeaders = ['Name', 'Status', 'Type', 'Industry', 'Company', 'Product', 'PIC', 'Email', 'Contact1', 'Contact2', 'Address', 'Industry', 'City', 'State', 'Remarks'];
 
         // Normalize and convert row keys to lowercase
         $rowKeys = array_map(function ($key) {
