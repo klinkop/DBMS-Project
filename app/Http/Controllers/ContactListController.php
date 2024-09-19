@@ -15,6 +15,7 @@ use Illuminate\View\View;
 use App\Exports\ContactListsExport;
 use App\Imports\ContactListsImport;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Log;
 
 class ContactListController extends Controller
 {
@@ -210,23 +211,35 @@ class ContactListController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(ContactList $contactList): View
-    {
-        $statuses = Status::all();
-        $types = Type::all();
-        $states = State::all();
-        $cities = City::all();
+    public function edit(ContactList $contactList, Request $request): View
+{
+    $statuses = Status::all();
+    $types = Type::all();
+    $states = State::all();
+    $cities = City::all();
 
-        Gate::authorize('update', $contactList);
+    Gate::authorize('update', $contactList);
 
-        return view('contactList.edit', [
-            'statuses' => $statuses,
-            'types' => $types,
-            'states' => $states,
-            'cities' => $cities,
-            'contactList' => $contactList,
-        ]);
-    }
+    // Get the subFolderId from the request if it exists
+    $subFolderId = $request->query('subFolder');
+
+    // Log the values for debugging
+    Log::info('Editing contact list', [
+        'contactList' => $contactList,
+        'subFolder' => $subFolderId,
+    ]);
+
+    return view('contactList.edit', [
+        'statuses' => $statuses,
+        'types' => $types,
+        'states' => $states,
+        'cities' => $cities,
+        'contactList' => $contactList,
+        'subFolderId' => $subFolderId, // Pass subFolderId to the view
+    ]);
+}
+
+
 
     /**
      * Update the specified resource in storage.
@@ -235,10 +248,23 @@ class ContactListController extends Controller
     {
         Gate::authorize('update', $contactList);
 
-        $contactList->update($request->all());
+        // Log the request data for debugging
+        Log::info('Updating contact list', [
+            'contactListId' => $contactList->id,
+            'requestData' => $request->all(),
+        ]);
 
-        return redirect()->route('contactList.index')->with('success', 'Contact List updated successfully!');
+        // Validate and update the contact list
+        $contactList->update($request->except('subFolderId')); // Ensure subFolderId is not updated
+
+        // Retrieve the subFolderId from the request
+        $subFolderId = $request->input('subFolderId');
+
+        // Redirect with subFolderId
+        return redirect()->route('contactList.index', ['subFolder' => $subFolderId])
+                        ->with('success', 'Contact List updated successfully!');
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -252,14 +278,21 @@ class ContactListController extends Controller
 
     public function export(Request $request)
     {
+        // Log all request parameters
+        Log::info('Export Request Parameters:', $request->all());
+
         // Get filters from request
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
-        $subFolderId = $request->input('subFolder'); // Add this to get the subFolderId from the request
+        $subFolderId = $request->input('subFolderId'); // Add this to get the subFolderId from the request
 
+         // Log specific parameters
+         Log::info('Start Date:', [$startDate]);
+         Log::info('End Date:', [$endDate]);
+         Log::info('SubFolder ID:', [$subFolderId]);
 
         // Validate the date range
-        $validated = $request->validate([
+        $request->validate([
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
         ]);
