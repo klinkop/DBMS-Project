@@ -146,29 +146,35 @@
                     <h2 class="text-lg font-medium mb-4">Export Contact Lists</h2>
                     <p>Select filters to export the contact lists:</p>
 
-                    <!-- Start Date -->
-                    <div class="mt-4">
-                        <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
-                        <input type="text" id="start_date" name="start_date" placeholder="Select Start Date"
-                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
-                    </div>
+                    <form id="export-form" method="GET" action="/export-contact-lists">
+                        <!-- Hidden input for subFolder ID -->
+                        <input type="hidden" name="subFolderId" id="subFolderId" value="{{ $subFolderId }}">
 
-                    <!-- End Date -->
-                    <div class="mt-4">
-                        <label for="end_date" class="block text-sm font-medium text-gray-700">End Date</label>
-                        <input type="text" id="end_date" name="end_date" placeholder="Select End Date"
-                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
-                    </div>
+                        <!-- Start Date -->
+                        <div class="mt-4">
+                            <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
+                            <input type="text" id="start_date" name="start_date" placeholder="Select Start Date"
+                                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
+                        </div>
 
-                    <!-- Confirm and Cancel Buttons -->
-                    <div class="mt-4">
-                        <a href="#" id="confirm-export"
-                            class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" >
-                            Confirm Export
-                        </a>
-                        <button type="button" class="ml-2 inline-flex items-center rounded-md border border-transparent bg-gray-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                            onclick="document.getElementById('export-modal').style.display='none';">Cancel</button>
-                    </div>
+                        <!-- End Date -->
+                        <div class="mt-4">
+                            <label for="end_date" class="block text-sm font-medium text-gray-700">End Date</label>
+                            <input type="text" id="end_date" name="end_date" placeholder="Select End Date"
+                                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
+                        </div>
+
+                        <!-- Confirm and Cancel Buttons -->
+                        <div class="mt-4">
+                            <button type="submit" class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                Confirm Export
+                            </button>
+                            <button type="button" class="ml-2 inline-flex items-center rounded-md border border-transparent bg-gray-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                                onclick="document.getElementById('export-modal').style.display='none';">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
@@ -194,6 +200,8 @@
                 <thead class="bg-gray-50">
                     <tr>
                         <th><input type="checkbox" id="select-all"></th>
+                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                            Date Created</th>
                         <th class="hidden-column px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
                             style="display: none;">Sub
                             Folder</th>
@@ -239,6 +247,7 @@
                     @foreach ($contactLists as $contactList)
                         <tr>
                             <td><input type="checkbox" class="contact-checkbox" value="{{ $contactList->id }}"></td>
+                            <td class="whitespace-nowrap px-6 py-4">{{ $contactList->created_at->format('Y-m-d') }}</td>
                             <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">
                                 {{ $contactList->subFolder->name }}</td>
                             <td class="whitespace-nowrap px-6 py-4">{{ $contactList->user->name }}</td>
@@ -274,9 +283,10 @@
                                             </button>
                                         </x-slot>
                                         <x-slot name="content">
-                                            <x-dropdown-link :href="route('contactList.edit', $contactList)">
+                                            <x-dropdown-link :href="route('contactList.edit', ['contactList' => $contactList->id]) . '?subFolder=' . $subFolderId">
                                                 {{ __('Edit') }}
                                             </x-dropdown-link>
+
                                             <form method="POST"
                                                 action="{{ route('contactList.destroy', $contactList) }}">
                                                 @csrf
@@ -453,17 +463,9 @@
             }
         });
     </script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Function to get URL parameters
-            function getQueryParam(name) {
-                const params = new URLSearchParams(window.location.search);
-                return params.get(name);
-            }
-
-            // Extract subFolderId from URL parameters
-            const subFolderId = getQueryParam('subFolder');
-
             flatpickr('#start_date', {
                 dateFormat: 'Y-m-d',
                 defaultDate: new Date(),
@@ -474,19 +476,36 @@
                 defaultDate: new Date(),
             });
 
-            // Handle the export button click
-            document.getElementById('confirm-export').addEventListener('click', function() {
-                const startDate = document.getElementById('start_date').value;
-                const endDate = document.getElementById('end_date').value;
+            // Check if the confirm-export button exists before adding an event listener
+            const exportButton = document.getElementById('export-form');
+            if (exportButton) {
+                exportButton.addEventListener('submit', function(event) {
+                    const startDate = document.getElementById('start_date').value;
+                    const endDate = document.getElementById('end_date').value;
 
-                if (startDate && endDate) {
-                    window.location.href = `/export-contact-lists?start_date=${startDate}&end_date=${endDate}&subfolder_id=${subFolderId}`;
-                } else {
-                    alert('Please select both start and end dates.');
-                }
-            });
+                    // Assuming you have an input field with the subFolderId
+                    const subFolderId = document.getElementById('subFolderId').value;
+
+                    // Log values to the console
+                    console.log('Start Date:', startDate);
+                    console.log('End Date:', endDate);
+                    console.log('SubFolderId:', subFolderId);
+
+                    // Check if both dates are selected before proceeding
+                    if (startDate && endDate) {
+                        // Log the full URL that will be requested
+                        console.log(`Export URL: /export-contact-lists?start_date=${startDate}&end_date=${endDate}&subFolderId=${subFolderId}`);
+
+                        // Trigger the export by updating the URL
+                        window.location.href = `/export-contact-lists?start_date=${startDate}&end_date=${endDate}&subFolderId=${subFolderId}`;
+                    } else {
+                        alert('Please select both start and end dates.');
+                    }
+                });
+            } else {
+                console.error('Export button with ID "confirm-export" not found.');
+            }
         });
-
     </script>
 
         <script>
