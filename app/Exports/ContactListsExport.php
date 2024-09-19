@@ -6,6 +6,7 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use App\Models\ContactList;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class ContactListsExport implements FromCollection, WithHeadings
 {
@@ -18,12 +19,18 @@ class ContactListsExport implements FromCollection, WithHeadings
         $this->startDate = $startDate;
         $this->endDate = $endDate;
         $this->subFolderId = $subFolderId;
+
+        // Log the subFolderId to ensure it's passed correctly
+        Log::info('ContactListsExport initialized with subFolderId: ' . $subFolderId);
     }
 
     public function collection()
     {
         // Get the ID of the currently authenticated user
         $userId = Auth::id();
+
+        // Log the subFolderId in the collection method as well
+        Log::info('Export collection called with subFolderId: ' . $this->subFolderId);
 
         // Filter the contact lists based on date range and user ID
         $contactListsQuery = ContactList::with('city', 'state')
@@ -40,8 +47,8 @@ class ContactListsExport implements FromCollection, WithHeadings
         return $contactListsQuery->get()->map(function ($contactList) {
             return [
                 'name'          => $contactList->name,
-                'status'     => $contactList->status ? $contactList->status->name : '-',
-                'type'       => $contactList->type ? $contactList->type->name : '-',
+                'status'        => $contactList->status ? $contactList->status->name : '-',
+                'type'          => $contactList->type ? $contactList->type->name : '-',
                 'industry'      => $contactList->industry,
                 'company'       => $contactList->company,
                 'product'       => $contactList->product,
@@ -49,10 +56,10 @@ class ContactListsExport implements FromCollection, WithHeadings
                 'email'         => $contactList->email,
                 'contact1'      => $contactList->contact1,
                 'contact2'      => $contactList->contact2,
-                'address'      => $contactList->address,
+                'address'       => $contactList->address,
                 'city'          => $contactList->city ? $contactList->city->name : '-',
                 'state'         => $contactList->state ? $contactList->state->name : '-',
-                'remarks'      => $contactList->remarks,
+                'remarks'       => $contactList->remarks,
             ];
         });
     }
