@@ -1,10 +1,17 @@
 <x-app-layout>
+    <div class="mt-6 mb-1 flex justify-between items-center">
+        <button type="button" onclick="window.history.back()" class="ml-4 bg-gray-500 text-white px-4 py-2 rounded-md" style="margin-left: 120px; margin-top: 20px;">
+            {{ __('Back') }}
+        </button>
+    </div>
     <div class="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
         <h2 class="text-lg font-bold mb-4">Edit Contact List</h2>
 
         <form method="POST" action="{{ route('contactList.update', $contactList) }}">
             @csrf
             @method('patch')
+
+            <input type="hidden" name="subFolderId" value="{{ $subFolderId }}">
 
             <div class="mb-4">
                 <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
@@ -154,7 +161,7 @@
 
             <div class="flex justify-end">
                 <x-primary-button>{{ __('Save') }}</x-primary-button>
-                <a href="{{ route('contactList.index') }}" class="ml-4">{{ __('Cancel') }}</a>
+                <a href="{{ route('contactList.index', ['subFolder' => $subFolderId]) }}" class="ml-4">{{ __('Cancel') }}</a>
             </div>
         </form>
     </div>
