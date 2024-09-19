@@ -57,8 +57,8 @@ class ContactListsImport implements ToModel, WithHeadingRow
             'product'         => $row['product'] ?? $row[5] ?? '-',
             'pic'             => $row['pic'] ?? $row[6] ?? '-',
             'email'           => $row['email'] ?? $row[7] ?? '-',
-            'contact1'        => isset($row['contact1']) ? (is_string($row['contact1']) ? $row['contact1'] : (string) $row['contact1']) : '-',
-            'contact2'        => isset($row['contact2']) ? (is_string($row['contact2']) ? $row['contact2'] : (string) $row['contact2']) : '-',
+            'contact1'        => $row['contact1'] ?? $row[8] ?? '-',  // Ensure proper mapping for contact1
+            'contact2'        => $row['contact2'] ?? $row[9] ?? '-',  // Ensure proper mapping for contact2
             'address'         => $row['address'] ?? $row[10] ?? '-',
             'city_id'         => $cityId,
             'state_id'        => $stateId,
@@ -122,4 +122,3 @@ class ContactListsImport implements ToModel, WithHeadingRow
         return $typeId ? $typeId : 1;
     }
 }
-
