@@ -4,7 +4,7 @@
             {{ __('Contact List') }}
         </h2>
     </x-slot>
-    <div class="mx-auto p-4 sm:p-6 lg:p-8 w-full max-w-full md:max-w-3xl lg:max-w-5xl xl:max-w-7xl">
+    <div class="mx-auto p-4 sm:p-6 lg:p-8 w-full max-w-full md:max-w-6xl lg:max-w-10xl xl:max-w-14xl">
         {{-- <a href="{{ route('contactList.create') }}"
             class="inline-flex items-center px-4 py-2 mt-4 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
             {{ __('Create Contact') }}
