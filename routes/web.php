@@ -34,6 +34,11 @@ Route::middleware('auth')->group(function () {
         ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
         ->middleware('verified');
 
+    // Group Routes
+    Route::resource('groups', GroupController::class)
+        ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
+        ->middleware(['auth', 'verified']);
+
     // Specific routes for creating subfolders and contact lists under parent folders
     Route::get('/parent-folders/{parentFolder}/sub-folders/create', [SubFolderController::class, 'create'])->name('subFolder.create');
     Route::get('/sub-folders/{subFolder}/contact-lists/create', [ContactListController::class, 'create'])->name('contactList.create');
