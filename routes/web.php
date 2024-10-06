@@ -8,6 +8,7 @@ use App\Http\Controllers\SubFolderController;
 use App\Http\Controllers\ContactListController;
 use App\Http\Controllers\ParentFolderController;
 use App\Http\Controllers\CityController;
+use App\Http\Controllers\GroupController;
 
 Route::get('/', function () {
     return redirect()->route('parentFolder.index');
