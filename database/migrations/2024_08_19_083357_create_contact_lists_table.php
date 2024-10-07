@@ -16,11 +16,13 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('sub_folder_id')->constrained()->cascadeOnDelete();
             $table->string('name')->nullable(); // Allow null values
+            $table->string('resources')->nullable();
             $table->unsignedBigInteger('status_id')->nullable(); // Allow null values
             $table->unsignedBigInteger('type_id')->nullable();
             $table->string('industry')->nullable(); // Allow null values
             $table->string('company')->nullable(); // Allow null values
             $table->string('product')->nullable();
+            $table->string('bgoc_product')->nullable();
             $table->string('pic')->nullable(); // Allow null values
             $table->string('email')->nullable(); // Allow null values
             $table->string('contact1')->nullable(); // Allow null values
