@@ -189,7 +189,7 @@
             {{-- Add Search Form & Export --}}
             <form action="{{ route('contactList.index') }}" method="get" class="mt-4 space-y-4">
                 <!-- Hidden input for subFolder_id -->
-                <input type="hidden" name="subFolderId" value="{{ $subFolderId }}">
+                <input type="hidden" name="subFolder" value="{{ $subFolderId }}">
 
                 <!-- Search Filters -->
                 <div class="-mx-2 flex flex-wrap">
@@ -520,7 +520,7 @@
 
         <div class="mt-4">
             {{ $contactLists->appends([
-                'subFolderId' => request()->query('subFolderId'),
+                'subFolder' => request()->query('subFolder'),
                 'search' => request()->query('search'),
                 'state_id' => request()->query('state_id'),
                 'city_id' => request()->query('city_id'),
