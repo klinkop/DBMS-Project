@@ -42,9 +42,9 @@ class ContactListController extends Controller
 
 
         // Get the subFolder ID from the request query parameters
-        $subFolderId = $request->query('subFolderId');
+        $subFolderId = $request->query('subFolder');
 
-        Log::info('SubFolder ID:', [$subFolderId]);
+        Log::info('SubFolder ID part 1:', [$subFolderId]);
         // Prepare the query for ContactList for the logged-in user
         $query = ContactList::with('city', 'state', 'user', 'subFolder')
             ->where('user_id', auth()->id());
@@ -281,7 +281,7 @@ class ContactListController extends Controller
         // Get filters from the request
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
-        $subFolderId = $request->input('subFolderId');
+        $subFolderId = $request->input('subFolder');
         $stateId = $request->input('state_id');
         $cityId = $request->input('city_id');
         $industry = $request->input('industry');
