@@ -28,9 +28,11 @@ class ContactListController extends Controller
         $cityId = $request->input('city_id');
         $search = $request->input('search');
         $industry = $request->input('industry');
+        $resources = $request->input('resources');
         $statusId = $request->input('status_id');
         $typeId = $request->input('type_id');
         $company = $request->input('company');
+        $bgoc_company = $request->input('bgoc_company');
         $product = $request->input('product');
         $contact1 = $request->input('contact1');
         $contact2 = $request->input('contact2');
@@ -40,8 +42,9 @@ class ContactListController extends Controller
 
 
         // Get the subFolder ID from the request query parameters
-        $subFolderId = $request->query('subFolder');
+        $subFolderId = $request->query('subFolderId');
 
+        Log::info('SubFolder ID:', [$subFolderId]);
         // Prepare the query for ContactList for the logged-in user
         $query = ContactList::with('city', 'state', 'user', 'subFolder')
             ->where('user_id', auth()->id());
@@ -58,6 +61,9 @@ class ContactListController extends Controller
         if ($industry) {
             $query->where('industry', 'like', '%' . $industry . '%');
         }
+        if ($resources) {
+            $query->where('resources', 'like', '%' . $resources . '%');
+        }
 
         if ($statusId) {
             $query->where('status_id', 'like', '%' . $statusId . '%');
@@ -69,6 +75,9 @@ class ContactListController extends Controller
 
         if ($company) {
             $query->where('company', 'like', '%' . $company . '%');
+        }
+        if ($bgoc_company) {
+            $query->where('bgoc_company', 'like', '%' . $bgoc_company . '%');
         }
 
         if ($product) {
@@ -95,25 +104,9 @@ class ContactListController extends Controller
             $query->where('address', 'like', '%' . $address . '%');
         }
 
-        // Apply search functionality
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', '%' . $search . '%')
-                    ->orWhere('company', 'like', '%' . $search . '%')
-                    ->orWhere('pic', 'like', '%' . $search . '%')
-                    ->orWhere('email', 'like', '%' . $search . '%')
-                    ->orWhere('contact1', 'like', '%' . $search . '%')
-                    ->orWhere('contact2', 'like', '%' . $search . '%')
-                    ->orWhere('industry', 'like', '%' . $search . '%')
-                    ->orWhereHas('subFolder', function ($q) use ($search) {
-                        $q->where('name', 'like', '%' . $search . '%');
-                    });
-            });
-        }
-
-        // Apply subFolder filter if provided
         if ($subFolderId) {
-            $query->where('sub_folder_id', $subFolderId);
+            Log::info('Filtering by SubFolder ID:', [$subFolderId]); // Log the subFolderId
+            $query->where('sub_folder_id', $subFolderId); // Ensure this matches your DB column name
         }
 
         // Fetch subfolders for the logged-in user
@@ -162,7 +155,9 @@ class ContactListController extends Controller
             'status_id' => 'nullable|integer|exists:statuses,id',
             'type_id' => 'nullable|integer|exists:types,id',
             'industry' => 'nullable|string|max:255',
+            'resources' => 'nullable|string|max:255',
             'company' => 'nullable|string|max:255',
+            'bgoc_company' => 'nullable|string|max:255',
             'product' => 'nullable|string|max:255',
             'pic' => 'nullable|string|max:255',
             'email' => 'nullable|string|email|max:255',
@@ -183,8 +178,10 @@ class ContactListController extends Controller
         $contactList->status_id = $validated['status_id'] ?? null;
         $contactList->type_id = $validated['type_id'] ?? null;
         $contactList->industry = $validated['industry'] ?? null;
+        $contactList->resources = $validated['resources'] ?? null;
         $contactList->company = $validated['company'] ?? null;
         $contactList->product = $validated['product'] ?? null;
+        $contactList->bgoc_product = $validated['bgoc_product'] ?? null;
         $contactList->pic = $validated['pic'] ?? null;
         $contactList->email = $validated['email'] ?? null;
         $contactList->contact1 = $validated['contact1'] ?? null;
@@ -281,10 +278,24 @@ class ContactListController extends Controller
         // Log all request parameters
         Log::info('Export Request Parameters:', $request->all());
 
-        // Get filters from request
+        // Get filters from the request
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
-        $subFolderId = $request->input('subFolderId'); // Add this to get the subFolderId from the request
+        $subFolderId = $request->input('subFolderId');
+        $stateId = $request->input('state_id');
+        $cityId = $request->input('city_id');
+        $industry = $request->input('industry');
+        $resources = $request->input('resources');
+        $statusId = $request->input('status_id');
+        $typeId = $request->input('type_id');
+        $company = $request->input('company');
+        $product = $request->input('product');
+        $bgoc_product = $request->input('bgoc_product');
+        $contact1 = $request->input('contact1');
+        $contact2 = $request->input('contact2');
+        $pic = $request->input('pic');
+        $email = $request->input('email');
+        $address = $request->input('address');
 
          // Log specific parameters
          Log::info('Start Date:', [$startDate]);
@@ -298,7 +309,14 @@ class ContactListController extends Controller
         ]);
 
         // Pass all filters to the export class
-        return Excel::download(new ContactListsExport($startDate, $endDate, $subFolderId), 'contact_lists.xlsx');
+        return Excel::download(
+            new ContactListsExport(
+                $startDate, $endDate, $subFolderId, $stateId, $cityId, $industry,
+                $resources, $statusId, $typeId, $company, $product, $bgoc_product,
+                $contact1, $contact2, $pic, $email, $address
+            ),
+            'contact_lists.xlsx'
+        );
     }
 
 
