@@ -71,9 +71,33 @@ class GroupController extends Controller
     {
         Gate::authorize('update',  $group);
 
+        // fetch the contact list
+        $contactLists = ContactList::all();
+
+        $groupContacts = GroupContact::where('group_id', $group->id)->get();
+
         return view('groups.edit', [
             'group' => $group,
+            'contactLists' => $contactLists,
+            'groupContacts' => $groupContacts,
         ]);
+    }
+
+    /**
+     * Add new GroupContact method
+     */
+    public function addGroupContact(Request $request, Group $group): RedirectResponse
+    {
+        $validated = $request->validate([
+            'contact_list_id' => 'required|integer|exists:contact_list, id',
+        ]);
+
+        $groupContacts = new GroupContact();
+        $groupContacts->group_id = $group->id;
+        $groupContacts->contact_list_id = $validated['contact_list_id'];
+        $groupContacts->save();
+
+        return redirect()->back()->with()('success', 'Contact added succesfully!');
     }
 
     /**
