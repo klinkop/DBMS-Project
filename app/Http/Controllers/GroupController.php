@@ -91,7 +91,7 @@ class GroupController extends Controller
     public function addGroupContact(Request $request, Group $group): RedirectResponse
     {
         $validated = $request->validate([
-            'contact_list_id' => 'required|integer|exists:contact_list, id',
+            'contact_list_id' => 'required|integer|exists:contact_lists,id',
         ]);
 
         $groupContacts = new GroupContact();
