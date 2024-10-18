@@ -40,6 +40,11 @@ Route::middleware('auth')->group(function () {
         ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
         ->middleware(['auth', 'verified']);
 
+    // Campaign Routes
+    Route::resource('campaigns', CampaignController::class)
+        ->only(['index', 'create', 'store', 'edit', 'update', 'destroy', 'addReceipient', 'storeReceipient'])
+        ->middleware(['auth', 'verified']);
+
     // Specific routes for creating subfolders and contact lists under parent folders
     Route::get('/parent-folders/{parentFolder}/sub-folders/create', [SubFolderController::class, 'create'])->name('subFolder.create');
     Route::get('/sub-folders/{subFolder}/contact-lists/create', [ContactListController::class, 'create'])->name('contactList.create');
@@ -65,6 +70,16 @@ Route::middleware('auth')->group(function () {
 
     // Add Group Contact route
     Route::post('/groups/{group}/addGroupContact', [GroupController::class, 'addGroupContact'])->name('groups.addGroupContact');
+
+    // add campaign in the receipient's module
+    Route::get('campaigns/{campaign}/addReceipient', [CampaignController::class, 'addReceipient'])->name('campaigns.addReceipient');
+    Route::post('campaigns/{campaign}/storeReceipient', [CampaignController::class, 'storeReceipient'])->name('campaigns.storeReceipient');
+
+    // show campaign details
+    Route::get('/campaigns/{campaign}', [CampaignController::class, 'show'])->name('campaigns.show');
+
+    // Delete receipients
+    Route::delete('/campaigns/{campaign}/deleteReceipient/{receipient}', [CampaignController::class, 'deleteReceipient'])->name('campaigns.deleteReceipient');
 
 });
 
