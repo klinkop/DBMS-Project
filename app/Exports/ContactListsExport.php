@@ -2,13 +2,18 @@
 
 namespace App\Exports;
 
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\ShouldQueue;
 use App\Models\ContactList;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Concerns\ShouldQueueWithoutChain;
+use Throwable;
 
-class ContactListsExport implements FromCollection, WithHeadings
+class ContactListsExport implements FromQuery, WithHeadings, WithMapping, WithChunkReading, ShouldQueueWithoutChain
 {
     protected $startDate, $endDate, $subFolderId, $stateId, $cityId, $industry, $resources, $statusId,
     $typeId, $company, $product, $bgoc_product, $contact1, $contact2, $pic, $email, $address;
@@ -35,16 +40,16 @@ class ContactListsExport implements FromCollection, WithHeadings
         $this->email = $email;
         $this->address = $address;
 
-        Log::info('Export class initialized with parameters:', [
-            'subFolder' => $this->subFolderId,
+        Log::info('ContactListsExport initialized with parameters:', [
             'startDate' => $this->startDate,
             'endDate' => $this->endDate,
-            'state_id' => $this->stateId,
-            'city_id' => $this->cityId,
+            'subFolderId' => $this->subFolderId,
+            'stateId' => $this->stateId,
+            'cityId' => $this->cityId,
             'industry' => $this->industry,
             'resources' => $this->resources,
-            'status_id' => $this->statusId,
-            'type_id' => $this->typeId,
+            'statusId' => $this->statusId,
+            'typeId' => $this->typeId,
             'company' => $this->company,
             'product' => $this->product,
             'bgoc_product' => $this->bgoc_product,
@@ -56,132 +61,129 @@ class ContactListsExport implements FromCollection, WithHeadings
         ]);
     }
 
-    public function collection()
-{
-    // Get the ID of the currently authenticated user
-    $userId = Auth::id();
+    public function query()
+    {
+        $userId = Auth::id();
 
-    // Log the subFolderId in the collection method as well
-    Log::info('Export collection called with subFolderId: ' . $this->subFolderId);
+        Log::info('Generating query for export with subFolderId: ' . $this->subFolderId);
 
-    // Filter the contact lists based on user ID
-    $contactListsQuery = ContactList::with('city', 'state')
-        ->where('user_id', $userId); // Add filter for user ID
+        try {
+            $contactListsQuery = ContactList::with('city', 'state')
+                ->where('user_id', $userId);
 
-    // Filter by subFolderId if provided
-    if ($this->subFolderId) {
-        $contactListsQuery->where('sub_folder_id', $this->subFolderId);
+            if ($this->subFolderId) {
+                $contactListsQuery->where('sub_folder_id', $this->subFolderId);
+            }
+
+            if ($this->startDate && $this->endDate) {
+                $contactListsQuery->whereBetween('created_at', [$this->startDate, $this->endDate]);
+            }
+
+            if ($this->stateId) {
+                $contactListsQuery->where('state_id', $this->stateId);
+            }
+
+            if ($this->cityId) {
+                $contactListsQuery->where('city_id', $this->cityId);
+            }
+
+            if ($this->industry) {
+                $contactListsQuery->where('industry', 'like', '%' . $this->industry . '%');
+            }
+
+            if ($this->resources) {
+                $contactListsQuery->where('resources', 'like', '%' . $this->resources . '%');
+            }
+
+            if ($this->statusId) {
+                $contactListsQuery->where('status_id', $this->statusId);
+            }
+
+            if ($this->typeId) {
+                $contactListsQuery->where('type_id', $this->typeId);
+            }
+
+            if ($this->company) {
+                $contactListsQuery->where('company', 'like', '%' . $this->company . '%');
+            }
+
+            if ($this->product) {
+                $contactListsQuery->where('product', 'like', '%' . $this->product . '%');
+            }
+
+            if ($this->bgoc_product) {
+                $contactListsQuery->where('bgoc_product', 'like', '%' . $this->bgoc_product . '%');
+            }
+
+            if ($this->contact1) {
+                $contactListsQuery->where('contact1', 'like', '%' . $this->contact1 . '%');
+            }
+
+            if ($this->contact2) {
+                $contactListsQuery->where('contact2', 'like', '%' . $this->contact2 . '%');
+            }
+
+            if ($this->pic) {
+                $contactListsQuery->where('pic', 'like', '%' . $this->pic . '%');
+            }
+
+            if ($this->email) {
+                $contactListsQuery->where('email', 'like', '%' . $this->email . '%');
+            }
+
+            if ($this->address) {
+                $contactListsQuery->where('address', 'like', '%' . $this->address . '%');
+            }
+
+            Log::info('Generated query: ' . $contactListsQuery->toSql());
+
+            return $contactListsQuery;
+        } catch (Throwable $e) {
+            Log::error('Error generating query: ' . $e->getMessage());
+            throw $e;
+        }
     }
-
-    // Filter by date range if provided
-    if ($this->startDate && $this->endDate) {
-        $contactListsQuery->whereBetween('created_at', [$this->startDate, $this->endDate]);
-    }
-
-    // Add filters based on the other fields
-    if ($this->stateId) {
-        $contactListsQuery->where('stateId', $this->stateId);
-    }
-
-    if ($this->cityId) {
-        $contactListsQuery->where('cityId', $this->cityId);
-    }
-
-    if ($this->industry) {
-        $contactListsQuery->where('industry', 'like', '%' . $this->industry . '%');
-    }
-
-    if ($this->resources) {
-        $contactListsQuery->where('resources', 'like', '%' . $this->resources . '%');
-    }
-
-    if ($this->statusId) {
-        $contactListsQuery->where('status_id', $this->statusId);
-    }
-
-    if ($this->typeId) {
-        $contactListsQuery->where('type_id', $this->typeId);
-    }
-
-    if ($this->company) {
-        $contactListsQuery->where('company', 'like', '%' . $this->company . '%');
-    }
-
-    if ($this->product) {
-        $contactListsQuery->where('product', 'like', '%' . $this->product . '%');
-    }
-
-    if ($this->bgoc_product) {
-        $contactListsQuery->where('bgoc_product', 'like', '%' . $this->bgoc_product . '%');
-    }
-
-    if ($this->contact1) {
-        $contactListsQuery->where('contact1', 'like', '%' . $this->contact1 . '%');
-    }
-
-    if ($this->contact2) {
-        $contactListsQuery->where('contact2', 'like', '%' . $this->contact2 . '%');
-    }
-
-    if ($this->pic) {
-        $contactListsQuery->where('pic', 'like', '%' . $this->pic . '%');
-    }
-
-    if ($this->email) {
-        $contactListsQuery->where('email', 'like', '%' . $this->email . '%');
-    }
-
-    if ($this->address) {
-        $contactListsQuery->where('address', 'like', '%' . $this->address . '%');
-    }
-
-     // Log the generated query for debugging
-     Log::info('Generated query: ' . $contactListsQuery->toSql());
-
-    // Execute the query and map the results
-    return $contactListsQuery->get()->map(function ($contactList) {
-        return [
-            'name'          => $contactList->name,
-            'resources'     => $contactList->resources ? $contactList->resources : '-',  // Add null check
-            'status'        => $contactList->status ? $contactList->status->name : '-',
-            'type'          => $contactList->type ? $contactList->type->name : '-',
-            'industry'      => $contactList->industry,
-            'company'       => $contactList->company,
-            'product'       => $contactList->product,
-            'bgoc_product'  => $contactList->bgoc_product ? $contactList->bgoc_product : '-',  // Add null check
-            'pic'           => $contactList->pic,
-            'email'         => $contactList->email,
-            'contact1'      => $contactList->contact1,
-            'contact2'      => $contactList->contact2,
-            'address'       => $contactList->address,
-            'city'          => $contactList->city ? $contactList->city->name : '-',
-            'state'         => $contactList->state ? $contactList->state->name : '-',
-            'remarks'       => $contactList->remarks,
-        ];
-    });
-}
-
 
     public function headings(): array
     {
+        Log::info('Generating export headings.');
         return [
-            'Name',
-            'Resources',
-            'Status',
-            'Type',
-            'Industry',
-            'Company',
-            'Product',
-            'BGOC_Product',
-            'PIC',
-            'Email',
-            'Contact1',
-            'Contact2',
-            'Address',
-            'City',
-            'State',
-            'Remarks'
+            'Name', 'Resources', 'Status', 'Type', 'Industry', 'Company', 'Product', 'BGOC_Product',
+            'PIC', 'Email', 'Contact1', 'Contact2', 'Address', 'City', 'State', 'Remarks'
         ];
     }
-}
 
+    public function map($contactList): array
+    {
+        try {
+            Log::info('Mapping contactList ID: ' . $contactList->id);
+            return [
+                $contactList->name,
+                $contactList->resources ? $contactList->resources : '-',
+                $contactList->status ? $contactList->status->name : '-',
+                $contactList->type ? $contactList->type->name : '-',
+                $contactList->industry,
+                $contactList->company,
+                $contactList->product,
+                $contactList->bgoc_product ? $contactList->bgoc_product : '-',
+                $contactList->pic,
+                $contactList->email,
+                $contactList->contact1,
+                $contactList->contact2,
+                $contactList->address,
+                $contactList->city ? $contactList->city->name : '-',
+                $contactList->state ? $contactList->state->name : '-',
+                $contactList->remarks,
+            ];
+        } catch (Throwable $e) {
+            Log::error('Error mapping contactList ID: ' . $contactList->id . ' - ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    public function chunkSize(): int
+    {
+        Log::info('Exporting in chunks of 1000 rows.');
+        return 1000;
+    }
+}

@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Group;
-use App\Models\GroupContact;
-use App\Models\ContactList;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -73,33 +71,9 @@ class GroupController extends Controller
     {
         Gate::authorize('update',  $group);
 
-        // fetch the contact list
-        $contactLists = ContactList::all();
-
-        $groupContacts = GroupContact::where('group_id', $group->id)->get();
-
         return view('groups.edit', [
             'group' => $group,
-            'contactLists' => $contactLists,
-            'groupContacts' => $groupContacts,
         ]);
-    }
-
-    /**
-     * Add new GroupContact method
-     */
-    public function addGroupContact(Request $request, Group $group): RedirectResponse
-    {
-        $validated = $request->validate([
-            'contact_list_id' => 'required|integer|exists:contact_lists,id',
-        ]);
-
-        $groupContacts = new GroupContact();
-        $groupContacts->group_id = $group->id;
-        $groupContacts->contact_list_id = $validated['contact_list_id'];
-        $groupContacts->save();
-
-        return redirect()->back()->with()('success', 'Contact added succesfully!');
     }
 
     /**
