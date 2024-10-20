@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\CampaignMail;
 use App\Models\Template;
 use App\Models\Recipient;
+use Illuminate\Support\Facades\Auth;
+use App\Jobs\SendCampaignEmails; // Job to handle email sending
+use Carbon\Carbon;
 
 class CampaignController extends Controller
 {
@@ -26,21 +29,69 @@ class CampaignController extends Controller
         return view('campaigns.create', compact('templates'));
     }
 
-    public function store(Request $request)
+/*     public function store(Request $request)
     {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
+        // Validate the form data
+        $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'email_subject' => 'nullable|string',
-            'email_body' => 'nullable|string',
+            'email_subject' => 'required|string|max:255',
+            'email_body' => 'required|string',
             'scheduled_at' => 'nullable|date',
         ]);
 
-        Campaign::create($request->only('user_id', 'name', 'description', 'email_subject', 'email_body', 'scheduled_at'));
+        // Use Auth::id() or the hidden user_id passed from the form
+        $userId = $request->input('user_id') ?? Auth::id();
 
+        // Create the campaign
+        Campaign::create([
+            'user_id' => $userId,  // Store the authenticated user's ID
+            'name' => $validatedData['name'],
+            'description' => $validatedData['description'],
+            'email_subject' => $validatedData['email_subject'],
+            'email_body' => $validatedData['email_body'],
+            'scheduled_at' => $validatedData['scheduled_at'],
+        ]);
+
+        // Redirect back to the campaign list with a success message
         return redirect()->route('campaigns.index')->with('success', 'Campaign created successfully.');
+    } */
+
+
+    // Inside your CampaignController
+    public function store(Request $request)
+    {
+        // Validate the incoming request
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'email_subject' => 'required|string|max:255',
+            'email_body' => 'required|string',
+            'scheduled_at' => 'nullable|date', // Ensure it's a valid date
+        ]);
+
+        // Create the campaign
+        $campaign = new Campaign();
+        $campaign->name = $validatedData['name'];
+        $campaign->description = $validatedData['description'];
+        $campaign->email_subject = $validatedData['email_subject'];
+        $campaign->email_body = $validatedData['email_body'];
+        $campaign->user_id = $request->user()->id;
+        $campaign->scheduled_at = $validatedData['scheduled_at'] ? Carbon::parse($validatedData['scheduled_at']) : null;
+        $campaign->save();
+
+        // If scheduled_at is provided, schedule the email sending
+        if ($campaign->scheduled_at) {
+            SendCampaignEmails::dispatch($campaign)->delay($campaign->scheduled_at);
+        } else {
+            // Otherwise, send immediately
+            SendCampaignEmails::dispatch($campaign);
+        }
+
+        // Redirect back with a success message
+        return redirect()->route('campaigns.index')->with('success', 'Campaign created successfully!');
     }
+
 
     public function show($id)
     {

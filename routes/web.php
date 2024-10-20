@@ -100,7 +100,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('campaigns', CampaignController::class);
 
     Route::get('/campaigns/create', [CampaignController::class, 'create'])->name('campaigns.create');
-    Route::post('/campaigns/{campaign}/send', [CampaignController::class, 'sendCampaign'])->name('campaigns.send');
+    Route::post('/campaigns/send', [CampaignController::class, 'sendCampaign'])->name('campaigns.send');
     Route::get('/send-campaign/{id}', [CampaignController::class, 'sendCampaignEmail']);
     Route::get('/campaign/{id}/edit', [CampaignController::class, 'edit'])->name('campaigns.edit');
     Route::put('/campaign/{id}', [CampaignController::class, 'update'])->name('campaigns.update');

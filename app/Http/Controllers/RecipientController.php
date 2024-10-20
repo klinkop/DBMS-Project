@@ -24,13 +24,20 @@ class RecipientController extends Controller
         return back()->with('success', 'Recipient added successfully.');
     }
 
-        public function addRecipient(Request $request, Campaign $campaign)
+    public function addRecipient(Request $request, Campaign $campaign)
     {
         // Validate the input
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:recipients,email',  // Ensure email is unique in the 'recipients' table
+            'email' => 'required|email',
         ]);
+
+        // Check if the email already exists for the current campaign
+        $existingRecipient = $campaign->recipients()->where('email', $validatedData['email'])->first();
+
+        if ($existingRecipient) {
+            return redirect()->back()->withErrors(['email' => 'This email is already added to this campaign.']);
+        }
 
         // Add recipient to the campaign
         $campaign->recipients()->create([
@@ -40,4 +47,5 @@ class RecipientController extends Controller
 
         return redirect()->route('campaigns.show', $campaign->id)->with('success', 'Recipient added successfully.');
     }
+
 }
