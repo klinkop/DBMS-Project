@@ -43,10 +43,10 @@
                 <textarea name="email_body" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" rows="5" placeholder="Enter email body (HTML supported)" required>{{ old('email_body') }}</textarea>
             </div>
 
-            <div class="mb-4">
+            {{-- <div class="mb-4">
                 <label for="scheduled_at" class="block text-gray-700 text-sm font-bold mb-2">Scheduled At (Optional)</label>
                 <input type="datetime-local" name="scheduled_at" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ old('scheduled_at') }}">
-            </div>
+            </div> --}}
 
             <!-- Hidden field to pass user ID -->
             <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">

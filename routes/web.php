@@ -107,6 +107,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/campaigns/{campaign}/send-all', [CampaignController::class, 'sendToAll'])->name('campaigns.sendAll');
     Route::post('/recipients', [RecipientController::class, 'store'])->name('recipients.store');
     Route::post('/campaigns/{campaign}/add-recipient', [RecipientController::class, 'addRecipient'])->name('campaigns.addRecipient');
+    Route::post('/campaigns/{campaign}/schedule', [CampaignController::class, 'schedule'])->name('campaigns.schedule');
+
 
 
 });

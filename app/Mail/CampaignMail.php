@@ -25,4 +25,3 @@ class CampaignMail extends Mailable
                     ->view('emails.campaign'); // Make sure to create this view
     }
 }
-

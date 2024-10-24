@@ -60,6 +60,34 @@
                     Send Now
                 </button>
             </form>
+
+                        <!-- Schedule Button -->
+            <button id="scheduleButton" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded">
+                Schedule Campaign
+            </button>
+
+            <!-- Schedule Modal -->
+            <div id="scheduleModal" class="fixed z-50 inset-0 hidden items-center justify-center bg-black bg-opacity-50">
+                <div class="bg-white rounded-lg p-6 max-w-sm w-full">
+                    <h2 class="text-lg font-semibold mb-4">Schedule Campaign</h2>
+                    <form action="{{ route('campaigns.schedule', $campaign->id) }}" method="POST">
+                        @csrf
+                        <div class="mb-4">
+                            <label for="schedule_time" class="block text-gray-700 font-bold mb-2">Schedule Time</label>
+                            <input type="datetime-local" name="schedule_time" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                        </div>
+                        <button type="submit" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded">
+                            Schedule Campaign
+                        </button>
+                    </form>
+                    <div class="mt-4">
+                        <button id="closeScheduleModal" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Modal for Success Message -->
             @if (session('success'))
                 <div id="successModal" class="fixed z-50 inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -133,6 +161,23 @@
                     successModal.classList.add('hidden');
                 });
             }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const scheduleModal = document.getElementById('scheduleModal');
+            const scheduleButton = document.getElementById('scheduleButton');
+            const closeScheduleModalButton = document.getElementById('closeScheduleModal');
+
+            // Show the schedule modal when the button is clicked
+            scheduleButton.addEventListener('click', function () {
+                scheduleModal.classList.remove('hidden');
+            });
+
+            // Hide the schedule modal when the close button is clicked
+            closeScheduleModalButton.addEventListener('click', function () {
+                scheduleModal.classList.add('hidden');
+            });
         });
     </script>
 </x-app-layout>

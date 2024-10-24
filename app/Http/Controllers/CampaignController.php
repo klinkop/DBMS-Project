@@ -217,4 +217,50 @@ class CampaignController extends Controller
                         ->with('success', 'Campaign sent to all recipients.');
     }
 
+
+   /*  public function sendToAll(Campaign $campaign)
+    {
+        // Check if the campaign is scheduled
+        if ($campaign->scheduled_at && now()->lt($campaign->scheduled_at)) {
+            return redirect()->route('campaigns.show', $campaign->id)
+                            ->with('error', 'The campaign is scheduled to be sent later.');
+        }
+
+        // Get all recipients of the campaign
+        $recipients = Recipient::where('campaign_id', $campaign->id)->get();
+
+        if ($recipients->isEmpty()) {
+            return redirect()->route('campaigns.show', $campaign->id)
+                            ->with('error', 'No recipients found for this campaign.');
+        }
+
+        foreach ($recipients as $recipient) {
+            Mail::to($recipient->email)->send(new CampaignMail($campaign));
+
+            // Mark the email as sent
+            $recipient->update(['sent' => true]);
+        }
+
+        return redirect()->route('campaigns.show', $campaign->id)
+                        ->with('success', 'Campaign sent to all recipients.');
+    } */
+
+    public function schedule(Request $request, Campaign $campaign)
+    {
+        // Validate the schedule time
+        $request->validate([
+            'schedule_time' => 'required|date|after:now',
+        ]);
+
+        // Update the campaign's scheduled_at time in the database
+        $campaign->scheduled_at = $request->input('schedule_time');
+        $campaign->save();
+
+        // Dispatch the job to send the campaign emails at the scheduled time
+        SendCampaignEmails::dispatch($campaign)->delay($campaign->scheduled_at);
+
+        return redirect()->route('campaigns.show', $campaign->id)
+                         ->with('success', 'Campaign scheduled successfully.');
+    }
+
 }
