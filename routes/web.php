@@ -9,6 +9,9 @@ use App\Http\Controllers\ContactListController;
 use App\Http\Controllers\ParentFolderController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\CampaignController;
+use App\Http\Controllers\RecipientController;
+use Illuminate\Support\Facades\Mail;
 
 Route::get('/', function () {
     return redirect()->route('parentFolder.index');
@@ -40,11 +43,6 @@ Route::middleware('auth')->group(function () {
         ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
         ->middleware(['auth', 'verified']);
 
-    // Campaign Routes
-    Route::resource('campaigns', CampaignController::class)
-        ->only(['index', 'create', 'store', 'edit', 'update', 'destroy', 'addReceipient', 'storeReceipient'])
-        ->middleware(['auth', 'verified']);
-
     // Specific routes for creating subfolders and contact lists under parent folders
     Route::get('/parent-folders/{parentFolder}/sub-folders/create', [SubFolderController::class, 'create'])->name('subFolder.create');
     Route::get('/sub-folders/{subFolder}/contact-lists/create', [ContactListController::class, 'create'])->name('contactList.create');
@@ -66,20 +64,52 @@ Route::middleware('auth')->group(function () {
 
     // Extra Contact List route
     Route::get('/contact-list', [ContactListController::class, 'index'])->name('contactList.index');
+
     Route::post('/contacts/mass_edit', [ContactListController::class, 'massEdit'])->name('contacts.mass_edit');
 
-    // Add Group Contact route
-    Route::post('/groups/{group}/addGroupContact', [GroupController::class, 'addGroupContact'])->name('groups.addGroupContact');
+    Route::post('campaigns/{campaign}/send', [CampaignController::class, 'sendCampaign'])->name('campaigns.send');
 
-    // add campaign in the receipient's module
-    Route::get('campaigns/{campaign}/addReceipient', [CampaignController::class, 'addReceipient'])->name('campaigns.addReceipient');
-    Route::post('campaigns/{campaign}/storeReceipient', [CampaignController::class, 'storeReceipient'])->name('campaigns.storeReceipient');
+    Route::get('/send-email', function () {
+        $subject = 'Your Campaign Subject';
+        $htmlContent = '
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Email Template</title>
+            <style>
+                /* Your inline styles */
+            </style>
+        </head>
+        <body>
+            <h1>This is your email content</h1>
+        </body>
+        </html>';
 
-    // show campaign details
-    Route::get('/campaigns/{campaign}', [CampaignController::class, 'show'])->name('campaigns.show');
+        // Send the email
+        Mail::html($htmlContent, function ($message) use ($subject) {
+            $message->to('insaneraj08@gmail.com')  // Change this to the recipient's email
+                    ->subject($subject); // Use the campaign's subject
+        });
 
-    // Delete receipients
-    Route::delete('/campaigns/{campaign}/deleteReceipient/{receipient}', [CampaignController::class, 'deleteReceipient'])->name('campaigns.deleteReceipient');
+    return 'Email sent successfully!';
+
+    });
+
+    Route::resource('campaigns', CampaignController::class);
+
+    Route::get('/campaigns/create', [CampaignController::class, 'create'])->name('campaigns.create');
+    Route::post('/campaigns/send', [CampaignController::class, 'sendCampaign'])->name('campaigns.send');
+    Route::get('/send-campaign/{id}', [CampaignController::class, 'sendCampaignEmail']);
+    Route::get('/campaign/{id}/edit', [CampaignController::class, 'edit'])->name('campaigns.edit');
+    Route::put('/campaign/{id}', [CampaignController::class, 'update'])->name('campaigns.update');
+    Route::post('/campaigns/{campaign}/send-all', [CampaignController::class, 'sendToAll'])->name('campaigns.sendAll');
+    Route::post('/recipients', [RecipientController::class, 'store'])->name('recipients.store');
+    Route::post('/campaigns/{campaign}/add-recipient', [RecipientController::class, 'addRecipient'])->name('campaigns.addRecipient');
+    Route::post('/campaigns/{campaign}/schedule', [CampaignController::class, 'schedule'])->name('campaigns.schedule');
+    Route::delete('/campaigns/{campaign}/deleteRecipient/{recipient}', [CampaignController::class, 'deleteReceipient'])->name('campaigns.deleteRecipient');
+
 
 });
 
