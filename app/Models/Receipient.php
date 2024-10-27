@@ -4,18 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Receipient extends Model
+class Recipient extends Model
 {
     use HasFactory;
 
-    public function campaign(): BelongsTo
+    protected $fillable = ['campaign_id', 'email'];
+
+    public function campaign()
     {
         return $this->belongsTo(Campaign::class);
     }
 
-    public function subFolder():BelongsTo
+    public function subFolder()
     {
         return $this->belongsTo(SubFolder::class);
     }
