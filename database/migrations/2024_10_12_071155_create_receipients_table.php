@@ -4,26 +4,24 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class CreateRecipientsTable extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    public function up()
     {
-        Schema::create('receipients', function (Blueprint $table) {
+        Schema::create('recipients', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('campaign_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('sub_folder_id')->constrained()->cascadeOnDelete();
+            $table->unsignedBigInteger('campaign_id'); // Foreign key to campaigns
             $table->timestamps();
+
+            // Add foreign key constraints
+            $table->foreign('campaign_id')->references('id')->on('campaigns')->onDelete('cascade');
+            $table->foreignId('sub_folder_id')->constrained()->cascadeOnDelete();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::dropIfExists('receipients');
+        Schema::dropIfExists('recipients');
     }
-};
+}
+
