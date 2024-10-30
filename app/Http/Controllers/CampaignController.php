@@ -1,0 +1,308 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Campaign;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\CampaignMail;
+use App\Models\Template;
+use App\Models\Recipient;
+use Illuminate\Support\Facades\Auth;
+use App\Jobs\SendCampaignEmails; // Job to handle email sending
+use App\Mail\CampaignEmail;
+use App\Models\SubFolder;
+use Carbon\Carbon;
+
+class CampaignController extends Controller
+{
+    public function index()
+    {
+        // Fetch campaigns with pagination (10 per page)
+        $campaigns = Campaign::paginate(10);
+
+        // Return the view with the campaigns data
+        return view('campaigns.index', compact('campaigns'));
+    }
+
+    public function create()
+    {
+        $templates = Template::all();
+        return view('campaigns.create', compact('templates'));
+    }
+
+/*     public function store(Request $request)
+    {
+        // Validate the form data
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'email_subject' => 'required|string|max:255',
+            'email_body' => 'required|string',
+            'scheduled_at' => 'nullable|date',
+        ]);
+
+        // Use Auth::id() or the hidden user_id passed from the form
+        $userId = $request->input('user_id') ?? Auth::id();
+
+        // Create the campaign
+        Campaign::create([
+            'user_id' => $userId,  // Store the authenticated user's ID
+            'name' => $validatedData['name'],
+            'description' => $validatedData['description'],
+            'email_subject' => $validatedData['email_subject'],
+            'email_body' => $validatedData['email_body'],
+            'scheduled_at' => $validatedData['scheduled_at'],
+        ]);
+
+        // Redirect back to the campaign list with a success message
+        return redirect()->route('campaigns.index')->with('success', 'Campaign created successfully.');
+    } */
+
+
+    // Inside your CampaignController
+    public function store(Request $request)
+    {
+        // Validate the incoming request
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'email_subject' => 'required|string|max:255',
+            'email_body' => 'required|string',
+            'scheduled_at' => 'nullable|date', // Ensure it's a valid date
+        ]);
+
+        // Create the campaign
+        $campaign = new Campaign();
+        $campaign->name = $validatedData['name'];
+        $campaign->description = $validatedData['description'];
+        $campaign->email_subject = $validatedData['email_subject'];
+        $campaign->email_body = $validatedData['email_body'];
+        $campaign->user_id = $request->user()->id;
+        // $campaign->scheduled_at = $validatedData['scheduled_at'] ? Carbon::parse($validatedData['scheduled_at']) : null;
+        $campaign->save();
+
+        // If scheduled_at is provided, schedule the email sending
+        if ($campaign->scheduled_at) {
+            SendCampaignEmails::dispatch($campaign)->delay($campaign->scheduled_at);
+        } else {
+            // Otherwise, send immediately
+            SendCampaignEmails::dispatch($campaign);
+        }
+
+        // Redirect back with a success message
+        return redirect()->route('campaigns.index')->with('success', 'Campaign created successfully!');
+    }
+
+
+    public function show($id)
+{
+    // Retrieve the campaign or fail
+    $campaign = Campaign::findOrFail($id);
+
+    // Retrieve recipients with their associated subFolder
+    $recipients = Recipient::with('subFolder')->where('campaign_id', $campaign->id)->get();
+
+    // Initialize a collection for contact lists
+    $contactLists = collect();
+
+    // Loop through recipients to gather contact lists from their subFolders
+    foreach ($recipients as $recipient) {
+        $subFolder = $recipient->subFolder;
+        if ($subFolder) {
+            $contactLists = $contactLists->merge($subFolder->contactLists);
+        }
+    }
+
+    // Remove duplicates from the contact lists based on email
+    $uniqueContactLists = $contactLists
+        ->filter(function($contactList) {
+            return !is_null($contactList->email);
+        })
+        ->unique('email');
+
+    // Retrieve all subFolders
+    $subFolders = SubFolder::all();
+
+    // Return the view with all necessary data
+    return view('campaigns.show', [
+        'campaign' => $campaign,
+        'subFolders' => $subFolders,
+        'recipients' => $recipients,
+        'contactLists' => $uniqueContactLists,
+    ]);
+}
+
+    public function edit($id)
+    {
+        // Fetch the campaign from the database
+        $campaign = Campaign::findOrFail($id);
+
+        // Return the edit view with the campaign data
+        return view('campaigns.edit', compact('campaign'));
+    }
+
+    // Update the campaign details
+    public function update(Request $request, $id)
+    {
+        // Validate the form inputs
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'email_subject' => 'required|string|max:255',
+            'email_body' => 'required|string',
+            'scheduled_at' => 'nullable|date',
+        ]);
+
+        // Fetch the campaign
+        $campaign = Campaign::findOrFail($id);
+
+        // Update the campaign details
+        $campaign->update([
+            'name' => $request->input('name'),
+            'description' => $request->input('description'),
+            'email_subject' => $request->input('email_subject'),
+            'email_body' => $request->input('email_body'),
+            'scheduled_at' => $request->input('scheduled_at'),
+        ]);
+
+        // Optionally, redirect the user to a page with a success message
+        return redirect()->route('campaigns.index')
+                         ->with('success', 'Campaign updated successfully!');
+    }
+
+    public function destroy($id)
+    {
+        $campaign = Campaign::findOrFail($id);
+
+        // Delete the campaign
+        $campaign->delete();
+
+        // Redirect back with a success message
+        return redirect()->route('campaigns.index')
+                        ->with('success', 'Campaign deleted successfully!');
+    }
+
+    public function sendCampaign(Request $request, Campaign $campaign)
+    {
+        // Validate request (you can add more validation if needed)
+        /* $request->validate([
+            'recipient_emails' => 'required|array',
+            'recipient_emails.*' => 'email',
+        ]);
+
+        // Loop through each email and send the campaign
+        foreach ($request->recipient_emails as $recipientEmail) {
+            Mail::to($recipientEmail)->send(new CampaignMail($campaign));
+        }
+
+        return redirect()->route('campaigns.index')->with('success', 'Campaign sent successfully to all recipients.'); */
+        /* $testEmail = $request->input('test_email', 'test@example.com'); // Default test email if none provided
+
+        // Send the campaign email
+        Mail::to($testEmail)->send(new CampaignMail($campaign));
+
+        return redirect()->route('campaigns.show', $campaign->id)->with('success', 'Campaign sent to ' . $testEmail); */
+        $request->validate([
+            'test_email' => 'required|email',
+        ]);
+
+        $testEmail = $request->input('test_email');
+
+        Mail::to($testEmail)->send(new CampaignMail($campaign));
+
+        return redirect()->route('campaigns.show', $campaign->id)->with('success', 'Campaign sent to ' . $testEmail);
+    }
+
+    public function sendCampaignEmail($campaignId)
+    {
+        // Fetch the campaign from the database
+        $campaign = Campaign::findOrFail($campaignId);
+
+        // Assuming we want to send the email to all users related to this campaign (adjust as needed)
+        $users = $campaign->user; // Or any other logic to get the recipients
+
+        // Send the email to each recipient (example with one user)
+        Mail::to($users->email)->send(new CampaignMail($campaign));
+
+        // Optionally, return a response
+        return response()->json(['message' => 'Campaign email sent successfully!']);
+    }
+
+    public function sendToAll(Campaign $campaign)
+    {
+        // Get all recipients of the campaign
+        $recipients = Recipient::where('campaign_id', $campaign->id)->get();
+
+        if ($recipients->isEmpty()) {
+            return redirect()->route('campaigns.show', $campaign->id)
+                            ->with('error', 'No recipients found for this campaign.');
+        }
+
+        foreach ($recipients as $recipient) {
+            Mail::to($recipient->email)->send(new CampaignMail($campaign));
+
+            // Mark the email as sent
+            $recipient->update(['sent' => true]);
+        }
+
+        return redirect()->route('campaigns.show', $campaign->id)
+                        ->with('success', 'Campaign sent to all recipients.');
+    }
+
+
+   /*  public function sendToAll(Campaign $campaign)
+    {
+        // Check if the campaign is scheduled
+        if ($campaign->scheduled_at && now()->lt($campaign->scheduled_at)) {
+            return redirect()->route('campaigns.show', $campaign->id)
+                            ->with('error', 'The campaign is scheduled to be sent later.');
+        }
+
+        // Get all recipients of the campaign
+        $recipients = Recipient::where('campaign_id', $campaign->id)->get();
+
+        if ($recipients->isEmpty()) {
+            return redirect()->route('campaigns.show', $campaign->id)
+                            ->with('error', 'No recipients found for this campaign.');
+        }
+
+        foreach ($recipients as $recipient) {
+            Mail::to($recipient->email)->send(new CampaignMail($campaign));
+
+            // Mark the email as sent
+            $recipient->update(['sent' => true]);
+        }
+
+        return redirect()->route('campaigns.show', $campaign->id)
+                        ->with('success', 'Campaign sent to all recipients.');
+    } */
+
+    public function schedule(Request $request, Campaign $campaign)
+    {
+        // Validate the schedule time
+        $request->validate([
+            'schedule_time' => 'required|date|after:now',
+        ]);
+
+        // Update the campaign's scheduled_at time in the database
+        $campaign->scheduled_at = $request->input('schedule_time');
+        $campaign->save();
+
+        // Dispatch the job to send the campaign emails at the scheduled time
+        SendCampaignEmails::dispatch($campaign)->delay($campaign->scheduled_at);
+
+        return redirect()->route('campaigns.show', $campaign->id)
+                         ->with('success', 'Campaign scheduled successfully.');
+    }
+
+    public function deleteReceipient($campaignId, $recipientId)
+    {
+        // Find the recipient by ID and delete it
+        $recipient = Recipient::findOrFail($recipientId);
+        $recipient->delete();
+
+        // Redirect back with a success message
+        return redirect()->back()->with('alert', 'Recipient deleted successfully.');
+    }
+}
