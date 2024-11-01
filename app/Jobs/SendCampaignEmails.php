@@ -60,11 +60,9 @@ class SendCampaignEmails implements ShouldQueue
         }
 
         foreach ($recipients as $recipient) {
-            // Send the campaign email to each recipient
-            Mail::to($recipient->subFolder->contactLists->email)->send(new CampaignMail($this->campaign));
-
-            // Mark the email as sent
-            //$recipient->update(['sent' => true]);
+            foreach ($recipient->subFolder->contactLists as $contactList) {
+                Mail::to($contactList->email)->send(new CampaignMail($this->campaign));
+            }
         }
     }
 
