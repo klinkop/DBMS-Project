@@ -240,7 +240,9 @@ class CampaignController extends Controller
         }
 
         foreach ($recipients as $recipient) {
-            Mail::to($recipient->email)->send(new CampaignMail($campaign));
+            foreach ($recipient->subFolder->contactLists as $contactList) {
+                Mail::to($contactList->email)->send(new CampaignMail($campaign));
+            }
 
             // Mark the email as sent
             $recipient->update(['sent' => true]);
