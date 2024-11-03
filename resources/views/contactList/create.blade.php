@@ -21,6 +21,12 @@
                     @endforeach
                 </select>
             </div> --}}
+            <div class="mb-4">
+                <label for="resources" class="block text-sm font-medium text-gray-700">Resources</label>
+                <input id="resources" type="text" name="resources"
+                    class="block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm">
+                <x-input-error :messages="$errors->get('resources')" class="mt-2" />
+            </div>
 
             <div class="mb-4">
                 <label for="status_id" class="block text-sm font-medium text-gray-700">Status</label>
@@ -69,6 +75,13 @@
                 <input id="product" type="text" name="product"
                     class="block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm">
                 <x-input-error :messages="$errors->get('product')" class="mt-2" />
+            </div>
+
+            <div class="mb-4">
+                <label for="bgoc_product" class="block text-sm font-medium text-gray-700">BGOC Product</label>
+                <input id="bgoc_product" type="text" name="bgoc_product"
+                    class="block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm">
+                <x-input-error :messages="$errors->get('bgoc_product')" class="mt-2" />
             </div>
 
             <div class="mb-4">

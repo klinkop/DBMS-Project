@@ -21,9 +21,6 @@
                     <x-nav-link :href="route('contactList.index')" :active="request()->routeIs('contactList.index')">
                         {{ __('All Contact List') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('groups.index')" :active="request()->routeIs('group.index')">
-                        {{ __('Group') }}
-                    </x-nav-link>
                     <x-nav-link :href="route('campaigns.index')" :active="request()->routeIs('campaigns.index')">
                         {{ __('Campaigns') }}
                     </x-nav-link>
@@ -90,9 +87,6 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('contactList.index')" :active="request()->routeIs('contactList.index')">
                 {{ __('Contact List') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('groups.index')" :active="request()->routeIs('group.index')">
-                {{ __('Group') }}
             </x-responsive-nav-link>
         </div>
 

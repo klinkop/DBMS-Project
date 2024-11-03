@@ -36,6 +36,7 @@
                         </th>
                         <th class="py-2 px-4 border-b border-gray-300 text-left text-gray-600 font-bold">Scheduled At
                         </th>
+                        <th class="py-2 px-4 border-b border-gray-300 text-left text-gray-600 font-bold">Status</th>
                         <th class="py-2 px-4 border-b border-gray-300 text-left text-gray-600 font-bold">Actions</th>
                     </tr>
                 </thead>
@@ -49,6 +50,7 @@
                             <td class="py-2 px-4 border-b border-gray-300">
                                 {{ $campaign->scheduled_at ? \Carbon\Carbon::parse($campaign->scheduled_at)->format('Y-m-d H:i') : 'Not Scheduled' }}
                             </td>
+                            <td class="py-2 px-4 border-b border-gray-300">{{ $campaign->status }}</td>
                             <td class="py-2 px-4 border-b border-gray-300">
                                 <!-- View button -->
                                 <a href="{{ route('campaigns.show', $campaign->id) }}"
@@ -57,11 +59,17 @@
                                 </a>
 
                                 <!-- Edit button -->
-                                <a href="{{ route('campaigns.edit', $campaign->id) }}"
+                                {{-- <a href="{{ route('campaigns.edit', $campaign->id) }}"
                                     class="inline-flex items-center px-2 py-1 bg-yellow-500 text-white text-xs font-semibold rounded-md hover:bg-yellow-600">
                                     Edit
-                                </a>
-
+                                </a> --}}
+                                <!-- Duplicate button -->
+                                <form action="{{ route('campaigns.duplicate', $campaign->id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <button type="submit" class="inline-flex items-center px-2 py-1 bg-yellow-500 text-white text-xs font-semibold rounded-md hover:bg-blue-600">
+                                        Duplicate
+                                    </button>
+                                </form>
                                 <!-- Delete form -->
                                 <form action="{{ route('campaigns.destroy', $campaign->id) }}" method="POST"
                                     style="display:inline;">

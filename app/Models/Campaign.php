@@ -19,6 +19,7 @@ class Campaign extends Model
         'email_subject',
         'email_body',
         'scheduled_at',
+        'status',
     ];
 
     protected $casts = [

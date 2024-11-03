@@ -64,6 +64,10 @@ class SendCampaignEmails implements ShouldQueue
                 Mail::to($contactList->email)->send(new CampaignMail($this->campaign));
             }
         }
+
+        $this->campaign->update(['status' => 'sent']);
+
+        Log::info('Status updated to "sent" for Campaign ID: ' . $this->campaign->id);
     }
 
 }

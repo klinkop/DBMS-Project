@@ -1,15 +1,29 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="text-xl font-semibold leading-tight text-gray-800">
             {{ __('Campaigns') }}
         </h2>
     </x-slot>
 
     <div class="container mx-auto py-8">
-        <h1 class="text-2xl font-semibold mb-6">Campaign Details</h1>
+        <a href="{{ route('campaigns.index') }}"
+            class="rounded bg-gray-500 px-4 py-2 font-bold text-white hover:bg-gray-600">
+            Back to List
+        </a>
+
+        <!-- Send to Test Email -->
+        <form action="{{ route('campaigns.send', $campaign->id) }}" method="POST" class="flex items-center gap-2">
+            @csrf
+            <input type="email" name="test_email" value="test@example.com" class="rounded border border-gray-300 p-2"
+                placeholder="Enter Test Email">
+            <button type="submit" class="rounded bg-green-500 px-4 py-2 font-bold text-white hover:bg-green-600">
+                Send to Test Email
+            </button>
+        </form>
+        <h1 class="mb-6 text-2xl font-semibold">Campaign Details</h1>
 
         <!-- Campaign details card -->
-        <div class="bg-white shadow-md rounded-lg mb-6 p-6">
+        <div class="mb-6 rounded-lg bg-white p-6 shadow-md">
             <div class="mb-4">
                 <h3 class="text-xl font-semibold">{{ $campaign->name }}</h3>
             </div>
@@ -17,81 +31,72 @@
                 <p><strong>Description:</strong> {{ $campaign->description }}</p>
                 <p><strong>Email Subject:</strong> {{ $campaign->email_subject }}</p>
                 <p><strong>Email Body:</strong></p>
-                <div class="bg-gray-100 p-4 rounded-lg">
+                <div class="rounded-lg bg-gray-100 p-4">
                     {!! $campaign->email_body !!}
                 </div>
                 <p class="mt-4"><strong>Scheduled At:</strong>
                     {{ $campaign->scheduled_at ? \Carbon\Carbon::parse($campaign->scheduled_at)->format('Y-m-d H:i') : 'Not Scheduled' }}
                 </p>
+                <p class="mt-4"><strong>Status:</strong> {{ ucfirst($campaign->status) }}</p>
             </div>
         </div>
 
         <!-- Action Buttons -->
-        <div class="flex flex-wrap gap-4 mb-6">
-            <a href="{{ route('campaigns.edit', $campaign->id) }}"
-                class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded">
-                Edit Campaign
-            </a>
+        <div class="mb-6 flex flex-wrap gap-4">
+            @if ($campaign->status !== 'sent')
+                <a href="{{ route('campaigns.edit', $campaign->id) }}"
+                    class="rounded bg-yellow-500 px-4 py-2 font-bold text-white hover:bg-yellow-600">
+                    Edit Campaign
+                </a>
 
-            <form action="{{ route('campaigns.destroy', $campaign->id) }}" method="POST"
-                onsubmit="return confirm('Are you sure you want to delete this campaign?')">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
-                    Delete Campaign
+                <form action="{{ route('campaigns.destroy', $campaign->id) }}" method="POST"
+                    onsubmit="return confirm('Are you sure you want to delete this campaign?')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="rounded bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-600">
+                        Delete Campaign
+                    </button>
+                </form>
+
+                <!-- Send to All Recipients -->
+                <form action="{{ route('campaigns.sendAll', $campaign->id) }}" method="POST">
+                    @csrf
+                    <button type="submit" class="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-600">
+                        Send Now
+                    </button>
+                </form>
+
+                <!-- Schedule Button -->
+                <button id="scheduleButton"
+                    class="rounded bg-purple-500 px-4 py-2 font-bold text-white hover:bg-purple-600">
+                    Schedule Campaign
                 </button>
-            </form>
-
-            <a href="{{ route('campaigns.index') }}"
-                class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
-                Back to List
-            </a>
-
-            <!-- Send to Test Email -->
-            <form action="{{ route('campaigns.send', $campaign->id) }}" method="POST" class="flex items-center gap-2">
-                @csrf
-                <input type="email" name="test_email" value="test@example.com"
-                    class="border border-gray-300 p-2 rounded" placeholder="Enter Test Email">
-                <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
-                    Send to Test Email
-                </button>
-            </form>
-
-            <!-- Send to All Recipients -->
-            <form action="{{ route('campaigns.sendAll', $campaign->id) }}" method="POST">
-                @csrf
-                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-                    Send Now
-                </button>
-            </form>
-
-            <!-- Schedule Button -->
-            <button id="scheduleButton"
-                class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded">
-                Schedule Campaign
-            </button>
+            @else
+                <p class="font-bold text-red-500">This campaign has already been sent and cannot be edited or
+                    rescheduled.</p>
+            @endif
 
             <!-- Schedule Modal -->
             <div id="scheduleModal"
-                class="fixed z-50 inset-0 hidden items-center justify-center bg-black bg-opacity-50">
-                <div class="bg-white rounded-lg p-6 max-w-sm w-full">
-                    <h2 class="text-lg font-semibold mb-4">Schedule Campaign</h2>
+                class="fixed inset-0 z-50 flex hidden items-center justify-center bg-black bg-opacity-50">
+                <div class="w-full max-w-sm rounded-lg bg-white p-6 shadow-lg">
+                    <h2 class="mb-4 text-lg font-semibold">Schedule Campaign</h2>
                     <form action="{{ route('campaigns.schedule', $campaign->id) }}" method="POST">
                         @csrf
                         <div class="mb-4">
-                            <label for="schedule_time" class="block text-gray-700 font-bold mb-2">Schedule Time</label>
+                            <label for="schedule_time" class="mb-2 block font-bold text-gray-700">Schedule Time</label>
                             <input type="datetime-local" name="schedule_time"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                class="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
                                 required>
                         </div>
                         <button type="submit"
-                            class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded">
+                            class="rounded bg-purple-500 px-4 py-2 font-bold text-white hover:bg-purple-600">
                             Schedule Campaign
                         </button>
                     </form>
                     <div class="mt-4">
                         <button id="closeScheduleModal"
-                            class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
+                            class="rounded bg-gray-500 px-4 py-2 font-bold text-white hover:bg-gray-600">
                             Close
                         </button>
                     </div>
@@ -101,13 +106,13 @@
             <!-- Modal for Success Message -->
             @if (session('success'))
                 <div id="successModal"
-                    class="fixed z-50 inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                    <div class="bg-white rounded-lg p-6 max-w-sm w-full">
+                    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                    <div class="w-full max-w-sm rounded-lg bg-white p-6">
                         <h2 class="text-lg font-semibold">Success!</h2>
                         <p>{{ session('success') }}</p>
                         <div class="mt-4">
                             <button id="closeModal"
-                                class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                                class="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-600">
                                 Close
                             </button>
                         </div>
@@ -117,8 +122,8 @@
         </div>
 
         <!-- Add Recipients Section -->
-        <div class="bg-white shadow-md rounded-lg p-6">
-            <h3 class="text-lg font-semibold mb-4">Manage Recipients</h3>
+        <div class="rounded-lg bg-white p-6 shadow-md">
+            <h3 class="mb-4 text-lg font-semibold">Manage Recipients</h3>
             <form action="{{ route('campaigns.addRecipient', $campaign->id) }}" method="POST">
                 @csrf
                 {{-- <div class="mb-4">
@@ -137,7 +142,7 @@
                 <div class="mb-4">
                     <label for="sub_folder_id" class="block text-sm font-medium text-gray-700">Sub Folder:</label>
                     <select name="sub_folder_id" id="sub_folder_id"
-                        class="block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm">
+                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                         <option value="">-- Add Recipient --</option>
                         @foreach ($subFolders as $subFolder)
                             @if (!empty($subFolder) && isset($subFolder->id))
@@ -147,12 +152,12 @@
                     </select>
                 </div>
 
-                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                <button type="submit" class="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-600">
                     Add Recipient
                 </button>
             </form>
 
-            <h4 class="text-lg font-semibold mt-6 mb-4">Current Recipients</h4>
+            <h4 class="mb-4 mt-6 text-lg font-semibold">Current Recipients</h4>
             @if ($errors->any())
                 <div class="mb-4">
                     <ul class="text-red-500">
@@ -177,30 +182,30 @@
                         <thead class="bg-gray-50">
                             <tr>
                                 <th>No.</th>
-                                <th scope="col" class="px-6 py-3 text-left text-gray-900 tracking-wider">
+                                <th scope="col" class="px-6 py-3 text-left tracking-wider text-gray-900">
                                     SubFolder
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-center text-gray-900 tracking-wider">
+                                <th scope="col" class="px-6 py-3 text-center tracking-wider text-gray-900">
                                     Emails
                                 </th>
-                                <th scope="col" class="px-2 py-3 text-center text-gray-900 tracking-wider">
+                                <th scope="col" class="px-2 py-3 text-center tracking-wider text-gray-900">
                                     Action
                                 </th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tbody class="divide-y divide-gray-200 bg-white">
                             @php
                                 $count = 0;
                             @endphp
                             @foreach ($recipients as $recipient)
                                 <tr>
                                     <td class="text-center">{{ ++$count }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
+                                    <td class="whitespace-nowrap px-6 py-4">
                                         <div class="text-sm font-medium text-gray-900">
                                             {{ $recipient->subFolder->name }}
                                         </div>
                                     </td>
-                                    <td class="px-2 py-4 whitespace-nowrap text-center">
+                                    <td class="whitespace-nowrap px-2 py-4 text-center">
                                         <div class="flex justify-center">
                                             <button class="text-blue-600 hover:text-blue-800"
                                                 onclick="toggleDropdown('dropdown-{{ $recipient->subFolder->id }}')">
@@ -208,7 +213,7 @@
                                             </button>
                                         </div>
                                         <div id="dropdown-{{ $recipient->subFolder->id }}"
-                                            class="hidden mt-2 bg-gray-100 rounded-lg p-2">
+                                            class="mt-2 hidden rounded-lg bg-gray-100 p-2">
                                             <ul>
                                                 @foreach ($recipient->subFolder->contactLists as $contactList)
                                                     <li class="text-gray-900">{{ $contactList->email }}</li>
@@ -216,7 +221,7 @@
                                             </ul>
                                         </div>
                                     </td>
-                                    <td class="px-2 py-4 whitespace-nowrap text-center">
+                                    <td class="whitespace-nowrap px-2 py-4 text-center">
                                         <div class="flex justify-center space-x-2">
                                             <!-- Show icon for contact list -->
                                             <a href="{{ route('contactList.index', ['subFolder' => $recipient->subFolder->id]) }}"

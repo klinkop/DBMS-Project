@@ -21,6 +21,14 @@
             </div>
 
             <div class="mb-4">
+                <label for="resources" class="block text-sm font-medium text-gray-700">Resources</label>
+                <input id="resources" type="text" name="resources"
+                    class="block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
+                    value="{{ old('resources', $contactList->resources) }}">
+                <x-input-error :messages="$errors->get('resources')" class="mt-2" />
+            </div>
+
+            <div class="mb-4">
                 <label for="status_id" class="block text-sm font-medium text-gray-700">Status</label>
                 <select id="status_id" name="status_id"
                     class="block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
@@ -76,6 +84,14 @@
                     class="block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
                     value="{{ old('product', $contactList->product) }}">
                 <x-input-error :messages="$errors->get('product')" class="mt-2" />
+            </div>
+
+            <div class="mb-4">
+                <label for="bgoc_product" class="block text-sm font-medium text-gray-700">BGOC Product</label>
+                <input id="bgoc_product" type="text" name="bgoc_product"
+                    class="block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
+                    value="{{ old('bgoc_product', $contactList->bgoc_product) }}">
+                <x-input-error :messages="$errors->get('bgoc_product')" class="mt-2" />
             </div>
 
             <div class="mb-4">

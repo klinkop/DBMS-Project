@@ -32,7 +32,7 @@ class ContactListController extends Controller
         $statusId = $request->input('status_id');
         $typeId = $request->input('type_id');
         $company = $request->input('company');
-        $bgoc_company = $request->input('bgoc_company');
+        $bgoc_product = $request->input('bgoc_product');
         $product = $request->input('product');
         $contact1 = $request->input('contact1');
         $contact2 = $request->input('contact2');
@@ -76,8 +76,8 @@ class ContactListController extends Controller
         if ($company) {
             $query->where('company', 'like', '%' . $company . '%');
         }
-        if ($bgoc_company) {
-            $query->where('bgoc_company', 'like', '%' . $bgoc_company . '%');
+        if ($bgoc_product) {
+            $query->where('bgoc_product', 'like', '%' . $bgoc_product . '%');
         }
 
         if ($product) {

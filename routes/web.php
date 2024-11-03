@@ -8,7 +8,7 @@ use App\Http\Controllers\SubFolderController;
 use App\Http\Controllers\ContactListController;
 use App\Http\Controllers\ParentFolderController;
 use App\Http\Controllers\CityController;
-use App\Http\Controllers\GroupController;
+
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\RecipientController;
 use Illuminate\Support\Facades\Mail;
@@ -38,10 +38,7 @@ Route::middleware('auth')->group(function () {
         ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
         ->middleware('verified');
 
-    // Group Routes
-    Route::resource('groups', GroupController::class)
-        ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
-        ->middleware(['auth', 'verified']);
+
 
     // Specific routes for creating subfolders and contact lists under parent folders
     Route::get('/parent-folders/{parentFolder}/sub-folders/create', [SubFolderController::class, 'create'])->name('subFolder.create');
@@ -100,7 +97,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('campaigns', CampaignController::class);
 
     Route::get('/campaigns/create', [CampaignController::class, 'create'])->name('campaigns.create');
-    Route::post('/campaigns/send', [CampaignController::class, 'sendCampaign'])->name('campaigns.send');
+    Route::post('/campaigns/{campaign}/send', [CampaignController::class, 'sendCampaign'])->name('campaigns.send');
     Route::get('/send-campaign/{id}', [CampaignController::class, 'sendCampaignEmail']);
     Route::get('/campaign/{id}/edit', [CampaignController::class, 'edit'])->name('campaigns.edit');
     Route::put('/campaign/{id}', [CampaignController::class, 'update'])->name('campaigns.update');
@@ -108,6 +105,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/recipients', [RecipientController::class, 'store'])->name('recipients.store');
     Route::post('/campaigns/{campaign}/add-recipient', [RecipientController::class, 'addRecipient'])->name('campaigns.addRecipient');
     Route::post('/campaigns/{campaign}/schedule', [CampaignController::class, 'schedule'])->name('campaigns.schedule');
+    Route::post('/campaigns/{campaign}/duplicate', [CampaignController::class, 'duplicate'])->name('campaigns.duplicate');
     Route::delete('/campaigns/{campaign}/deleteRecipient/{recipient}', [CampaignController::class, 'deleteReceipient'])->name('campaigns.deleteRecipient');
 
 

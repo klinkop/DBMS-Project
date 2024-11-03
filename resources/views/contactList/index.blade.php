@@ -1,21 +1,22 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="text-xl font-semibold leading-tight text-gray-800">
             {{ __('Contact List') }}
         </h2>
     </x-slot>
-    <div class="mx-auto p-4 sm:p-6 lg:p-8 w-full max-w-full md:max-w-3xl lg:max-w-5xl xl:max-w-7xl">
-        {{-- <a href="{{ route('contactList.create') }}"
-            class="inline-flex items-center px-4 py-2 mt-4 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-            {{ __('Create Contact') }}
-        </a> --}}
-
-        {{-- Add Search Form --}}
-        {{-- <form action="{{ route('contactList.index') }}" method="get" class="mt-4 space-y-4">
+    <div class="mx-auto w-full max-w-full p-4 sm:p-6 md:max-w-3xl lg:max-w-5xl lg:p-8 xl:max-w-7xl">
+        <button id="toggle-search-button"
+                onclick="toggleSearchForm()"
+                class="mb-4 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                Search
+        </button>
+        {{-- Add Search Form & Export --}}
+        <form action="{{ route('contactList.index') }}" method="get" class="mt-4 space-y-4">
             <!-- Hidden input for subFolder_id -->
             <input type="hidden" name="subFolder" value="{{ $subFolderId }}">
-            <!-- Search Bar -->
-            <div class="-mx-2 flex flex-wrap">
+            <!-- Search Filters -->
+            <div id="search-filters" class="hidden -mx-2 flex flex-wrap relative">
+                <!-- Add all your input fields here as you have done previously -->
                 <div class="w-full px-2 md:w-1/3">
                     <label for="state" class="block text-sm font-medium text-gray-700">State</label>
                     <select id="state" name="state_id"
@@ -61,7 +62,8 @@
                         class="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
                         <option value="">Select Status</option>
                         @foreach ($statuses as $status)
-                            <option value="{{ $status->id }}" {{ request('status_id') == $status->id ? 'selected' : '' }}>
+                            <option value="{{ $status->id }}"
+                                {{ request('status_id') == $status->id ? 'selected' : '' }}>
                                 {{ $status->name }}</option>
                         @endforeach
                     </select>
@@ -73,7 +75,8 @@
                         class="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
                         <option value="">Select Type</option>
                         @foreach ($types as $type)
-                            <option value="{{ $type->id }}" {{ request('type_id') == $type->id ? 'selected' : '' }}>
+                            <option value="{{ $type->id }}"
+                                {{ request('type_id') == $type->id ? 'selected' : '' }}>
                                 {{ $type->name }}</option>
                         @endforeach
                     </select>
@@ -135,253 +138,95 @@
                         placeholder="Search Address">
                 </div>
 
+                <div class="w-full flex justify-start mt-4">
+                    <button type="submit"
+                        class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Filter</button>
+                </div>
+                <!-- Close Button -->
+                <button id="close-filter-button"
+                    onclick="closeSearchForm()"
+                    class="mb-4 inline-flex items-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                Close Filter
+                </button>
             </div>
+            <!-- End Filters -->
 
-            <div>
-                <button type="submit"
-                    class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Filter</button>
-            </div>
-        </form>
+
             <!-- Export Button -->
-            <button data-modal-target="#export-modal"
+            <button type="button" data-modal-target="#export-modal"
                 class="mt-4 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                 Export Contact Lists
             </button>
 
-            <!-- Export Modal with Date Range Picker and Additional Filters -->
-            <div id="export-modal" class="fixed inset-0 z-10 flex items-center justify-center p-4" style="display:none;">
-                <div class="bg-white rounded-lg shadow-lg max-w-md mx-auto p-6">
-                    <h2 class="text-lg font-medium mb-4">Export Contact Lists</h2>
+            <!-- Export Modal -->
+            <div id="export-modal" class="fixed inset-0 z-10 flex items-center justify-center p-4"
+                style="display:none;">
+                <div class="mx-auto max-w-md rounded-lg bg-white p-6 shadow-lg">
+                    <h2 class="mb-4 text-lg font-medium">Export Contact Lists</h2>
                     <p>Select filters to export the contact lists:</p>
 
-                    <form id="export-form" method="GET" action="/export-contact-lists">
-                        <!-- Hidden input for subFolder ID -->
-                        <input type="hidden" name="subFolderId" id="subFolderId" value="{{ $subFolderId }}">
-
-                        <!-- Start Date -->
-                        <div class="mt-4">
-                            <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
-                            <input type="text" id="start_date" name="start_date" placeholder="Select Start Date"
-                                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
-                        </div>
-
-                        <!-- End Date -->
-                        <div class="mt-4">
-                            <label for="end_date" class="block text-sm font-medium text-gray-700">End Date</label>
-                            <input type="text" id="end_date" name="end_date" placeholder="Select End Date"
-                                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
-                        </div>
-
-                        <!-- Confirm and Cancel Buttons -->
-                        <div class="mt-4">
-                            <button type="submit" class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                                Confirm Export
-                            </button>
-                            <button type="button" class="ml-2 inline-flex items-center rounded-md border border-transparent bg-gray-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                                onclick="document.getElementById('export-modal').style.display='none';">
-                                Cancel
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div> --}}
-
-            {{-- Add Search Form & Export --}}
-            <form action="{{ route('contactList.index') }}" method="get" class="mt-4 space-y-4">
-                <!-- Hidden input for subFolder_id -->
-                <input type="hidden" name="subFolder" value="{{ $subFolderId }}">
-
-                <!-- Search Filters -->
-                <div class="-mx-2 flex flex-wrap">
-                    <!-- Add all your input fields here as you have done previously -->
-                        <div class="w-full px-2 md:w-1/3">
-                            <label for="state" class="block text-sm font-medium text-gray-700">State</label>
-                            <select id="state" name="state_id"
-                                class="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
-                                <option value="">Select State</option>
-                                @foreach ($states as $state)
-                                    <option value="{{ $state->id }}"
-                                        {{ request('state_id') == $state->id ? 'selected' : '' }}>
-                                        {{ $state->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="w-full px-2 md:w-1/3">
-                            <label for="city" class="block text-sm font-medium text-gray-700">City</label>
-                            <select id="city" name="city_id"
-                                class="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
-                                <option value="">Select City</option>
-                                @foreach ($cities as $city)
-                                    <option value="{{ $city->id }}" {{ request('city_id') == $city->id ? 'selected' : '' }}>
-                                        {{ $city->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="w-full px-2 md:w-1/3">
-                            <label for="industry" class="block text-sm font-medium text-gray-700">Industry</label>
-                            <input type="text" name="industry" id="industry" value="{{ request('industry') }}"
-                                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                                placeholder="Search Industry">
-                        </div>
-
-                        <div class="w-full px-2 md:w-1/3">
-                            <label for="resources" class="block text-sm font-medium text-gray-700">Resources</label>
-                            <input type="text" name="resources" id="resources" value="{{ request('resources') }}"
-                                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                                placeholder="Search Resources">
-                        </div>
-
-                        <div class="w-full px-2 md:w-1/3">
-                            <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
-                            <select id="status" name="status_id"
-                                class="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
-                                <option value="">Select Status</option>
-                                @foreach ($statuses as $status)
-                                    <option value="{{ $status->id }}" {{ request('status_id') == $status->id ? 'selected' : '' }}>
-                                        {{ $status->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="w-full px-2 md:w-1/3">
-                            <label for="type" class="block text-sm font-medium text-gray-700">Type</label>
-                            <select id="type" name="type_id"
-                                class="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
-                                <option value="">Select Type</option>
-                                @foreach ($types as $type)
-                                    <option value="{{ $type->id }}" {{ request('type_id') == $type->id ? 'selected' : '' }}>
-                                        {{ $type->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="w-full px-2 md:w-1/3">
-                            <label for="company" class="block text-sm font-medium text-gray-700">Company</label>
-                            <input type="text" name="company" id="company" value="{{ request('company') }}"
-                                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                                placeholder="Search Company">
-                        </div>
-
-                        <div class="w-full px-2 md:w-1/3">
-                            <label for="product" class="block text-sm font-medium text-gray-700">Product</label>
-                            <input type="text" name="product" id="product" value="{{ request('product') }}"
-                                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                                placeholder="Search Product">
-                        </div>
-
-                        <div class="w-full px-2 md:w-1/3">
-                            <label for="bgoc_product" class="block text-sm font-medium text-gray-700">BGOC Product</label>
-                            <input type="text" name="bgoc_product" id="bgoc_product" value="{{ request('bgoc_product') }}"
-                                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                                placeholder="Search BGOC Product">
-                        </div>
-
-                        <div class="w-full px-2 md:w-1/3">
-                            <label for="contact1" class="block text-sm font-medium text-gray-700">contact1</label>
-                            <input type="text" name="contact1" id="contact1" value="{{ request('contact1') }}"
-                                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                                placeholder="Search contact1">
-                        </div>
-
-                        <div class="w-full px-2 md:w-1/3">
-                            <label for="contact2" class="block text-sm font-medium text-gray-700">contact2</label>
-                            <input type="text" name="contact2" id="contact2" value="{{ request('contact2') }}"
-                                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                                placeholder="Search Contact2">
-                        </div>
-
-                        <div class="w-full px-2 md:w-1/3">
-                            <label for="pic" class="block text-sm font-medium text-gray-700">PIC</label>
-                            <input type="text" name="pic" id="pic" value="{{ request('pic') }}"
-                                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                                placeholder="Search PIC">
-                        </div>
-
-                        <div class="w-full px-2 md:w-1/3">
-                            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                            <input type="text" name="email" id="email" value="{{ request('email') }}"
-                                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                                placeholder="Search email">
-                        </div>
-
-                        <div class="w-full px-2 md:w-1/3">
-                            <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
-                            <input type="text" name="address" id="address" value="{{ request('address') }}"
-                                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                                placeholder="Search Address">
-                        </div>
-
+                    <!-- Keep the export form fields here -->
+                    <div class="mt-4">
+                        <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
+                        <input type="text" id="start_date" name="start_date" placeholder="Select Start Date"
+                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
                     </div>
 
-                <div>
-                    <button type="submit"
-                        class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Filter</button>
-                </div>
+                    <div class="mt-4">
+                        <label for="end_date" class="block text-sm font-medium text-gray-700">End Date</label>
+                        <input type="text" id="end_date" name="end_date" placeholder="Select End Date"
+                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
+                    </div>
 
-                <!-- Export Button -->
-                <button type="button" data-modal-target="#export-modal"
-                    class="mt-4 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                    Export Contact Lists
-                </button>
-
-                <!-- Export Modal -->
-                <div id="export-modal" class="fixed inset-0 z-10 flex items-center justify-center p-4" style="display:none;">
-                    <div class="bg-white rounded-lg shadow-lg max-w-md mx-auto p-6">
-                        <h2 class="text-lg font-medium mb-4">Export Contact Lists</h2>
-                        <p>Select filters to export the contact lists:</p>
-
-                        <!-- Keep the export form fields here -->
-                        <div class="mt-4">
-                            <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
-                            <input type="text" id="start_date" name="start_date" placeholder="Select Start Date"
-                                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
-                        </div>
-
-                        <div class="mt-4">
-                            <label for="end_date" class="block text-sm font-medium text-gray-700">End Date</label>
-                            <input type="text" id="end_date" name="end_date" placeholder="Select End Date"
-                                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
-                        </div>
-
-                        <!-- Confirm and Cancel Buttons -->
-                        <div class="mt-4">
-                            <button type="submit" formaction="/export-contact-lists"
-                                class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                                Confirm Export
-                            </button>
-                            <button type="button" class="ml-2 inline-flex items-center rounded-md border border-transparent bg-gray-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                                onclick="document.getElementById('export-modal').style.display='none';">
-                                Cancel
-                            </button>
-                        </div>
+                    <!-- Confirm and Cancel Buttons -->
+                    <div class="mt-4">
+                        <button type="submit" formaction="/export-contact-lists"
+                            class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                            Confirm Export
+                        </button>
+                        <button type="button"
+                            class="ml-2 inline-flex items-center rounded-md border border-transparent bg-gray-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                            onclick="document.getElementById('export-modal').style.display='none';">
+                            Cancel
+                        </button>
                     </div>
                 </div>
-            </form>
+            </div>
+        </form>
 
-            <form action="{{ route('contactList.import') }}" method="POST" enctype="multipart/form-data">
-                @csrf <!-- CSRF token for security -->
-                <input type="hidden" name="subFolder" value="{{ $subFolderId }}"> <!-- Hidden input for subFolder ID -->
-                <!-- File Input -->
-                <div>
-                    <label for="file">Upload File:</label>
-                    <input type="file" name="file" id="file" accept=".xlsx,.csv" required>
-                </div>
+        <form action="{{ route('contactList.import') }}" method="POST" enctype="multipart/form-data">
+            @csrf <!-- CSRF token for security -->
+            <input type="hidden" name="subFolder" value="{{ $subFolderId }}">
+            <!-- Hidden input for subFolder ID -->
+            <!-- File Input -->
+            <div>
+                <label for="file">Upload File:</label>
+                <input type="file" name="file" id="file" accept=".xlsx,.csv" required>
+            </div>
 
-                <!-- Submit Button -->
-                <button type="submit" class="ml-2 inline-flex items-center rounded-md border border-transparent bg-gray-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                    Import Contacts</button>
-            </form>
+            <!-- Submit Button -->
+            <button type="submit"
+                class="ml-2 inline-flex items-center rounded-md border border-transparent bg-gray-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                Import Contacts</button>
+        </form>
 
-        <div class="mt-6 divide-y rounded-lg bg-white shadow-sm overflow-x-auto">
-            @if(request()->has('subfolder_id'))
-                <h2 class="text-xl font-bold mb-4">Contacts for Subfolder ID: {{ request('subfolder_id') }}</h2>
+        <div class="mt-6 divide-y overflow-x-auto rounded-lg bg-white shadow-sm">
+            @if (request()->has('subfolder_id'))
+                <h2 class="mb-4 text-xl font-bold">Contacts for Subfolder ID: {{ request('subfolder_id') }}</h2>
             @endif
+
             <table class="min-w-full bg-white">
+                <div id="action-buttons" class="mb-4 flex hidden gap-2">
+                    <button id="edit-button"
+                        class="rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700">Edit</button>
+                    <button id="delete-button"
+                        class="rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700">Delete</button>
+                </div>
                 <thead class="bg-gray-50">
                     <tr>
-                        <th><input type="checkbox" id="select-all"></th>
+                        <th><input type="checkbox" id="select-all">
+
+                        </th>
                         <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                             Date Created
                         </th>
@@ -452,46 +297,50 @@
                 </thead>
                 <tbody class="divide-y divide-gray-200 bg-white">
                     @foreach ($contactLists as $contactList)
-                    <tr>
-                        <td><input type="checkbox" class="contact-checkbox" value="{{ $contactList->id }}"></td>
-                        <td class="whitespace-nowrap px-6 py-4">{{ $contactList->created_at->format('Y-m-d') }}</td>
-                        <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">
-                            {{ $contactList->subFolder->name }}</td>
-                        <td class="whitespace-nowrap px-6 py-4">{{ $contactList->user->name }}</td>
-                        <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">{{ $contactList->resources }}</td>
-                        <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">
-                            {{ $contactList->status->name }}</td>
-                        <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">
-                            {{ $contactList->type->name }}</td>
-                        <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">
-                            {{ $contactList->industry }}</td>
-                        <td class="whitespace-nowrap px-6 py-4">{{ $contactList->company }}</td>
-                        <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">
-                            {{ $contactList->product }}</td>
-                        <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">{{ $contactList->bgoc_product }}</td>
-                        <td class="whitespace-nowrap px-6 py-4">{{ $contactList->pic }}</td>
-                        <td class="whitespace-nowrap px-6 py-4">{{ $contactList->email }}</td>
-                        <td class="whitespace-nowrap px-6 py-4">{{ $contactList->contact1 }}</td>
-                        <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">
-                            {{ $contactList->contact2 }}</td>
-                        <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">
-                            {{ $contactList->address }}</td>
-                        <td class="whitespace-nowrap px-6 py-4">{{ $contactList->city->name }}</td>
-                        <td class="whitespace-nowrap px-6 py-4">{{ $contactList->state->name }}</td>
-                        <td class="whitespace-nowrap px-6 py-4">{{ $contactList->remarks }}</td>
-                        <td class="whitespace-nowrap px-6 py-4">
-                            @if ($contactList->user->is(auth()->user()))
-                            <x-dropdown>
-                                <x-slot name="trigger">
-                                    <button>
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" viewBox="0 0 20 20"
-                                            fill="currentColor">
-                                            <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
-                                        </svg>
-                                    </button>
-                                </x-slot>
-                                <x-slot name="content">
-                                    <x-dropdown-link :href="route('contactList.edit', ['contactList' => $contactList->id]) . '?subFolder=' . $subFolderId">
+                        <tr>
+                            <td><input type="checkbox" class="contact-checkbox" value="{{ $contactList->id }}"></td>
+                            <td class="whitespace-nowrap px-6 py-4">{{ $contactList->created_at->format('Y-m-d') }}
+                            </td>
+                            <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">
+                                {{ $contactList->subFolder->name }}</td>
+                            <td class="whitespace-nowrap px-6 py-4">{{ $contactList->user->name }}</td>
+                            <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">
+                                {{ $contactList->resources }}</td>
+                            <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">
+                                {{ $contactList->status->name }}</td>
+                            <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">
+                                {{ $contactList->type->name }}</td>
+                            <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">
+                                {{ $contactList->industry }}</td>
+                            <td class="whitespace-nowrap px-6 py-4">{{ $contactList->company }}</td>
+                            <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">
+                                {{ $contactList->product }}</td>
+                            <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">
+                                {{ $contactList->bgoc_product }}</td>
+                            <td class="whitespace-nowrap px-6 py-4">{{ $contactList->pic }}</td>
+                            <td class="whitespace-nowrap px-6 py-4">{{ $contactList->email }}</td>
+                            <td class="whitespace-nowrap px-6 py-4">{{ $contactList->contact1 }}</td>
+                            <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">
+                                {{ $contactList->contact2 }}</td>
+                            <td class="hidden-column whitespace-nowrap px-6 py-4" style="display: none;">
+                                {{ $contactList->address }}</td>
+                            <td class="whitespace-nowrap px-6 py-4">{{ $contactList->city->name }}</td>
+                            <td class="whitespace-nowrap px-6 py-4">{{ $contactList->state->name }}</td>
+                            <td class="whitespace-nowrap px-6 py-4">{{ $contactList->remarks }}</td>
+                            <td class="whitespace-nowrap px-6 py-4">
+                                @if ($contactList->user->is(auth()->user()))
+                                    <x-dropdown>
+                                        <x-slot name="trigger">
+                                            <button>
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400"
+                                                    viewBox="0 0 20 20" fill="currentColor">
+                                                    <path
+                                                        d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
+                                                </svg>
+                                            </button>
+                                        </x-slot>
+                                        <x-slot name="content">
+                                            <x-dropdown-link :href="route('contactList.edit', ['contactList' => $contactList->id]) . '?subFolder=' . $subFolderId">
                                         {{ __('Edit') }}
                                     </x-dropdown-link>
 
@@ -499,15 +348,15 @@
                                         @csrf
                                         @method('delete')
                                         <x-dropdown-link :href="route('contactList.destroy', $contactList)"
-                                            onclick="event.preventDefault(); this.closest('form').submit();">
-                                            {{ __('Delete') }}
-                                        </x-dropdown-link>
-                                    </form>
-                                </x-slot>
-                            </x-dropdown>
-                            @endif
-                        </td>
-                    </tr>
+                                                onclick="event.preventDefault(); this.closest('form').submit();">
+                                                {{ __('Delete') }}
+                                            </x-dropdown-link>
+                                            </form>
+                                        </x-slot>
+                                    </x-dropdown>
+                                @endif
+                            </td>
+                        </tr>
                     @endforeach
                 </tbody>
             </table>
@@ -520,77 +369,84 @@
 
         <div class="mt-4">
             {{ $contactLists->appends([
-                'subFolder' => request()->query('subFolder'),
-                'search' => request()->query('search'),
-                'state_id' => request()->query('state_id'),
-                'city_id' => request()->query('city_id'),
-                'status_id' => request()->query('status_id'),
-                'type_id' => request()->query('type_id'),
-                'company' => request()->query('company'),
-                'product' => request()->query('product'),
-                'industry' => request()->query('industry'),
-                'contact1' => request()->query('contact1'),
-                'contact2' => request()->query('contact2'),
-                'pic' => request()->query('pic'),
-                'email' => request()->query('email'),
-                'address' => request()->query('address')
-            ])->links('pagination::tailwind') }}
+                    'subFolder' => request()->query('subFolder'),
+                    'search' => request()->query('search'),
+                    'state_id' => request()->query('state_id'),
+                    'city_id' => request()->query('city_id'),
+                    'status_id' => request()->query('status_id'),
+                    'type_id' => request()->query('type_id'),
+                    'company' => request()->query('company'),
+                    'product' => request()->query('product'),
+                    'industry' => request()->query('industry'),
+                    'contact1' => request()->query('contact1'),
+                    'contact2' => request()->query('contact2'),
+                    'pic' => request()->query('pic'),
+                    'email' => request()->query('email'),
+                    'address' => request()->query('address'),
+                ])->links('pagination::tailwind') }}
         </div>
 
-        <div id="mass-edit-form-container" class="hidden p-4 bg-white rounded-lg shadow-md max-w-sm mx-auto">
-            <form id="mass-edit-form" method="POST" action="{{ route('contacts.mass_edit') }}">
-                @csrf
-                <input type="hidden" name="contact_ids" id="contact-ids">
-                <h1 class="center">Mass Edit Form</h1>
+        <div id="mass-edit-form-container"
+            class="fixed inset-0 z-50 flex hidden items-center justify-center bg-black bg-opacity-50">
+            <div class="relative w-full max-w-sm rounded-lg bg-white p-6 shadow-lg">
+                <!-- Close Button -->
+                <button id="closeMassEditForm" class="absolute right-4 top-4 text-gray-500 hover:text-gray-700">
+                    &times;
+                </button>
+                <form id="mass-edit-form" method="POST" action="{{ route('contacts.mass_edit') }}">
+                    @csrf
+                    <input type="hidden" name="contact_ids" id="contact-ids">
+                    <h1 class="center">Mass Edit Form</h1>
 
-                <div class="mb-4">
-                    <label for="company" class="block text-gray-700">Company:</label>
-                    <input type="text" name="company" id="company"
-                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
-                </div>
-                <div class="mb-4">
-                    <label for="industry" class="block text-gray-700">Industry:</label>
-                    <input type="text" name="industry" id="industry"
-                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
-                </div>
-                <div class="mb-4">
-                    <label for="product" class="block text-gray-700">Product:</label>
-                    <input type="text" name="product" id="product"
-                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
-                </div>
-                <div class="mb-4">
-                    <label for="address" class="block text-gray-700">Address:</label>
-                    <input type="text" name="address" id="address"
-                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
-                </div>
-                <div class="mb-4">
-                    <label for="state_id" class="block text-gray-700">State:</label>
-                    <select id="state1" name="state_id"
-                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
-                        <option value="">Select State</option>
-                        @foreach ($states as $state)
-                            <option value="{{ $state->id }}"
-                                {{ request('state_id') == $state->id ? 'selected' : '' }}>
-                                {{ $state->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="mb-4">
-                    <label for="city_id" class="block text-gray-700">City:</label>
-                    <select id="city1" name="city_id"
-                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
-                        <option value="">Select City</option>
-                        @foreach ($cities as $city)
-                            <option value="{{ $city->id }}"
-                                {{ request('city_id') == $city->id ? 'selected' : '' }}>
-                                {{ $city->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <!-- Add other fields as needed -->
+                    <div class="mb-4">
+                        <label for="company" class="block text-gray-700">Company:</label>
+                        <input type="text" name="company" id="company"
+                            class="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                    </div>
+                    <div class="mb-4">
+                        <label for="industry" class="block text-gray-700">Industry:</label>
+                        <input type="text" name="industry" id="industry"
+                            class="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                    </div>
+                    <div class="mb-4">
+                        <label for="product" class="block text-gray-700">Product:</label>
+                        <input type="text" name="product" id="product"
+                            class="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                    </div>
+                    <div class="mb-4">
+                        <label for="address" class="block text-gray-700">Address:</label>
+                        <input type="text" name="address" id="address"
+                            class="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                    </div>
+                    <div class="mb-4">
+                        <label for="state_id" class="block text-gray-700">State:</label>
+                        <select id="state1" name="state_id"
+                            class="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                            <option value="">Select State</option>
+                            @foreach ($states as $state)
+                                <option value="{{ $state->id }}"
+                                    {{ request('state_id') == $state->id ? 'selected' : '' }}>
+                                    {{ $state->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label for="city_id" class="block text-gray-700">City:</label>
+                        <select id="city1" name="city_id"
+                            class="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                            <option value="">Select City</option>
+                            @foreach ($cities as $city)
+                                <option value="{{ $city->id }}"
+                                    {{ request('city_id') == $city->id ? 'selected' : '' }}>
+                                    {{ $city->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                <button type="submit" class="px-4 py-2 text-black bg-blue-600 rounded-lg hover:bg-blue-700">Mass Edit</button>
-            </form>
+                    <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-black hover:bg-blue-700">Mass
+                        Edit</button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -702,10 +558,13 @@
                     // Check if both dates are selected before proceeding
                     if (startDate && endDate) {
                         // Log the full URL that will be requested
-                        console.log(`Export URL: /export-contact-lists?start_date=${startDate}&end_date=${endDate}&subFolderId=${subFolderId}`);
+                        console.log(
+                            `Export URL: /export-contact-lists?start_date=${startDate}&end_date=${endDate}&subFolderId=${subFolderId}`
+                        );
 
                         // Trigger the export by updating the URL
-                        window.location.href = `/export-contact-lists?start_date=${startDate}&end_date=${endDate}&subFolderId=${subFolderId}`;
+                        window.location.href =
+                            `/export-contact-lists?start_date=${startDate}&end_date=${endDate}&subFolderId=${subFolderId}`;
                     } else {
                         alert('Please select both start and end dates.');
                     }
@@ -716,55 +575,67 @@
         });
     </script>
 
-        <script>
-            // Function to handle checkbox changes and update the form
-            function updateFormVisibility() {
-                const selectedContacts = Array.from(document.querySelectorAll('.contact-checkbox:checked'));
+    <script>
+        // Function to handle checkbox changes and update button visibility
+        function updateActionButtonVisibility() {
+            const selectedContacts = Array.from(document.querySelectorAll('.contact-checkbox:checked'));
+            const actionButtons = document.getElementById('action-buttons');
 
-                // Toggle the form visibility based on checkbox selection
-                if (selectedContacts.length > 0) {
-                    document.getElementById('mass-edit-form-container').classList.remove('hidden');
-                    // Update the hidden input with the selected contact IDs
-                    const contactIds = selectedContacts.map(cb => cb.value).join(',');
-                    document.getElementById('contact-ids').value = contactIds;
-                } else {
-                    document.getElementById('mass-edit-form-container').classList.add('hidden');
-                    document.getElementById('contact-ids').value = '';
-                }
+            // Toggle the action buttons visibility based on checkbox selection
+            if (selectedContacts.length > 0) {
+                actionButtons.classList.remove('hidden');
+                // Update the hidden input with the selected contact IDs
+                const contactIds = selectedContacts.map(cb => cb.value).join(',');
+                document.getElementById('contact-ids').value = contactIds;
+            } else {
+                actionButtons.classList.add('hidden');
+                document.getElementById('contact-ids').value = '';
             }
+        }
 
-            // Apply the updateFormVisibility function to each individual checkbox
+        // Show the mass edit form when the "Edit" button is clicked
+        document.getElementById('edit-button').addEventListener('click', function() {
+            document.getElementById('mass-edit-form-container').classList.remove('hidden');
+            document.getElementById('action-buttons').classList.add('hidden'); // Hide action buttons
+        });
+
+        // Apply the updateActionButtonVisibility function to each individual checkbox
+        document.querySelectorAll('.contact-checkbox').forEach(function(checkbox) {
+            checkbox.addEventListener('change', updateActionButtonVisibility);
+        });
+
+        // Apply the updateActionButtonVisibility function to the select-all checkbox
+        document.getElementById('select-all').addEventListener('click', function() {
+            const isChecked = this.checked;
             document.querySelectorAll('.contact-checkbox').forEach(function(checkbox) {
-                checkbox.addEventListener('change', updateFormVisibility);
+                checkbox.checked = isChecked;
             });
+            // Update the form visibility and hidden input based on the select-all state
+            updateActionButtonVisibility();
+        });
 
-            // Apply the updateFormVisibility function to the select-all checkbox
-            document.getElementById('select-all').addEventListener('click', function() {
-                const isChecked = this.checked;
-                document.querySelectorAll('.contact-checkbox').forEach(function(checkbox) {
-                    checkbox.checked = isChecked;
-                });
-                // Update the form visibility and hidden input based on the select-all state
-                updateFormVisibility();
-            });
-        </script>
-       {{--  <script>
-            document.querySelectorAll('.contact-checkbox').forEach(function(checkbox) {
-                checkbox.addEventListener('change', function() {
-                    const selectedContacts = Array.from(document.querySelectorAll('.contact-checkbox:checked'));
+        // Hide the modal when the close button is clicked
+        document.getElementById('closeMassEditForm').addEventListener('click', function() {
+            document.getElementById('mass-edit-form-container').classList.add('hidden');
+        });
+    </script>
+    <script>
+        function toggleSearchForm() {
+            // Hide the Search button
+            document.getElementById("toggle-search-button").style.display = "none";
 
-                    // Toggle the form visibility based on checkbox selection
-                    if (selectedContacts.length > 0) {
-                        document.getElementById('mass-edit-form-container').classList.remove('hidden');
-                        // Update the hidden input with the selected contact IDs
-                        const contactIds = selectedContacts.map(cb => cb.value).join(',');
-                        document.getElementById('contact-ids').value = contactIds;
-                    } else {
-                        document.getElementById('mass-edit-form-container').classList.add('hidden');
-                        document.getElementById('contact-ids').value = '';
-                    }
-                });
-            });
-        </script> --}}
+            // Show the search filters form
+            const searchFilters = document.getElementById("search-filters");
+            searchFilters.classList.remove("hidden");
+            searchFilters.style.display = "flex";  // Ensure the div uses flex display
+        }
+        function closeSearchForm() {
+            // Hide the search filters form
+            const searchFilters = document.getElementById("search-filters");
+            searchFilters.classList.add("hidden");
 
+            // Show the Search button again
+            document.getElementById("toggle-search-button").style.display = "inline-flex"; // Show the button
+        }
+    </script>
 </x-app-layout>

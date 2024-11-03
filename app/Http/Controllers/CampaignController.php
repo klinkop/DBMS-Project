@@ -13,6 +13,7 @@ use App\Jobs\SendCampaignEmails; // Job to handle email sending
 use App\Mail\CampaignEmail;
 use App\Models\SubFolder;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class CampaignController extends Controller
 {
@@ -79,7 +80,7 @@ class CampaignController extends Controller
         $campaign->email_subject = $validatedData['email_subject'];
         $campaign->email_body = $validatedData['email_body'];
         $campaign->user_id = $request->user()->id;
-        // $campaign->scheduled_at = $validatedData['scheduled_at'] ? Carbon::parse($validatedData['scheduled_at']) : null;
+        $campaign->status = 'pending';
         $campaign->save();
 
         // If scheduled_at is provided, schedule the email sending
@@ -244,6 +245,15 @@ class CampaignController extends Controller
                 Mail::to($contactList->email)->send(new CampaignMail($campaign));
             }
 
+            // Update email status in the email_statuses table
+            DB::table('email_statuses')->insert([
+                'campaign_id' => $campaign->id,
+                'recipient_email' => $contactList->email,
+                'status' => 'sent',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
             // Mark the email as sent
             $recipient->update(['sent' => true]);
         }
@@ -288,8 +298,10 @@ class CampaignController extends Controller
         ]);
 
         // Update the campaign's scheduled_at time in the database
-        $campaign->scheduled_at = $request->input('schedule_time');
-        $campaign->save();
+        $campaign->update([
+            'scheduled_at' => $request->input('schedule_time'),
+            'status' => 'scheduled',
+        ]);
 
         // Dispatch the job to send the campaign emails at the scheduled time
         SendCampaignEmails::dispatch($campaign)->delay($campaign->scheduled_at);
@@ -307,4 +319,27 @@ class CampaignController extends Controller
         // Redirect back with a success message
         return redirect()->back()->with('alert', 'Recipient deleted successfully.');
     }
+
+        public function duplicate($id)
+    {
+        // Find the existing campaign by ID
+        $campaign = Campaign::findOrFail($id);
+
+        // Create a new campaign with the same properties
+        $newCampaign = $campaign->replicate(); // Use replicate to copy the model
+
+        // Modify the name to distinguish it
+        $newCampaign->name = $campaign->name . ' (Copy)';
+
+        // Set the status of the new campaign to 'pending'
+        $newCampaign->status = 'pending'; // Set the desired status
+
+        $newCampaign->scheduled_at = NULL;
+        // Save the new campaign to the database
+        $newCampaign->save();
+
+        // Redirect back with a success message
+        return redirect()->route('campaigns.index')->with('success', 'Campaign duplicated successfully with status set to pending.');
+    }
+
 }
