@@ -23,27 +23,30 @@
         <h1 class="mb-6 text-2xl font-semibold">Campaign Details</h1>
 
         <!-- Campaign details card -->
-        <div class="mb-6 rounded-lg bg-white p-6 shadow-md">
-            <div class="mb-4">
+        <div class="mb-6 rounded-lg bg-white shadow-md p-4" style="overflow: hidden; max-height: 1800px;"> <!-- Adjust padding -->
+            <div class="mb-3">
                 <h3 class="text-xl font-semibold">{{ $campaign->name }}</h3>
             </div>
-            <div class="mb-4">
-                <p><strong>Description:</strong> {{ $campaign->description }}</p>
-                <p><strong>Email Subject:</strong> {{ $campaign->email_subject }}</p>
-                <p><strong>Email Body:</strong></p>
-                <div class="rounded-lg bg-gray-100 p-4">
+
+            <p class="mb-2"><strong>Description:</strong> {{ $campaign->description }}</p>
+            <p><strong>Sender Name:</strong> {{ $campaign->sender_name ?? config('mail.from.name') }}</p>
+            <p class="mb-2"><strong>Email Subject:</strong> {{ $campaign->email_subject }}</p>
+            <p class="mb-2"><strong>Scheduled At:</strong>
+                {{ $campaign->scheduled_at ? \Carbon\Carbon::parse($campaign->scheduled_at)->format('Y-m-d H:i') : 'Not Scheduled' }}
+            </p>
+            <p class="mb-2"><strong>Status:</strong> {{ ucfirst($campaign->status) }}</p>
+            <p class="mb-2"><strong>Email Body:</strong></p>
+            <div class="rounded-lg bg-gray-100" style="transform: scale(0.7); transform-origin: top; padding: 0; margin: 0; overflow: hidden;"> <!-- Scaling down -->
+                <div class="p-2"> <!-- Inner padding to control the inner content -->
                     {!! $campaign->email_body !!}
                 </div>
-                <p class="mt-4"><strong>Scheduled At:</strong>
-                    {{ $campaign->scheduled_at ? \Carbon\Carbon::parse($campaign->scheduled_at)->format('Y-m-d H:i') : 'Not Scheduled' }}
-                </p>
-                <p class="mt-4"><strong>Status:</strong> {{ ucfirst($campaign->status) }}</p>
             </div>
+
         </div>
 
         <!-- Action Buttons -->
         <div class="mb-6 flex flex-wrap gap-4">
-            @if ($campaign->status !== 'sent')
+            @if ($campaign->status !== 'sent' && $campaign->status !== 'scheduled')
                 <a href="{{ route('campaigns.edit', $campaign->id) }}"
                     class="rounded bg-yellow-500 px-4 py-2 font-bold text-white hover:bg-yellow-600">
                     Edit Campaign
@@ -72,7 +75,7 @@
                     Schedule Campaign
                 </button>
             @else
-                <p class="font-bold text-red-500">This campaign has already been sent and cannot be edited or
+                <p class="font-bold text-red-500">This campaign has already been sent or scheduled and cannot be edited or
                     rescheduled.</p>
             @endif
 

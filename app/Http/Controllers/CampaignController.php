@@ -153,6 +153,7 @@ class CampaignController extends Controller
             'email_subject' => 'required|string|max:255',
             'email_body' => 'required|string',
             'scheduled_at' => 'nullable|date',
+            'sender_name' => 'required|string|max:255',
         ]);
 
         // Fetch the campaign
@@ -165,10 +166,11 @@ class CampaignController extends Controller
             'email_subject' => $request->input('email_subject'),
             'email_body' => $request->input('email_body'),
             'scheduled_at' => $request->input('scheduled_at'),
+            'sender_name' => $request->input('sender_name'),
         ]);
 
         // Optionally, redirect the user to a page with a success message
-        return redirect()->route('campaigns.index')
+        return redirect()->route('campaigns.show', $campaign->id)
                          ->with('success', 'Campaign updated successfully!');
     }
 

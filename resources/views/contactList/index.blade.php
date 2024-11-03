@@ -396,55 +396,95 @@
                 <form id="mass-edit-form" method="POST" action="{{ route('contacts.mass_edit') }}">
                     @csrf
                     <input type="hidden" name="contact_ids" id="contact-ids">
-                    <h1 class="center">Mass Edit Form</h1>
+                    <h1 class="text-lg font-semibold text-center mb-3">Mass Edit Form</h1>
 
-                    <div class="mb-4">
-                        <label for="company" class="block text-gray-700">Company:</label>
-                        <input type="text" name="company" id="company"
-                            class="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600">
-                    </div>
-                    <div class="mb-4">
-                        <label for="industry" class="block text-gray-700">Industry:</label>
-                        <input type="text" name="industry" id="industry"
-                            class="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600">
-                    </div>
-                    <div class="mb-4">
-                        <label for="product" class="block text-gray-700">Product:</label>
-                        <input type="text" name="product" id="product"
-                            class="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600">
-                    </div>
-                    <div class="mb-4">
-                        <label for="address" class="block text-gray-700">Address:</label>
-                        <input type="text" name="address" id="address"
-                            class="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600">
-                    </div>
-                    <div class="mb-4">
-                        <label for="state_id" class="block text-gray-700">State:</label>
-                        <select id="state1" name="state_id"
-                            class="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600">
-                            <option value="">Select State</option>
-                            @foreach ($states as $state)
-                                <option value="{{ $state->id }}"
-                                    {{ request('state_id') == $state->id ? 'selected' : '' }}>
-                                    {{ $state->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-4">
-                        <label for="city_id" class="block text-gray-700">City:</label>
-                        <select id="city1" name="city_id"
-                            class="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600">
-                            <option value="">Select City</option>
-                            @foreach ($cities as $city)
-                                <option value="{{ $city->id }}"
-                                    {{ request('city_id') == $city->id ? 'selected' : '' }}>
-                                    {{ $city->name }}</option>
-                            @endforeach
-                        </select>
+                    <div class="grid grid-cols-1 gap-2">
+                        <div>
+                            <label for="resources" class="block text-gray-700 text-xs">Resources:</label>
+                            <input type="text" name="resources" id="resources"
+                                class="w-full rounded-lg border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                        </div>
+                        <div>
+                            <label for="status_id" class="block text-gray-700 text-xs">Status:</label>
+                            <select id="status_id" name="status_id"
+                                class="w-full rounded-lg border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                                <option value="">-- Select Status --</option>
+                                @foreach ($statuses as $status)
+                                    @if (!empty($status) && isset($status->id))
+                                        <option value="{{ $status->id }}">{{ $status->name }}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label for="type_id" class="block text-gray-700 text-xs">Type:</label>
+                            <select id="type_id" name="type_id"
+                                class="w-full rounded-lg border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                                <option value="">-- Select Type --</option>
+                                @foreach ($types as $type)
+                                    @if (!empty($type) && isset($type->id))
+                                        <option value="{{ $type->id }}">{{ $type->name }}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label for="industry" class="block text-gray-700 text-xs">Industry:</label>
+                            <input type="text" name="industry" id="industry"
+                                class="w-full rounded-lg border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                        </div>
+                        <div>
+                            <label for="company" class="block text-gray-700 text-xs">Company:</label>
+                            <input type="text" name="company" id="company"
+                                class="w-full rounded-lg border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                        </div>
+                        <div>
+                            <label for="product" class="block text-gray-700 text-xs">Product:</label>
+                            <input type="text" name="product" id="product"
+                                class="w-full rounded-lg border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                        </div>
+                        <div>
+                            <label for="bgoc_product" class="block text-gray-700 text-xs">BGOC Product:</label>
+                            <input type="text" name="bgoc_product" id="bgoc_product"
+                                class="w-full rounded-lg border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                        </div>
+                        <div>
+                            <label for="pic" class="block text-gray-700 text-xs">PIC:</label>
+                            <input type="pic" name="pic" id="pic"
+                                class="w-full rounded-lg border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                        </div>
+                        <div>
+                            <label for="address" class="block text-gray-700 text-xs">Address:</label>
+                            <input type="text" name="address" id="address"
+                                class="w-full rounded-lg border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                        </div>
+                        <div>
+                            <label for="state_id" class="block text-gray-700 text-xs">State:</label>
+                            <select id="state1" name="state_id"
+                                class="w-full rounded-lg border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                                <option value="">Select State</option>
+                                @foreach ($states as $state)
+                                    <option value="{{ $state->id }}" {{ request('state_id') == $state->id ? 'selected' : '' }}>
+                                        {{ $state->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label for="city_id" class="block text-gray-700 text-xs">City:</label>
+                            <select id="city1" name="city_id"
+                                class="w-full rounded-lg border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                                <option value="">Select City</option>
+                                @foreach ($cities as $city)
+                                    <option value="{{ $city->id }}" {{ request('city_id') == $city->id ? 'selected' : '' }}>
+                                        {{ $city->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
 
-                    <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-black hover:bg-blue-700">Mass
-                        Edit</button>
+                    <button type="submit" class="mt-3 rounded-lg bg-blue-600 px-3 py-1 text-white hover:bg-blue-700">Mass Edit</button>
                 </form>
             </div>
         </div>

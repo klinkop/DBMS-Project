@@ -21,7 +21,14 @@ class CampaignMail extends Mailable
 
     public function build()
     {
-        return $this->subject($this->campaign->email_subject)
-                    ->view('emails.campaign'); // Make sure to create this view
+        // Use the sender name from the campaign table
+        $senderName = $this->campaign->sender_name;
+
+        return $this->from(config('mail.from.address'), $senderName) // Set the sender's name from the campaign
+            ->subject($this->campaign->email_subject)
+            ->view('emails.campaign') // Adjust to your email view path
+            ->with([
+                'campaign' => $this->campaign,
+            ]);
     }
 }

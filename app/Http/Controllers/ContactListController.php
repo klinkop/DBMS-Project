@@ -343,7 +343,7 @@ class ContactListController extends Controller
         $contactIds = explode(',', $request->input('contact_ids'));
 
         // Prepare data for update
-        $data = $request->only(['status', 'company', 'industry', 'city_id', 'state_id']);
+        $data = $request->only(['status_id','resources','product','type_id','bgoc_product','company','industry', 'city_id', 'state_id']);
 
         // Filter out any null or empty fields
         $filteredData = array_filter($data, function ($value) {

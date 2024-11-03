@@ -107,7 +107,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/campaigns/{campaign}/schedule', [CampaignController::class, 'schedule'])->name('campaigns.schedule');
     Route::post('/campaigns/{campaign}/duplicate', [CampaignController::class, 'duplicate'])->name('campaigns.duplicate');
     Route::delete('/campaigns/{campaign}/deleteRecipient/{recipient}', [CampaignController::class, 'deleteReceipient'])->name('campaigns.deleteRecipient');
-
+    Route::get('/campaigns/{id}', [CampaignController::class, 'show'])->name('campaigns.show');
 
 });
 

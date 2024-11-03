@@ -5,12 +5,12 @@
         <form method="POST" action="{{ route('contactList.store') }}">
             @csrf
 
-            <div class="mb-4">
+            {{-- <div class="mb-4">
                 <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
                 <textarea id="name" name="name"
                     class="block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"></textarea>
                 <x-input-error :messages="$errors->get('name')" class="mt-2" />
-            </div>
+            </div> --}}
             {{--
             <div class="mb-4">
                 <label for="sub_folder" class="block text-sm font-medium text-gray-700">Sub Folder</label>

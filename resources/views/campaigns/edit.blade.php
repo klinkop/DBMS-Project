@@ -16,7 +16,11 @@
                 <label for="name" class="block text-gray-700 font-bold mb-2">Campaign Name</label>
                 <input type="text" name="name" id="name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ $campaign->name }}" required>
             </div>
-
+            <!-- Sender Name -->
+            <div class="mb-4">
+                <label for="sender_name" class="block text-gray-700 font-bold mb-2">Sender Name</label>
+                <input type="text" name="sender_name" id="sender_name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ $campaign->sender_name ?? env('MAIL_FROM_NAME') }}" required>
+            </div>
             <!-- Description -->
             <div class="mb-4">
                 <label for="description" class="block text-gray-700 font-bold mb-2">Description</label>
