@@ -15,7 +15,8 @@ class CreateCampaignsTable extends Migration
             $table->text('description')->nullable();
             $table->text('email_subject');
             $table->text('email_body');
-            $table->text('sender_name');// Email body can store the HTML content
+            $table->text('sender_name');
+            $table->text('status')->nullable();
             $table->timestamp('scheduled_at')->nullable(); // When to send the emails
             $table->timestamps();
         });
