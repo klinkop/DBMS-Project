@@ -70,6 +70,7 @@ class CampaignController extends Controller
             'description' => 'nullable|string',
             'email_subject' => 'required|string|max:255',
             'email_body' => 'required|string',
+            'sender_name' => 'required|string',
             'scheduled_at' => 'nullable|date', // Ensure it's a valid date
         ]);
 
@@ -77,6 +78,7 @@ class CampaignController extends Controller
         $campaign = new Campaign();
         $campaign->name = $validatedData['name'];
         $campaign->description = $validatedData['description'];
+        $campaign->sender_name = $validatedData['sender_name'];
         $campaign->email_subject = $validatedData['email_subject'];
         $campaign->email_body = $validatedData['email_body'];
         $campaign->user_id = $request->user()->id;
