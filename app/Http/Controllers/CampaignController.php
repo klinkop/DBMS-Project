@@ -70,7 +70,8 @@ class CampaignController extends Controller
             'description' => 'nullable|string',
             'email_subject' => 'required|string|max:255',
             'email_body' => 'required|string',
-            'scheduled_at' => 'nullable|date', // Ensure it's a valid date
+            'scheduled_at' => 'nullable|date',
+            'sender_name' => 'required|string',
         ]);
 
         // Create the campaign
@@ -81,6 +82,7 @@ class CampaignController extends Controller
         $campaign->email_body = $validatedData['email_body'];
         $campaign->user_id = $request->user()->id;
         $campaign->status = 'pending';
+        $campaign->sender_name = $validatedData['sender_name'];
         $campaign->save();
 
         // If scheduled_at is provided, schedule the email sending

@@ -1,5 +1,5 @@
 <?php
-// Change the path to your Laravel installation
+/* // Change the path to your Laravel installation
 require __DIR__ . '/vendor/autoload.php';
 // Import the Artisan facade
 use Illuminate\Support\Facades\Artisan;
@@ -15,4 +15,4 @@ Artisan::call('queue:work', [
     '--tries' => 3,
 ]);
 
-$kernel->terminate($request, $response);
+$kernel->terminate($request, $response); */

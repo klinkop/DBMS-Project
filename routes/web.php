@@ -8,7 +8,7 @@ use App\Http\Controllers\SubFolderController;
 use App\Http\Controllers\ContactListController;
 use App\Http\Controllers\ParentFolderController;
 use App\Http\Controllers\CityController;
-
+use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\RecipientController;
 use Illuminate\Support\Facades\Mail;
@@ -109,6 +109,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/campaigns/{campaign}/deleteRecipient/{recipient}', [CampaignController::class, 'deleteReceipient'])->name('campaigns.deleteRecipient');
     Route::get('/campaigns/{id}', [CampaignController::class, 'show'])->name('campaigns.show');
 
+    Route::get('/email-templates', [EmailTemplateController::class, 'index'])->name('email_templates.index');
+    Route::get('/email-templates/create', [EmailTemplateController::class, 'create'])->name('email_templates.create');
+    Route::post('/email-templates', [EmailTemplateController::class, 'store'])->name('email_templates.store');
 });
 
 require __DIR__.'/auth.php';

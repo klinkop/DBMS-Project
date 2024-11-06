@@ -14,6 +14,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Mail\CampaignMail;
+use Exception;
 
 class SendCampaignEmails implements ShouldQueue
 {
@@ -49,6 +50,7 @@ class SendCampaignEmails implements ShouldQueue
             }
         }
     } */
+
     public function handle()
     {
         // Get all recipients of the campaign
@@ -59,15 +61,30 @@ class SendCampaignEmails implements ShouldQueue
             return;
         }
 
+        $failed = false;
+
         foreach ($recipients as $recipient) {
             foreach ($recipient->subFolder->contactLists as $contactList) {
-                Mail::to($contactList->email)->send(new CampaignMail($this->campaign));
+                try {
+                    Mail::to($contactList->email)->send(new CampaignMail($this->campaign));
+                } catch (Exception $e) {
+                    // Log the error and set the failed flag to true
+                    Log::error('Failed to send email to ' . $contactList->email . ' for Campaign ID: ' . $this->campaign->id . '. Error: ' . $e->getMessage());
+                    $failed = true;
+                }
             }
         }
 
-        $this->campaign->update(['status' => 'sent']);
-
-        Log::info('Status updated to "sent" for Campaign ID: ' . $this->campaign->id);
+        if ($failed) {
+            // Update status to 'failed' if any emails were not sent
+            $this->campaign->update(['status' => 'failed']);
+            Log::info('Status updated to "failed" for Campaign ID: ' . $this->campaign->id);
+        } else {
+            // Update status to 'sent' if all emails were successfully sent
+            $this->campaign->update(['status' => 'sent']);
+            Log::info('Status updated to "sent" for Campaign ID: ' . $this->campaign->id);
+        }
     }
+
 
 }
