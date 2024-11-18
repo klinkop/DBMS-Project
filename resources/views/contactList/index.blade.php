@@ -347,6 +347,7 @@
                                     <form method="POST" action="{{ route('contactList.destroy', $contactList) }}">
                                         @csrf
                                         @method('delete')
+                                        <input type="hidden" name="subFolderId" value="{{ $subFolderId }}">
                                         <x-dropdown-link :href="route('contactList.destroy', $contactList)"
                                                 onclick="event.preventDefault(); this.closest('form').submit();">
                                                 {{ __('Delete') }}

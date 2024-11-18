@@ -266,11 +266,13 @@ class ContactListController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ContactList $contactList): RedirectResponse
+    public function destroy(Request $request,ContactList $contactList): RedirectResponse
     {
         Gate::authorize('delete', $contactList);
+        $subFolderId = $request->input('subFolderId'); // Retrieve subFolderId from the form data
         $contactList->delete();
-        return redirect(route('contactList.index'));
+        return redirect()->route('contactList.index', ['subFolder' => $subFolderId])
+                     ->with('success', 'Contact deleted successfully.');
     }
 
     public function export(Request $request)

@@ -38,7 +38,7 @@
             <p class="mb-2"><strong>Email Body:</strong></p>
             <div class="rounded-lg bg-gray-100" style="transform: scale(0.7); transform-origin: top; padding: 0; margin: 0; overflow: hidden;"> <!-- Scaling down -->
                 <div class="p-2"> <!-- Inner padding to control the inner content -->
-                    {!! $campaign->email_body !!}
+                    {!! $campaign->email_body_html !!}
                 </div>
             </div>
 

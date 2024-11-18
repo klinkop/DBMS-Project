@@ -36,14 +36,15 @@
                 <label for="description" class="block text-gray-700 text-sm font-bold mb-2">Description (Optional)</label>
                 <textarea name="description"
                     class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    rows="3" placeholder="Enter a brief description">{{ old('description', $campaign->description) }}</textarea>
+                    rows="3"
+                    placeholder="Enter a brief description">{{ old('description', $campaign->description) }}</textarea>
             </div>
 
             <div class="mb-4">
                 <label for="sender_name" class="block text-gray-700 text-sm font-bold mb-2">Sender Name</label>
                 <input type="text" name="sender_name"
                     class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    placeholder="Enter Sender Name" value="{{ old('sender_name', $campaign->sender_name ?? env('MAIL_FROM_NAME')) }}" required>
+                    placeholder="Enter Sender Name" value="{{ old('sender_name', $campaign->sender_name) }}" required>
             </div>
 
             <div class="mb-4">
@@ -57,7 +58,8 @@
             <div class="mb-4">
                 <label for="email_body" class="block text-gray-700 text-sm font-bold mb-2">Email Body</label>
                 <div id="editor" class="border rounded shadow-md" style="height: 600px;"></div>
-                <textarea name="email_body" id="email_body" class="hidden">{{ old('email_body', $campaign->email_body) }}</textarea>
+                <input type="hidden" name="email_body_json" id="email_body_json" value="{{ old('email_body_json', $campaign->email_body_json ?? '') }}">
+                <input type="hidden" name="email_body_html" id="email_body_html" value="{{ old('email_body_html', $campaign->email_body_html ?? '') }}">
             </div>
 
             <!-- Hidden field to pass user ID -->
@@ -66,7 +68,7 @@
             <div class="flex items-center justify-between">
                 <button type="submit"
                     class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                    Update Campaign
+                    Save Changes
                 </button>
             </div>
         </form>
@@ -75,26 +77,31 @@
     <!-- Include Unlayer -->
     <script src="https://editor.unlayer.com/embed.js"></script>
     <script>
-        unlayer.init({
-            id: 'editor',
-            displayMode: 'email',
-        });
+        document.addEventListener("DOMContentLoaded", function () {
+            unlayer.init({
+                id: 'editor',
+                displayMode: 'email',
+            });
 
-        // Ensure the email body HTML content from the database is correctly set
-        const emailBody = @json($campaign->email_body); // Get the email body from the server-side
+            // Load the previous design
+            var design = {!! $campaign->email_body_json !!}; // Ensure this outputs valid JSON
+            unlayer.loadDesign(design);
 
-        // Log the emailBody to the console to check if it is loaded correctly
-        console.log(emailBody); // This will log the email body HTML in your browser console
+            // Handle form submission
+            document.getElementById('campaignForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                // Export the design data (both JSON and HTML)
+                unlayer.exportHtml(function(data) {
+                    var json = data.design;  // This is the JSON structure
+                    var html = data.html;    // This is the rendered HTML content
 
-        // Set the HTML content in the editor
-        unlayer.setHtml(emailBody);
+                    // Store the JSON and HTML in the hidden fields
+                    document.getElementById('email_body_json').value = JSON.stringify(json);  // Save the design JSON
+                    document.getElementById('email_body_html').value = html;  // Save the rendered HTML content
 
-        // Handle form submission
-        document.getElementById('campaignForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-            unlayer.exportHtml(function (data) {
-                document.getElementById('email_body').value = data.html;
-                e.target.submit();
+                    // Now submit the form
+                    e.target.submit();
+                });
             });
         });
     </script>

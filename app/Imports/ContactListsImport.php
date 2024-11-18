@@ -41,16 +41,16 @@ class ContactListsImport implements ToModel, WithHeadingRow
         } */
 
         // Get status ID based on status name or fallback to default
-        $statusId = $this->getStatusId($row['status'] ?? $row[1] ?? 'Unknown');
+        $statusId = $this->getStatusId($row['status'] ?? $row[1] ?? '999');
 
         // Get type ID based on type name or fallback to default
-        $typeId = $this->getTypeId($row['type'] ?? $row[2] ?? 'General');
+        $typeId = $this->getTypeId($row['type'] ?? $row[2] ?? '999');
 
         // Get state ID based on state name or fallback to a default ID (999)
-        $stateId = $this->getStateId($row['state'] ?? $row[11] ?? 'Unknown');
+        $stateId = $this->getStateId($row['state'] ?? $row[11] ?? '999');
 
         // Get city ID based on city name or fallback to a default ID (999)
-        $cityId = $this->getCityId($row['city'] ?? $row[12] ?? 'Unknown');
+        $cityId = $this->getCityId($row['city'] ?? $row[12] ?? '999');
 
         // Insert a new ContactList record
         return new ContactList([

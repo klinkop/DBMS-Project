@@ -69,17 +69,22 @@ class CampaignController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'email_subject' => 'required|string|max:255',
-            'email_body' => 'required|string',
             'scheduled_at' => 'nullable|date',
             'sender_name' => 'required|string',
+            'email_body_json' => 'required|string',
+            'email_body_html' => 'required|string',
         ]);
+
+        // Assuming the email_body is being passed as a JSON string from the form
+       // $emailBodyJson = $request->input('email_body');   Contains the Unlayer JSON data
 
         // Create the campaign
         $campaign = new Campaign();
         $campaign->name = $validatedData['name'];
         $campaign->description = $validatedData['description'];
         $campaign->email_subject = $validatedData['email_subject'];
-        $campaign->email_body = $validatedData['email_body'];
+        $campaign->email_body_html = $validatedData['email_body_html'];
+        $campaign->email_body_json = $validatedData['email_body_json'];
         $campaign->user_id = $request->user()->id;
         $campaign->status = 'pending';
         $campaign->sender_name = $validatedData['sender_name'];
@@ -153,9 +158,10 @@ class CampaignController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'email_subject' => 'required|string|max:255',
-            'email_body' => 'required|string',
             'scheduled_at' => 'nullable|date',
             'sender_name' => 'required|string|max:255',
+            'email_body_json' => 'required|json',
+            'email_body_html' => 'required|string',
         ]);
 
         // Fetch the campaign
@@ -166,9 +172,10 @@ class CampaignController extends Controller
             'name' => $request->input('name'),
             'description' => $request->input('description'),
             'email_subject' => $request->input('email_subject'),
-            'email_body' => $request->input('email_body'),
             'scheduled_at' => $request->input('scheduled_at'),
             'sender_name' => $request->input('sender_name'),
+            'email_body_json' => $request->input('email_body_json'),
+            'email_body_html' => $request->input('email_body_html'),
         ]);
 
         // Optionally, redirect the user to a page with a success message

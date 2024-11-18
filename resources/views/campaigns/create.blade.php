@@ -56,7 +56,9 @@
             <div class="mb-4">
                 <label for="email_body" class="block text-gray-700 text-sm font-bold mb-2">Email Body</label>
                 <div id="editor" class="border rounded shadow-md" style="height: 600px;"></div>
-                <textarea name="email_body" id="email_body" class="hidden">{{ old('email_body') }}</textarea>
+                <!-- Hidden fields to store the design JSON and HTML -->
+                <textarea name="email_body_json" id="email_body_json" class="hidden">{{ old('email_body_json') }}</textarea>
+                <textarea name="email_body_html" id="email_body_html" class="hidden">{{ old('email_body_html') }}</textarea>
             </div>
 
             <!-- Hidden field to pass user ID -->
@@ -74,17 +76,35 @@
     <!-- Include Unlayer -->
     <script src="https://editor.unlayer.com/embed.js"></script>
     <script>
-        unlayer.init({
-            id: 'editor',
-            displayMode: 'email'
-        });
+        document.addEventListener("DOMContentLoaded", function () {
+            // Initialize Unlayer editor
+            unlayer.init({
+                id: 'editor',
+                displayMode: 'email',
+                onLoad: function () {
+                    console.log("Unlayer Editor initialized successfully.");
+                }
+            });
 
-        // Handle form submission
-        document.getElementById('campaignForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-            unlayer.exportHtml(function (data) {
-                document.getElementById('email_body').value = data.html;
-                e.target.submit();
+            // Handle form submission
+            document.getElementById('campaignForm').addEventListener('submit', function (e) {
+                e.preventDefault(); // Prevent default form submission
+
+                // Export the design
+                unlayer.exportHtml(function (data) {
+                    const json = data.design; // JSON structure of the design
+                    const html = data.html; // Final HTML output
+
+                    console.log("Exported Design JSON:", json);
+                    console.log("Exported Design HTML:", html);
+
+                    // Save JSON and HTML into hidden fields
+                    document.getElementById('email_body_json').value = JSON.stringify(json);
+                    document.getElementById('email_body_html').value = html;
+
+                    // Submit the form
+                    e.target.submit();
+                });
             });
         });
     </script>

@@ -22,6 +22,8 @@ class Campaign extends Model
         'status',
         'sender_email',
         'sender_name',
+        'email_body_json',
+        'email_body_html',
     ];
 
     protected $casts = [
