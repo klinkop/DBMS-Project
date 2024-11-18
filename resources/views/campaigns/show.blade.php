@@ -124,8 +124,7 @@
             @endif
         </div>
 
-                <!-- Add Recipients Section -->
-
+        <!-- Add Recipients Section -->
         @if ($campaign->status !== 'sent' && $campaign->status !== 'scheduled')
         <div class="rounded-lg bg-white p-6 shadow-md">
             <h3 class="mb-4 text-lg font-semibold">Manage Recipients</h3>
