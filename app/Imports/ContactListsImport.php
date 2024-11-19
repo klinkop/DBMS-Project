@@ -10,6 +10,7 @@ use App\Models\Type;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Illuminate\Support\Facades\Log;
 
 class ContactListsImport implements ToModel, WithHeadingRow
 {
@@ -24,45 +25,53 @@ class ContactListsImport implements ToModel, WithHeadingRow
 
     public function model(array $row)
     {
+        // Log the row data for debugging
+        Log::info('Importing row: ', $row);  // This will log the entire row data
+
         // Skip processing if row is empty
-        if (empty(array_filter($row))) {
+        /* if (empty(array_filter($row))) {
+            Log::info('Skipped header row');
             return null;
         }
 
         // Normalize headers to ensure correct detection
         if ($this->isHeaderRow($row)) {
+            Log::info('Skipped header row');
             return null; // Ignore header row
-        }
+        } */
 
-        // Get status ID based on state name or column index
-        $statusId = $this->getStatusId($row['status'] ?? $row[1]);
+        // Get status ID based on status name or fallback to default
+        $statusId = $this->getStatusId($row['status'] ?? $row[1] ?? '999');
 
-        // Get type ID based on state name or column index
-        $typeId = $this->getTypeId($row['type'] ?? $row[2]);
+        // Get type ID based on type name or fallback to default
+        $typeId = $this->getTypeId($row['type'] ?? $row[2] ?? '999');
 
-        // Get state ID based on state name or column index
-        $stateId = $this->getStateId($row['state'] ?? $row[11]);
+        // Get state ID based on state name or fallback to a default ID (999)
+        $stateId = $this->getStateId($row['state'] ?? $row[11] ?? '999');
 
-        // Get city ID based on city name or column index
-        $cityId = $this->getCityId($row['city'] ?? $row[12]);
+        // Get city ID based on city name or fallback to a default ID (999)
+        $cityId = $this->getCityId($row['city'] ?? $row[12] ?? '999');
 
+        // Insert a new ContactList record
         return new ContactList([
             'user_id'         => $this->userId,
             'sub_folder_id'   => $this->subFolderId,
             'name'            => $row['name'] ?? $row[0] ?? '-',
+            'resources'       => $row['resources'] ?? $row[1] ?? '-',  // Ensure proper mapping for resources
             'status_id'       => $statusId,
             'type_id'         => $typeId,
             'industry'        => $row['industry'] ?? $row[3] ?? '-',
             'company'         => $row['company'] ?? $row[4] ?? '-',
             'product'         => $row['product'] ?? $row[5] ?? '-',
-            'pic'             => $row['pic'] ?? $row[6] ?? '-',
-            'email'           => $row['email'] ?? $row[7] ?? '-',
-            'contact1'        => $row['contact1'] ?? $row[8] ?? '-',  // Ensure proper mapping for contact1
-            'contact2'        => $row['contact2'] ?? $row[9] ?? '-',  // Ensure proper mapping for contact2
-            'address'         => $row['address'] ?? $row[10] ?? '-',
+            'bgoc_product'    => $row['bgoc_product'] ?? $row[6] ?? '-',  // Ensure proper mapping for bgoc_product
+            'pic'             => $row['pic'] ?? $row[7] ?? '-',
+            'email'           => $row['email'] ?? $row[8] ?? '-',
+            'contact1'        => $row['contact1'] ?? $row[9] ?? '-',
+            'contact2'        => $row['contact2'] ?? $row[10] ?? '-',
+            'address'         => $row['address'] ?? $row[11] ?? '-',
             'city_id'         => $cityId,
             'state_id'        => $stateId,
-            'remarks'         => $row['remarks'] ?? $row[13] ?? '-',
+            'remarks'         => $row['remarks'] ?? $row[12] ?? '-',
         ]);
     }
 
@@ -75,7 +84,7 @@ class ContactListsImport implements ToModel, WithHeadingRow
     protected function isHeaderRow(array $row): bool
     {
         // Define expected header names in lowercase
-        $expectedHeaders = ['Name', 'Status', 'Type', 'Industry', 'Company', 'Product', 'PIC', 'Email', 'Contact1', 'Contact2', 'Address', 'Industry', 'City', 'State', 'Remarks'];
+        $expectedHeaders = ['name', 'resources', 'status', 'type', 'industry', 'company', 'product', 'bgoc_product', 'pic', 'email', 'contact1', 'contact2', 'address', 'city', 'state', 'remarks'];
 
         // Normalize and convert row keys to lowercase
         $rowKeys = array_map(function ($key) {
@@ -87,7 +96,7 @@ class ContactListsImport implements ToModel, WithHeadingRow
     }
 
     /**
-     * Get the ID of the state based on its name or return 999 if not found.
+     * Get the ID of the state based on its name or return a default ID if not found.
      *
      * @param string $stateName
      * @return int
@@ -95,11 +104,11 @@ class ContactListsImport implements ToModel, WithHeadingRow
     protected function getStateId($stateName)
     {
         $stateId = State::where('name', $stateName)->pluck('id')->first();
-        return $stateId ? $stateId : 999;
+        return $stateId ?: 999; // Return default if not found
     }
 
     /**
-     * Get the ID of the city based on its name or return 999 if not found.
+     * Get the ID of the city based on its name or return a default ID if not found.
      *
      * @param string $cityName
      * @return int
@@ -107,18 +116,30 @@ class ContactListsImport implements ToModel, WithHeadingRow
     protected function getCityId($cityName)
     {
         $cityId = City::where('name', $cityName)->pluck('id')->first();
-        return $cityId ? $cityId : 999;
+        return $cityId ?: 999; // Return default if not found
     }
 
+    /**
+     * Get the ID of the status based on its name or return a default if not found.
+     *
+     * @param string $statusName
+     * @return int
+     */
     protected function getStatusId($statusName)
     {
         $statusId = Status::where('name', $statusName)->pluck('id')->first();
-        return $statusId ? $statusId :  1;
+        return $statusId ?: 1; // Default to status ID 1 if not found
     }
 
+    /**
+     * Get the ID of the type based on its name or return a default if not found.
+     *
+     * @param string $typeName
+     * @return int
+     */
     protected function getTypeId($typeName)
     {
         $typeId = Type::where('name', $typeName)->pluck('id')->first();
-        return $typeId ? $typeId : 1;
+        return $typeId ?: 1; // Default to type ID 1 if not found
     }
 }

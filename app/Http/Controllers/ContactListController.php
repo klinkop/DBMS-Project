@@ -32,7 +32,7 @@ class ContactListController extends Controller
         $statusId = $request->input('status_id');
         $typeId = $request->input('type_id');
         $company = $request->input('company');
-        $bgoc_company = $request->input('bgoc_company');
+        $bgoc_product = $request->input('bgoc_product');
         $product = $request->input('product');
         $contact1 = $request->input('contact1');
         $contact2 = $request->input('contact2');
@@ -76,8 +76,8 @@ class ContactListController extends Controller
         if ($company) {
             $query->where('company', 'like', '%' . $company . '%');
         }
-        if ($bgoc_company) {
-            $query->where('bgoc_company', 'like', '%' . $bgoc_company . '%');
+        if ($bgoc_product) {
+            $query->where('bgoc_product', 'like', '%' . $bgoc_product . '%');
         }
 
         if ($product) {
@@ -266,11 +266,13 @@ class ContactListController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ContactList $contactList): RedirectResponse
+    public function destroy(Request $request,ContactList $contactList): RedirectResponse
     {
         Gate::authorize('delete', $contactList);
+        $subFolderId = $request->input('subFolderId'); // Retrieve subFolderId from the form data
         $contactList->delete();
-        return redirect(route('contactList.index'));
+        return redirect()->route('contactList.index', ['subFolder' => $subFolderId])
+                     ->with('success', 'Contact deleted successfully.');
     }
 
     public function export(Request $request)
@@ -343,7 +345,7 @@ class ContactListController extends Controller
         $contactIds = explode(',', $request->input('contact_ids'));
 
         // Prepare data for update
-        $data = $request->only(['status', 'company', 'industry', 'city_id', 'state_id']);
+        $data = $request->only(['status_id','resources','product','type_id','bgoc_product','company','pic','industry', 'city_id', 'state_id']);
 
         // Filter out any null or empty fields
         $filteredData = array_filter($data, function ($value) {
