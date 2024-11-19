@@ -243,7 +243,7 @@ class CampaignController extends Controller
 
     public function sendToAll(Campaign $campaign)
     {
-        // Get all recipients of the campaign
+        // Check if the campaign has recipients
         $recipients = Recipient::where('campaign_id', $campaign->id)->get();
 
         if ($recipients->isEmpty()) {
@@ -251,23 +251,17 @@ class CampaignController extends Controller
                             ->with('error', 'No recipients found for this campaign.');
         }
 
+        // Send emails to all recipients
         foreach ($recipients as $recipient) {
             foreach ($recipient->subFolder->contactLists as $contactList) {
                 Mail::to($contactList->email)->send(new CampaignMail($campaign));
             }
-
-            // Update email status in the email_statuses table
-            DB::table('email_statuses')->insert([
-                'campaign_id' => $campaign->id,
-                'recipient_email' => $contactList->email,
-                'status' => 'sent',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-
-            // Mark the email as sent
-            $recipient->update(['sent' => true]);
         }
+
+        // Update the campaign's status to 'sent'
+        $campaign->update([
+            'status' => 'sent',
+        ]);
 
         return redirect()->route('campaigns.show', $campaign->id)
                         ->with('success', 'Campaign sent to all recipients.');
