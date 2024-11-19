@@ -11,9 +11,9 @@ class ContactList extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'sub_folder_id', 'name', 'status_id', 'type_id', 'company', 'product', 'pic', 'email', 'contact1', 'contact2', 'industry', 'address', 'city_id', 'state_id', 'remarks'
+        'user_id', 'sub_folder_id', 'name', 'resources', 'status_id', 'type_id', 'company', 'product','bgoc_product', 'pic', 'email', 'contact1', 'contact2', 'industry', 'address', 'city_id', 'state_id', 'remarks'
     ];
-    
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
