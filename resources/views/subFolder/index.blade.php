@@ -47,7 +47,7 @@
                                         </button>
                                     </x-slot>
                                     <x-slot name="content">
-                                        <x-dropdown-link :href="route('contactList.create', $subFolder)">
+                                        <x-dropdown-link :href="route('contactList.create', ['subFolder' => $subFolder->id])">
                                             {{ __('Add Contact') }}
                                         </x-dropdown-link>
                                         <x-dropdown-link :href="route('subFolder.edit', $subFolder)">

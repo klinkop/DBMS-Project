@@ -222,6 +222,7 @@
                     <button id="delete-button"
                         class="rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700">Delete</button>
                 </div>
+                <input type="hidden" name="subFolder" value="{{ $subFolderId }}">
                 <thead class="bg-gray-50">
                     <tr>
                         <th><input type="checkbox" id="select-all">
@@ -659,6 +660,61 @@
         document.getElementById('closeMassEditForm').addEventListener('click', function() {
             document.getElementById('mass-edit-form-container').classList.add('hidden');
         });
+
+         // Function to handle delete action
+         document.addEventListener('DOMContentLoaded', function () {
+            const deleteButton = document.getElementById('delete-button');
+            if (deleteButton) {
+                deleteButton.addEventListener('click', function () {
+                    const selectedContacts = Array.from(document.querySelectorAll('.contact-checkbox:checked'));
+
+                    if (selectedContacts.length === 0) {
+                        alert('Please select at least one contact to delete.');
+                        return;
+                    }
+
+                    if (!confirm('Are you sure you want to delete the selected contacts?')) {
+                        return;
+                    }
+
+                    const contactIds = selectedContacts.map(cb => cb.value);
+                    const subFolderId = document.getElementById('sub-folder-id')?.value;
+
+                    fetch(`/contact-list/delete-multiple`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            contactIds: contactIds,
+                            subFolderId: subFolderId
+                        })
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Failed to delete contacts.');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                alert('Contacts deleted successfully.');
+                                selectedContacts.forEach(cb => cb.closest('tr').remove());
+                                updateActionButtonVisibility();
+                            } else {
+                                alert(data.message || 'An error occurred while deleting the contacts.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('An error occurred while deleting the contacts.');
+                        });
+                });
+            } else {
+                console.error('Delete button not found in the DOM.');
+            }
+        });
     </script>
     <script>
         function toggleSearchForm() {
@@ -678,5 +734,9 @@
             // Show the Search button again
             document.getElementById("toggle-search-button").style.display = "inline-flex"; // Show the button
         }
+    </script>
+    <script>
+
+
     </script>
 </x-app-layout>

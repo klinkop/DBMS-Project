@@ -12,6 +12,8 @@ use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\RecipientController;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\EmailTrackingController;
 
 Route::get('/', function () {
     return redirect()->route('parentFolder.index');
@@ -112,6 +114,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/email-templates', [EmailTemplateController::class, 'index'])->name('email_templates.index');
     Route::get('/email-templates/create', [EmailTemplateController::class, 'create'])->name('email_templates.create');
     Route::post('/email-templates', [EmailTemplateController::class, 'store'])->name('email_templates.store');
+    Route::delete('/contact-list/delete-multiple', [ContactListController::class, 'deleteMultiple'])->name('contact-list.delete-multiple');
+
+    Route::get('/track/open/pixel', [EmailTrackingController::class, 'trackOpen'])->name('track.open');
+    Route::get('/track/click', [EmailTrackingController::class, 'trackClick'])->name('track.click');
+    Route::post('/track/bounce', [EmailTrackingController::class, 'trackBounce'])->name('track.bounce');
 });
 
 require __DIR__.'/auth.php';

@@ -24,6 +24,9 @@ class Campaign extends Model
         'sender_name',
         'email_body_json',
         'email_body_html',
+        'open_count',
+        'click_count',
+        'bounce_count',
     ];
 
     protected $casts = [

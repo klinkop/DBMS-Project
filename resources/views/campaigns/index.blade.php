@@ -30,9 +30,11 @@
                     <tr>
                         <th class="py-2 px-4 border-b border-gray-300 text-left text-gray-600 font-bold">#</th>
                         <th class="py-2 px-4 border-b border-gray-300 text-left text-gray-600 font-bold">Name</th>
-                        <th class="py-2 px-4 border-b border-gray-300 text-left text-gray-600 font-bold">Description
+                        <th class="py-2 px-4 border-b border-gray-300 text-left text-gray-600 font-bold">Open Count
                         </th>
-                        <th class="py-2 px-4 border-b border-gray-300 text-left text-gray-600 font-bold">Email Subject
+                        <th class="py-2 px-4 border-b border-gray-300 text-left text-gray-600 font-bold">Click Count
+                        </th>
+                        <th class="py-2 px-4 border-b border-gray-300 text-left text-gray-600 font-bold">Bounce Count
                         </th>
                         <th class="py-2 px-4 border-b border-gray-300 text-left text-gray-600 font-bold">Scheduled At
                         </th>
@@ -45,8 +47,9 @@
                         <tr>
                             <td class="py-2 px-4 border-b border-gray-300">{{ $campaign->id }}</td>
                             <td class="py-2 px-4 border-b border-gray-300">{{ $campaign->name }}</td>
-                            <td class="py-2 px-4 border-b border-gray-300">{{ $campaign->description }}</td>
-                            <td class="py-2 px-4 border-b border-gray-300">{{ $campaign->email_subject }}</td>
+                            <td class="py-2 px-4 border-b border-gray-300">{{ $campaign->open_count }}</td>
+                            <td class="py-2 px-4 border-b border-gray-300">{{ $campaign->click_count }}</td>
+                            <td class="py-2 px-4 border-b border-gray-300">{{ $campaign->bounce_count }}</td>
                             <td class="py-2 px-4 border-b border-gray-300">
                                 {{ $campaign->scheduled_at ? \Carbon\Carbon::parse($campaign->scheduled_at)->format('Y-m-d H:i') : 'Not Scheduled' }}
                             </td>
@@ -90,7 +93,7 @@
 
         <!-- Pagination (if campaigns are paginated) -->
         <div class="mt-4">
-            {{ $campaigns->links() }}
+            {{ $campaigns->links('pagination::tailwind') }}
         </div>
 
     </div>
