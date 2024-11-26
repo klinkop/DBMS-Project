@@ -14,7 +14,6 @@ class StatusSeeder extends Seeder
     public function run(): void
     {
         $statuses = [
-            ['id' => 999, 'name' => 'None'], // Default 'None' status with ID 999
             ['name' => 'Raw'],
             ['name' => 'Ongoing'],
             ['name' => 'Potential'],

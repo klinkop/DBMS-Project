@@ -357,43 +357,4 @@ class ContactListController extends Controller
 
         return redirect()->back()->with('success', 'Contacts updated successfully!');
     }
-
-    public function deleteMultiple(Request $request)
-    {
-        // Validate the incoming request
-        $validated = $request->validate([
-            'contactIds' => 'required|array',       // Ensure contactIds is an array
-            'contactIds.*' => 'exists:contacts,id', // Validate each ID exists in the contacts table
-            'subFolderId' => 'nullable|exists:sub_folders,id', // Optionally validate subFolderId
-        ]);
-
-        try {
-            // Fetch the contacts to delete (filtering by user or folder if needed)
-            $contacts = ContactList::whereIn('id', $validated['contactIds']);
-
-            if ($request->filled('subFolderId')) {
-                $contacts->where('sub_folder_id', $validated['subFolderId']);
-            }
-
-            // Apply additional user-based filtering if necessary (e.g., for multi-user apps)
-            $contacts->where('user_id', auth()->id());
-
-            // Delete the selected contacts
-            $deletedCount = $contacts->delete();
-
-            // Return a JSON response
-            return response()->json([
-                'success' => true,
-                'message' => "{$deletedCount} contacts deleted successfully."
-            ]);
-
-        } catch (\Exception $e) {
-            // Handle errors gracefully
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while deleting contacts: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
 }

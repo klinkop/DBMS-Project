@@ -14,7 +14,6 @@ class TypeSeeder extends Seeder
     public function run(): void
     {
         $types = [
-            ['id' => 999, 'name' => 'None'], // Default 'None' status with ID 999
             ['name' => 'A1'],
             ['name' => 'A2'],
             ['name' => 'Ongoing'],

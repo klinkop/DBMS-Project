@@ -61,6 +61,8 @@ class CampaignController extends Controller
         return redirect()->route('campaigns.index')->with('success', 'Campaign created successfully.');
     } */
 
+
+    // Inside your CampaignController
     public function store(Request $request)
     {
         // Validate the incoming request
@@ -74,120 +76,71 @@ class CampaignController extends Controller
             'email_body_html' => 'required|string',
         ]);
 
-        // Parse the email_body_json
-        $emailBodyJson = json_decode($validatedData['email_body_json'], true);
+        // Assuming the email_body is being passed as a JSON string from the form
+       // $emailBodyJson = $request->input('email_body');   Contains the Unlayer JSON data
 
-        // Create the campaign and include a default email_body_json
+        // Create the campaign
         $campaign = new Campaign();
         $campaign->name = $validatedData['name'];
         $campaign->description = $validatedData['description'];
         $campaign->email_subject = $validatedData['email_subject'];
+        $campaign->email_body_html = $validatedData['email_body_html'];
+        $campaign->email_body_json = $validatedData['email_body_json'];
         $campaign->user_id = $request->user()->id;
         $campaign->status = 'pending';
         $campaign->sender_name = $validatedData['sender_name'];
-
-        // Initialize email_body_json with an empty object or default structure
-        $campaign->email_body_json = json_encode($emailBodyJson);  // Set the email_body_json before saving
-        $campaign->email_body_html = '';  // Temporarily set HTML, will be updated later
-
-        // Save the campaign to generate its ID
         $campaign->save();
-
-        // Generate the tracking pixel URL
-        $trackingPixelUrl = url('/track/open/pixel?campaign_id=' . $campaign->id);
-
-        // Add the tracking pixel to the first row/column of the email design
-        $trackingPixelJson = [
-            "type" => "image",
-            "values" => [
-                "src" => $trackingPixelUrl,
-                "altText" => "Tracking Pixel",
-                "width" => "1px",
-                "height" => "1px",
-                "align" => "center",
-                "padding" => [
-                    "top" => 0,
-                    "bottom" => 0,
-                    "left" => 0,
-                    "right" => 0,
-                ],
-            ],
-        ];
-
-        // Add the tracking pixel to the email body structure
-        if (isset($emailBodyJson['body']['rows'][0]['columns'][0]['contents'])) {
-            array_unshift($emailBodyJson['body']['rows'][0]['columns'][0]['contents'], $trackingPixelJson);
-        } else {
-            // If no content exists, create the structure
-            $emailBodyJson['body']['rows'][0]['columns'][0]['contents'] = [$trackingPixelJson];
-        }
-
-        // Convert JSON back to string
-        $validatedData['email_body_json'] = json_encode($emailBodyJson);
-
-        // Add the tracking pixel HTML tag to email_body_html
-        $trackingPixelHtml = '<img src="' . $trackingPixelUrl . '" alt="Tracking Pixel" style="display: none; width: 1px; height: 1px;" />';
-        $validatedData['email_body_html'] = $trackingPixelHtml . $validatedData['email_body_html'];
-
-        // Save the modified campaign
-        $campaign->email_body_html = $validatedData['email_body_html'];
-        $campaign->email_body_json = $validatedData['email_body_json'];
-        $campaign->save(); // Save again after updating email body
 
         // If scheduled_at is provided, schedule the email sending
         if ($campaign->scheduled_at) {
-            SendCampaignEmails::dispatch($campaign)->delay($validatedData['scheduled_at']);
+            SendCampaignEmails::dispatch($campaign)->delay($campaign->scheduled_at);
         } else {
             // Otherwise, send immediately
             SendCampaignEmails::dispatch($campaign);
         }
-
-        // Log the modified JSON and HTML for debugging
-        Log::info('Modified Email Body JSON:', ['data' => $validatedData['email_body_json']]);
-        Log::info('Modified Email Body HTML:', ['data' => $validatedData['email_body_html']]);
 
         // Redirect back with a success message
         return redirect()->route('campaigns.index')->with('success', 'Campaign created successfully!');
     }
 
 
-        public function show($id)
-    {
-        // Retrieve the campaign or fail
-        $campaign = Campaign::findOrFail($id);
+    public function show($id)
+{
+    // Retrieve the campaign or fail
+    $campaign = Campaign::findOrFail($id);
 
-        // Retrieve recipients with their associated subFolder
-        $recipients = Recipient::with('subFolder')->where('campaign_id', $campaign->id)->get();
+    // Retrieve recipients with their associated subFolder
+    $recipients = Recipient::with('subFolder')->where('campaign_id', $campaign->id)->get();
 
-        // Initialize a collection for contact lists
-        $contactLists = collect();
+    // Initialize a collection for contact lists
+    $contactLists = collect();
 
-        // Loop through recipients to gather contact lists from their subFolders
-        foreach ($recipients as $recipient) {
-            $subFolder = $recipient->subFolder;
-            if ($subFolder) {
-                $contactLists = $contactLists->merge($subFolder->contactLists);
-            }
+    // Loop through recipients to gather contact lists from their subFolders
+    foreach ($recipients as $recipient) {
+        $subFolder = $recipient->subFolder;
+        if ($subFolder) {
+            $contactLists = $contactLists->merge($subFolder->contactLists);
         }
-
-        // Remove duplicates from the contact lists based on email
-        $uniqueContactLists = $contactLists
-            ->filter(function($contactList) {
-                return !is_null($contactList->email);
-            })
-            ->unique('email');
-
-        // Retrieve all subFolders
-        $subFolders = SubFolder::all();
-
-        // Return the view with all necessary data
-        return view('campaigns.show', [
-            'campaign' => $campaign,
-            'subFolders' => $subFolders,
-            'recipients' => $recipients,
-            'contactLists' => $uniqueContactLists,
-        ]);
     }
+
+    // Remove duplicates from the contact lists based on email
+    $uniqueContactLists = $contactLists
+        ->filter(function($contactList) {
+            return !is_null($contactList->email);
+        })
+        ->unique('email');
+
+    // Retrieve all subFolders
+    $subFolders = SubFolder::all();
+
+    // Return the view with all necessary data
+    return view('campaigns.show', [
+        'campaign' => $campaign,
+        'subFolders' => $subFolders,
+        'recipients' => $recipients,
+        'contactLists' => $uniqueContactLists,
+    ]);
+}
 
     public function edit($id)
     {
@@ -314,6 +267,7 @@ class CampaignController extends Controller
         return redirect()->route('campaigns.show', $campaign->id)
                         ->with('success', 'Campaign sent to all recipients.');
     }
+
 
    /*  public function sendToAll(Campaign $campaign)
     {

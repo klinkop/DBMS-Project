@@ -28,7 +28,7 @@ class CampaignMail extends Mailable
             ->subject($this->campaign->email_subject)
             ->view('emails.campaign') // Adjust to your email view path
             ->with([
-                'emailBody' => $this->campaign->email_body_html, // Use the new column
+                'campaign' => $this->campaign,
             ]);
     }
 }
