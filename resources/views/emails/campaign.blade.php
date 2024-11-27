@@ -6,9 +6,6 @@
     <title>{{ $campaign->email_subject }}</title>
 </head>
 <body>
-
-    <h1>{{ $campaign->email_subject }}</h1>
-
     <p>{!! $campaign->email_body_html !!}</p>
 </body>
 </html>
