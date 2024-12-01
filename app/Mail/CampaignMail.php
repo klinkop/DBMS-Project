@@ -7,8 +7,6 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Symfony\Component\Mime\Email;
-use Illuminate\Support\Facades\Event;
 
 class CampaignMail extends Mailable
 {
@@ -30,14 +28,7 @@ class CampaignMail extends Mailable
             ->subject($this->campaign->email_subject)
             ->view('emails.campaign') // Adjust to your email view path
             ->with([
-                'campaign' => $this->campaign,
-                'campaign_id' => $this->campaign->id,
+                'emailBody' => $this->campaign->email_body_html, // Use the new column
             ]);
-
-        // Dispatch the MessageSending event with the email and the data
-        event(new \Illuminate\Mail\Events\MessageSending(
-            new Email($email),
-            ['campaign_id' => $this->campaign->id]
-        ));
     }
 }

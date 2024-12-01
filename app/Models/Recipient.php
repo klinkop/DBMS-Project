@@ -9,7 +9,7 @@ class Recipient extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['campaign_id', 'email'];
+    protected $fillable = ['campaign_id', 'sub_folder_id'];
 
     public function campaign()
     {

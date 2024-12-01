@@ -5,10 +5,9 @@
         </h2>
     </x-slot>
     <div class="mx-auto w-full max-w-full p-4 sm:p-6 md:max-w-3xl lg:max-w-5xl lg:p-8 xl:max-w-7xl">
-        <button id="toggle-search-button"
-                onclick="toggleSearchForm()"
-                class="mb-4 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                Search
+        <button id="toggle-search-button" onclick="toggleSearchForm()"
+            class="mb-4 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+            Search
         </button>
         {{-- Add Search Form & Export --}}
         <form action="{{ route('contactList.index') }}" method="get" class="mt-4 space-y-4">
@@ -143,10 +142,9 @@
                         class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Filter</button>
                 </div>
                 <!-- Close Button -->
-                <button id="close-filter-button"
-                    onclick="closeSearchForm()"
+                <button id="close-filter-button" onclick="closeSearchForm()"
                     class="mb-4 inline-flex items-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
-                Close Filter
+                    Close Filter
                 </button>
             </div>
             <!-- End Filters -->
@@ -222,6 +220,7 @@
                     <button id="delete-button"
                         class="rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700">Delete</button>
                 </div>
+                <input type="hidden" name="subFolder" value="{{ $subFolderId }}">
                 <thead class="bg-gray-50">
                     <tr>
                         <th><input type="checkbox" id="select-all">
@@ -465,7 +464,8 @@
                                 class="w-full rounded-lg border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600">
                                 <option value="">Select State</option>
                                 @foreach ($states as $state)
-                                    <option value="{{ $state->id }}" {{ request('state_id') == $state->id ? 'selected' : '' }}>
+                                    <option value="{{ $state->id }}"
+                                        {{ request('state_id') == $state->id ? 'selected' : '' }}>
                                         {{ $state->name }}
                                     </option>
                                 @endforeach
@@ -477,7 +477,8 @@
                                 class="w-full rounded-lg border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600">
                                 <option value="">Select City</option>
                                 @foreach ($cities as $city)
-                                    <option value="{{ $city->id }}" {{ request('city_id') == $city->id ? 'selected' : '' }}>
+                                    <option value="{{ $city->id }}"
+                                        {{ request('city_id') == $city->id ? 'selected' : '' }}>
                                         {{ $city->name }}
                                     </option>
                                 @endforeach
@@ -485,7 +486,8 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="mt-3 rounded-lg bg-blue-600 px-3 py-1 text-white hover:bg-blue-700">Mass Edit</button>
+                    <button type="submit"
+                        class="mt-3 rounded-lg bg-blue-600 px-3 py-1 text-white hover:bg-blue-700">Mass Edit</button>
                 </form>
             </div>
         </div>
@@ -659,6 +661,63 @@
         document.getElementById('closeMassEditForm').addEventListener('click', function() {
             document.getElementById('mass-edit-form-container').classList.add('hidden');
         });
+
+        // Function to handle delete action
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteButton = document.getElementById('delete-button');
+            if (deleteButton) {
+                deleteButton.addEventListener('click', function() {
+                    const selectedContacts = Array.from(document.querySelectorAll(
+                        '.contact-checkbox:checked'));
+
+                    if (selectedContacts.length === 0) {
+                        alert('Please select at least one contact to delete.');
+                        return;
+                    }
+
+                    if (!confirm('Are you sure you want to delete the selected contacts?')) {
+                        return;
+                    }
+
+                    const contactIds = selectedContacts.map(cb => cb.value);
+                    const subFolderId = document.getElementById('sub-folder-id')?.value;
+
+                    fetch(`/contact-list/delete-multiple`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    .getAttribute('content')
+                            },
+                            body: JSON.stringify({
+                                contactIds: contactIds,
+                                subFolderId: subFolderId
+                            })
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Failed to delete contacts.');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                alert('Contacts deleted successfully.');
+                                selectedContacts.forEach(cb => cb.closest('tr').remove());
+                                updateActionButtonVisibility();
+                            } else {
+                                alert(data.message || 'An error occurred while deleting the contacts.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('An error occurred while deleting the contacts.');
+                        });
+                });
+            } else {
+                console.error('Delete button not found in the DOM.');
+            }
+        });
     </script>
     <script>
         function toggleSearchForm() {
@@ -668,8 +727,9 @@
             // Show the search filters form
             const searchFilters = document.getElementById("search-filters");
             searchFilters.classList.remove("hidden");
-            searchFilters.style.display = "flex";  // Ensure the div uses flex display
+            searchFilters.style.display = "flex"; // Ensure the div uses flex display
         }
+
         function closeSearchForm() {
             // Hide the search filters form
             const searchFilters = document.getElementById("search-filters");
@@ -679,4 +739,5 @@
             document.getElementById("toggle-search-button").style.display = "inline-flex"; // Show the button
         }
     </script>
+    <script></script>
 </x-app-layout>

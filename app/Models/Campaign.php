@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use jdavidbakr\MailTracker\Model\SentEmail;
 use App\Models\NewTemplate;
 
 
@@ -25,6 +24,9 @@ class Campaign extends Model
         'sender_name',
         'email_body_json',
         'email_body_html',
+        'open_count',
+        'click_count',
+        'bounce_count',
     ];
 
     protected $casts = [
@@ -54,10 +56,5 @@ class Campaign extends Model
     public function recipients()
     {
         return $this->hasMany(Recipient::class);
-    }
-
-    public function sentEmails()
-    {
-        return $this->hasMany(SentEmail::class);
     }
 }

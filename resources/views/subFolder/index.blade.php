@@ -6,10 +6,12 @@
     </x-slot>
     <div class="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
         {{-- Conditionally Add Search Form if Parent Folder is Passed --}}
-        @if(request()->has('parentFolder'))
+        @if (request()->has('parentFolder'))
             <form action="{{ route('subFolder.index') }}" method="get" class="form-inline my-4">
-                <input type="hidden" name="parentFolder" value="{{ request('parentFolder') }}"> <!-- Hidden field for parentFolder ID -->
-                <input type="search" name="squery" class="form-control mr-sm-2" placeholder="Search Sub Folder" aria-label="Search">
+                <input type="hidden" name="parentFolder" value="{{ request('parentFolder') }}">
+                <!-- Hidden field for parentFolder ID -->
+                <input type="search" name="squery" class="form-control mr-sm-2" placeholder="Search Sub Folder"
+                    aria-label="Search">
                 <button class="btn btn-outline-indigo my-2 my-sm-0" type="submit">{{ __('Search') }}</button>
             </form>
         @endif
@@ -47,13 +49,13 @@
                                         </button>
                                     </x-slot>
                                     <x-slot name="content">
-                                        <x-dropdown-link :href="route('contactList.create', $subFolder)">
+                                        <x-dropdown-link :href="route('contactList.create', ['subFolder' => $subFolder->id])">
                                             {{ __('Add Contact') }}
                                         </x-dropdown-link>
                                         <x-dropdown-link :href="route('subFolder.edit', $subFolder)">
                                             {{ __('Edit') }}
                                         </x-dropdown-link>
-                                        <x-dropdown-link :href="route('contactList.index',  ['subFolder' => $subFolder->id])">
+                                        <x-dropdown-link :href="route('contactList.index', ['subFolder' => $subFolder->id])">
                                             {{ __('View Contacts') }}
                                         </x-dropdown-link>
                                         <form method="POST" action="{{ route('subFolder.destroy', $subFolder) }}">
