@@ -20,9 +20,10 @@ class CampaignController extends Controller
 {
     public function index()
     {
-        // Fetch campaigns with pagination (10 per page)
-        $campaigns = Campaign::paginate(10);
-
+        // Fetch campaigns and calculate total_open_count and total_click_count for each campaign
+        $campaigns = Campaign::withSum('sentEmails as total_open_count', 'opens')
+        ->withSum('sentEmails as total_click_count', 'clicks')
+        ->paginate(10);
         // Return the view with the campaigns data
         return view('campaigns.index', compact('campaigns'));
     }

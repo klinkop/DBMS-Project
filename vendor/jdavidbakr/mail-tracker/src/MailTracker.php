@@ -104,13 +104,17 @@ class MailTracker
      */
     public function messageSending(MessageSending $event)
     {
+        // Access the campaign_id from the event's data
+        $campaignId = $event->data['campaign_id'] ?? null;
+
         $message = $event->message;
 
         // Create the trackers
-        $this->createTrackers($message);
+        $this->createTrackers($message, $campaignId);
 
         // Purge old records
         $this->purgeOldRecords();
+
     }
 
     public function messageSent(MessageSent $event): void
@@ -241,7 +245,7 @@ class MailTracker
      * @param  Email $message
      * @return void
      */
-    protected function createTrackers(Email $message)
+    protected function createTrackers(Email $message, $campaignId)
     {
         foreach ($message->getTo() as $toAddress) {
             $to_email = $toAddress->getAddress();
@@ -327,6 +331,7 @@ class MailTracker
                     'opens' => 0,
                     'clicks' => 0,
                     'message_id' => Str::uuid(),
+                    'campaign_id' => $campaignId,
                 ]), function(Model|SentEmailModel $sentEmail) use ($original_html, $hash) {
                     $sentEmail->fillContent($original_html, $hash);
 

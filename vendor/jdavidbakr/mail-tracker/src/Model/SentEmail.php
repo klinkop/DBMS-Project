@@ -38,6 +38,7 @@ class SentEmail extends Model implements SentEmailModel
         'meta',
         'opened_at',
         'clicked_at',
+        'campaign_id',
     ];
 
     protected $casts = [
