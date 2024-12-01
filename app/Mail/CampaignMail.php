@@ -33,8 +33,6 @@ class CampaignMail extends Mailable
                 'campaign' => $this->campaign,
                 'campaign_id' => $this->campaign->id,
             ]);
-        // Attach the campaign_id to the email message data
-        $this->campaign_id = $this->campaign->id; // Ensure the campaign_id is available
 
         // Dispatch the MessageSending event with the email and the data
         event(new \Illuminate\Mail\Events\MessageSending(
