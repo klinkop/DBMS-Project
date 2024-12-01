@@ -54,17 +54,4 @@ class Campaign extends Model
     {
         return $this->hasMany(Recipient::class);
     }
-
-    public function metrics()
-    {
-        return $this->hasMany(Metric::class);
-    }
-
-    public function getOpenrateAttribute()
-    {
-        $totalRecipients = $this->recipients()->count();
-        $opens = $this->metrics()->whereNotNull('opened_at')->count();
-
-        return $totalRecipients > 0 ? ($opens / $totalRecipients) * 100 : 0;
-    }
 }

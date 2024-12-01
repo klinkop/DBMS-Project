@@ -126,7 +126,7 @@ class BinaryFileResponse extends Response
      */
     public function setAutoLastModified(): static
     {
-        $this->setLastModified(\DateTimeImmutable::createFromFormat('U', $this->tempFileObject ? time() : $this->file->getMTime()));
+        $this->setLastModified(\DateTimeImmutable::createFromFormat('U', $this->file->getMTime()));
 
         return $this;
     }
@@ -197,9 +197,7 @@ class BinaryFileResponse extends Response
         $this->offset = 0;
         $this->maxlen = -1;
 
-        if ($this->tempFileObject) {
-            $fileSize = $this->tempFileObject->fstat()['size'];
-        } elseif (false === $fileSize = $this->file->getSize()) {
+        if (false === $fileSize = $this->file->getSize()) {
             return $this;
         }
         $this->headers->remove('Transfer-Encoding');

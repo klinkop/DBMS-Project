@@ -12,6 +12,7 @@ use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\RecipientController;
 use Illuminate\Support\Facades\Mail;
+use jdavidbakr\MailTracker\MailTrackerController;
 
 Route::get('/', function () {
     return redirect()->route('parentFolder.index');
@@ -113,9 +114,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/email-templates/create', [EmailTemplateController::class, 'create'])->name('email_templates.create');
     Route::post('/email-templates', [EmailTemplateController::class, 'store'])->name('email_templates.store');
 
-    // for click rate and open rate
-    Route::get('/campaigns/{campaign}/track-open', [CampaignController::class, 'trackOpen'])->name('campaigns.trackOpen');
-    Route::get('/campaigns/{campaign}/track-click', [CampaignController::class, 'trackClick'])->name('campaigns.trackClick');
 });
 
 require __DIR__.'/auth.php';

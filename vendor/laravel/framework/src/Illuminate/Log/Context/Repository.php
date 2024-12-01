@@ -290,23 +290,6 @@ class Repository
     }
 
     /**
-     * Pop the latest value from the key's stack.
-     *
-     * @param  string  $key
-     * @return mixed
-     *
-     * @throws \RuntimeException
-     */
-    public function pop($key)
-    {
-        if (! $this->isStackable($key) || ! count($this->data[$key])) {
-            throw new RuntimeException("Unable to pop value from context stack for key [{$key}].");
-        }
-
-        return array_pop($this->data[$key]);
-    }
-
-    /**
      * Push the given hidden values onto the key's stack.
      *
      * @param  string  $key
@@ -327,23 +310,6 @@ class Repository
         ];
 
         return $this;
-    }
-
-    /**
-     * Pop the latest hidden value from the key's stack.
-     *
-     * @param  string  $key
-     * @return mixed
-     *
-     * @throws \RuntimeException
-     */
-    public function popHidden($key)
-    {
-        if (! $this->isHiddenStackable($key) || ! count($this->hidden[$key])) {
-            throw new RuntimeException("Unable to pop value from hidden context stack for key [{$key}].");
-        }
-
-        return array_pop($this->hidden[$key]);
     }
 
     /**

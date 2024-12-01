@@ -30,13 +30,9 @@
                     <tr>
                         <th class="py-2 px-4 border-b border-gray-300 text-left text-gray-600 font-bold">#</th>
                         <th class="py-2 px-4 border-b border-gray-300 text-left text-gray-600 font-bold">Name</th>
-                        <th class="py-2 px-4 border-b border-gray-300 text-left text-gray-600 font-bold">Impressions
+                        <th class="py-2 px-4 border-b border-gray-300 text-left text-gray-600 font-bold">Description
                         </th>
-                        <th class="py-2 px-4 border-b border-gray-300 text-left text-gray-600 font-bold">Clicks
-                        </th>
-                        <th class="py-2 px-4 border-b border-gray-300 text-left text-gray-600 font-bold">Open Rate (%)
-                        </th>
-                        <th class="py-2 px-4 border-b border-gray-300 text-left text-gray-600 font-bold">Click Rate (%)
+                        <th class="py-2 px-4 border-b border-gray-300 text-left text-gray-600 font-bold">Email Subject
                         </th>
                         <th class="py-2 px-4 border-b border-gray-300 text-left text-gray-600 font-bold">Scheduled At
                         </th>
@@ -49,15 +45,8 @@
                         <tr>
                             <td class="py-2 px-4 border-b border-gray-300">{{ $campaign->id }}</td>
                             <td class="py-2 px-4 border-b border-gray-300">{{ $campaign->name }}</td>
-                            <td class="py-2 px-4 border-b border-gray-300">{{ $campaign->metrics->sum('impressions') }}
-                            </td>
-                            <td class="py-2 px-4 border-b border-gray-300">{{ $campaign->metrics->sum('clicks') }}</td>
-                            <td class="py-2 px-4 border-b border-gray-300">
-                                {{ $campaign->metrics->isNotEmpty() ? number_format($campaign->metrics->last()->open_rate, 2) : 'N/A' }}
-                            </td>
-                            <td class="py-2 px-4 border-b border-gray-300">
-                                {{ $campaign->metrics->isNotEmpty() ? number_format($campaign->metrics->last()->click_rate, 2) : 'N/A' }}
-                            </td>
+                            <td class="py-2 px-4 border-b border-gray-300">{{ $campaign->description }}</td>
+                            <td class="py-2 px-4 border-b border-gray-300">{{ $campaign->email_subject }}</td>
                             <td class="py-2 px-4 border-b border-gray-300">
                                 {{ $campaign->scheduled_at ? \Carbon\Carbon::parse($campaign->scheduled_at)->format('Y-m-d H:i') : 'Not Scheduled' }}
                             </td>
@@ -75,11 +64,9 @@
                                     Edit
                                 </a> --}}
                                 <!-- Duplicate button -->
-                                <form action="{{ route('campaigns.duplicate', $campaign->id) }}" method="POST"
-                                    style="display:inline;">
+                                <form action="{{ route('campaigns.duplicate', $campaign->id) }}" method="POST" style="display:inline;">
                                     @csrf
-                                    <button type="submit"
-                                        class="inline-flex items-center px-2 py-1 bg-yellow-500 text-white text-xs font-semibold rounded-md hover:bg-blue-600">
+                                    <button type="submit" class="inline-flex items-center px-2 py-1 bg-yellow-500 text-white text-xs font-semibold rounded-md hover:bg-blue-600">
                                         Duplicate
                                     </button>
                                 </form>

@@ -11,10 +11,10 @@ use App\Models\Recipient;
 use Illuminate\Support\Facades\Auth;
 use App\Jobs\SendCampaignEmails; // Job to handle email sending
 use App\Mail\CampaignEmail;
-use App\Models\Metric;
 use App\Models\SubFolder;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CampaignController extends Controller
 {
@@ -90,22 +90,6 @@ class CampaignController extends Controller
         $campaign->status = 'pending';
         $campaign->sender_name = $validatedData['sender_name'];
         $campaign->save();
-
-        // Add Tracking Pixel for opens
-        $trackingPixel = '<img src="' . route('campaigns.trackOpen', ['campaign' => $campaign->id]) . '?email={{ recipientEmail }}'  . '" width="1" height="1" style="display:none;" />';
-        $campaign->email_body_html .= $trackingPixel; // Append the tracking pixel to the html
-
-        // $recipients = $this->getRecipientsFromSubFolder($validated['subFolder_id']);
-
-        // Modify Links for click tracking
-        // $campaign->email_body_html = preg_replace_callback(
-        //     '/href=[\'"]?([^\'" >]+)/',
-        //     function ($matches) use ($campaign) {
-        //         $url = $matches[1];
-        //         return 'href="' . route('campaigns.trackClick', ['campaign' => $campaign->id, 'url' => $url]). '"';
-        //     },
-        //     $campaign->email_body_html
-        // );
 
         // If scheduled_at is provided, schedule the email sending
         if ($campaign->scheduled_at) {
@@ -260,38 +244,25 @@ class CampaignController extends Controller
 
     public function sendToAll(Campaign $campaign)
     {
-        // Get all recipients of the campaign
+        // Check if the campaign has recipients
         $recipients = Recipient::where('campaign_id', $campaign->id)->get();
-        $totalSent = 0;
-        $totalOpens = 0; // implement tracking for open mail
-        $totalClicks = 0; // implement tracking for clicks
 
         if ($recipients->isEmpty()) {
             return redirect()->route('campaigns.show', $campaign->id)
                             ->with('error', 'No recipients found for this campaign.');
         }
 
+        // Send emails to all recipients
         foreach ($recipients as $recipient) {
             foreach ($recipient->subFolder->contactLists as $contactList) {
                 Mail::to($contactList->email)->send(new CampaignMail($campaign));
-                $totalSent++;
             }
-
-            // Update email status in the email_statuses table
-            DB::table('email_statuses')->insert([
-                'campaign_id' => $campaign->id,
-                'recipient_email' => $contactList->email,
-                'status' => 'sent',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-
-            // Mark the email as sent
-            $recipient->update(['sent' => true]);
         }
 
-        // after sending, store the metrics
-        $this->storeMetrics(request(), $campaign);
+        // Update the campaign's status to 'sent'
+        $campaign->update([
+            'status' => 'sent',
+        ]);
 
         return redirect()->route('campaigns.show', $campaign->id)
                         ->with('success', 'Campaign sent to all recipients.');
@@ -355,7 +326,7 @@ class CampaignController extends Controller
         return redirect()->back()->with('alert', 'Recipient deleted successfully.');
     }
 
-    public function duplicate($id)
+        public function duplicate($id)
     {
         // Find the existing campaign by ID
         $campaign = Campaign::findOrFail($id);
@@ -375,60 +346,6 @@ class CampaignController extends Controller
 
         // Redirect back with a success message
         return redirect()->route('campaigns.index')->with('success', 'Campaign duplicated successfully with status set to pending.');
-    }
-
-    public function storeMetrics(Request $request, Campaign $campaign)
-    {
-        // Assuming we have the values avaiblable after sending the campaign
-        $totalSent = $request->input('total_sent');
-        $totalOpens = $request->input('total_opens');
-        $totalClicks = $request->input('total_clicks');
-
-        // Calculate the open rate and click rate
-        $openRate = $totalSent > 0 ? ($totalOpens / $totalSent) * 100 : 0;
-        $clickRate = $totalSent > 0 ? ($totalClicks / $totalSent) * 100 : 0;
-
-        // store the metrics
-        Metric::create([
-            'campaign_id' => $campaign->id,
-            'impressions' => $totalSent,
-            'clicks'=> $totalClicks,
-            'conversions' => 0, // can update this later as needed
-            'open_rate' => $openRate,
-            'click_rate' => $clickRate,
-        ]);
-    }
-
-    public function trackOpen(Request $request, Campaign $campaign)
-    {
-        $email = $request->query('email');
-
-        if ($email) {
-            $recipient = $campaign->recipients()->where('email', $email)->first();
-            if ($recipient) {
-                $recipient->increment('open_count');
-            }
-        }
-
-        return response()->noContent();
-    }
-
-
-    public function trackClick(Campaign $campaign, Request $request)
-    {
-        // retrieve the actual URL from the query parameters
-        $url = $request->query('url');
-
-        // Log the click event (create a separate model for tracking clicks if needed)
-        // For simplicity, use Metric model
-        $metric = Metric::where('campaign_id', $campaign->id)->first();
-
-        if ($metric) {
-            $metric->increment('clicks'); // increment the click count
-        }
-
-        // redirect to the actual URL
-        return redirect()->to($url);
     }
 
 }

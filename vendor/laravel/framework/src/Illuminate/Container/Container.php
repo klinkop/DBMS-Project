@@ -836,9 +836,7 @@ class Container implements ArrayAccess, ContainerContract
         // Before returning, we will also set the resolved flag to "true" and pop off
         // the parameter overrides for this build. After those two things are done
         // we will be ready to return back the fully constructed class instance.
-        if (! $needsContextualBuild) {
-            $this->resolved[$abstract] = true;
-        }
+        $this->resolved[$abstract] = true;
 
         array_pop($this->with);
 

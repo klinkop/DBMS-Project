@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Campaign;
-use App\Models\ContactList;
 use App\Models\Recipient;
 use App\Models\SubFolder;
 use Illuminate\Http\Request;
@@ -68,31 +67,6 @@ class RecipientController extends Controller
         } else {
             return redirect()->back()->with('alert', 'The SubFolder already exists for this recipient list!');
         }
-
-        // Retrieve all contactLists associated with the specified subFolder
-        // $contactLists = ContactList::where('sub_folder_id', $validated['sub_folder_id'])->get();
-
-        // foreach ($contactLists as $contactList) {
-        //     // check if the recipient already exists
-        //     $existingRecipient = Recipient::where('campaign_id', $campaign->id)
-        //         ->where('email', $contactList->email)
-        //         ->first();
-
-        //     if (!$existingRecipient) {
-        //         // create new recipient
-        //         Recipient::create([
-        //             'campaign_id' => $campaign->id,
-        //             'email' => $contactList->email,
-        //             'sub_folder_id' => $validated['sub_folder_id'],
-        //         ]);
-
-        //         return redirect()->back()->with('alert', 'Recipients added succesfully!!');
-        //     } else {
-        //         return redirect()->back()->with('alert', 'The email already exists for this recipient list!');
-        //     }
-        // }
-
-
     }
 
 }

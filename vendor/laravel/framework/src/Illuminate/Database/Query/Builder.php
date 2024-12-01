@@ -2276,7 +2276,7 @@ class Builder implements BuilderContract
      */
     public function orWhereFullText($columns, $value, array $options = [])
     {
-        return $this->whereFullText($columns, $value, $options, 'or');
+        return $this->whereFulltext($columns, $value, $options, 'or');
     }
 
     /**

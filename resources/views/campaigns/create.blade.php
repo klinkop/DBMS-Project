@@ -32,8 +32,7 @@
             </div>
 
             <div class="mb-4">
-                <label for="description" class="block text-gray-700 text-sm font-bold mb-2">Description
-                    (Optional)</label>
+                <label for="description" class="block text-gray-700 text-sm font-bold mb-2">Description (Optional)</label>
                 <textarea name="description"
                     class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     rows="3" placeholder="Enter a brief description">{{ old('description') }}</textarea>
@@ -77,22 +76,22 @@
     <!-- Include Unlayer -->
     <script src="https://editor.unlayer.com/embed.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             // Initialize Unlayer editor
             unlayer.init({
                 id: 'editor',
                 displayMode: 'email',
-                onLoad: function() {
+                onLoad: function () {
                     console.log("Unlayer Editor initialized successfully.");
                 }
             });
 
             // Handle form submission
-            document.getElementById('campaignForm').addEventListener('submit', function(e) {
+            document.getElementById('campaignForm').addEventListener('submit', function (e) {
                 e.preventDefault(); // Prevent default form submission
 
                 // Export the design
-                unlayer.exportHtml(function(data) {
+                unlayer.exportHtml(function (data) {
                     const json = data.design; // JSON structure of the design
                     const html = data.html; // Final HTML output
 

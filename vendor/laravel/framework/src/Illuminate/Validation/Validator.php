@@ -410,19 +410,6 @@ class Validator implements ValidatorContract
     }
 
     /**
-     * Replace each field parameter dot placeholder with dot.
-     *
-     * @param  string  $value
-     * @return string
-     */
-    protected function replaceDotPlaceholderInParameters(array $parameters)
-    {
-        return array_map(function ($field) {
-            return str_replace($this->dotPlaceholder, '.', $field);
-        }, $parameters);
-    }
-
-    /**
      * Add an after validation callback.
      *
      * @param  callable|array|string  $callback
@@ -945,10 +932,6 @@ class Validator implements ValidatorContract
 
         if (in_array($rule, $this->excludeRules)) {
             return $this->excludeAttribute($attribute);
-        }
-
-        if ($this->dependsOnOtherFields($rule)) {
-            $parameters = $this->replaceDotPlaceholderInParameters($parameters);
         }
 
         $this->messages->add($attribute, $this->makeReplacements(

@@ -79,7 +79,6 @@ trait DetectsLostConnections
             'Channel connection is closed',
             'Connection lost',
             'Broken pipe',
-            'SQLSTATE[25006]: Read only sql transaction: 7',
         ]);
     }
 }

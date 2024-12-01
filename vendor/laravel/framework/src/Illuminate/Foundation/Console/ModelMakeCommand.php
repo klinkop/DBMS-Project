@@ -251,7 +251,7 @@ class ModelMakeCommand extends GeneratorCommand
     {
         $replacements = [];
 
-        if ($this->option('factory') || $this->option('all')) {
+        if ($this->option('factory')) {
             $modelPath = str($this->argument('name'))->studly()->replace('/', '\\')->toString();
 
             $factoryNamespace = '\\Database\\Factories\\'.$modelPath.'Factory';
