@@ -27,6 +27,11 @@ class Campaign extends Model
         'email_body_html',
     ];
 
+    // protected $appends = [
+    //     'open_rate',
+    //     'click_rate'
+    // ];
+
     protected $casts = [
         'scheduled_at' => 'datetime',
     ];
@@ -60,4 +65,9 @@ class Campaign extends Model
     {
         return $this->hasMany(SentEmail::class);
     }
+
+    // public function getOpenRateAttribute()
+    // {
+    //     $totalEmails
+    // }
 }

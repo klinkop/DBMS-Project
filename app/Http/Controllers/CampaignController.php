@@ -20,13 +20,25 @@ class CampaignController extends Controller
 {
     public function index()
     {
-        // Fetch campaigns and calculate total_open_count and total_click_count for each campaign
+        // Fetch campaigns with calculated totals
         $campaigns = Campaign::withSum('sentEmails as total_open_count', 'opens')
-        ->withSum('sentEmails as total_click_count', 'clicks')
-        ->paginate(10);
-        // Return the view with the campaigns data
+            ->withSum('sentEmails as total_click_count', 'clicks')
+            ->withCount('sentEmails as total_emails_sent')
+            ->paginate(10)
+            ->map(function ($campaign) {
+                // Calculate rates in PHP
+                $campaign->open_rate = $campaign->total_emails_sent > 0
+                    ? ($campaign->total_open_count / $campaign->total_emails_sent) * 100
+                    : 0;
+                $campaign->click_rate = $campaign->total_emails_sent > 0
+                    ? ($campaign->total_click_count / $campaign->total_emails_sent) * 100
+                    : 0;
+                return $campaign;
+            });
+
         return view('campaigns.index', compact('campaigns'));
     }
+
 
     public function create()
     {

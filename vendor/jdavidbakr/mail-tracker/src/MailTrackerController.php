@@ -36,7 +36,7 @@ class MailTrackerController extends Controller
                     ->onQueue(config('mail-tracker.tracker-queue'));
                 if (!$tracker->opened_at) {
                     $tracker->opened_at = now();
-                    $tracker->opens += 1;  // Increment the opens count
+                    // $tracker->opens += 1;  // Increment the opens count
                     $tracker->save();
                 }
             }
@@ -88,7 +88,7 @@ class MailTrackerController extends Controller
 
                 if (!$tracker->clicked_at) {
                     $tracker->clicked_at = now();
-                    $tracker->clicks += 1;  // Increment the clicks count
+                    // $tracker->clicks += 1;  // Increment the clicks count
                     $tracker->save();
                 }
             }
