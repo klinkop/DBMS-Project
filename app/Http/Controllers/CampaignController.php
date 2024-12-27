@@ -14,17 +14,31 @@ use App\Mail\CampaignEmail;
 use App\Models\SubFolder;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CampaignController extends Controller
 {
     public function index()
     {
-        // Fetch campaigns with pagination (10 per page)
-        $campaigns = Campaign::paginate(10);
+        // Fetch campaigns with calculated totals
+        $campaigns = Campaign::withSum('sentEmails as total_open_count', 'opens')
+            ->withSum('sentEmails as total_click_count', 'clicks')
+            ->withCount('sentEmails as total_emails_sent')
+            ->paginate(10)
+            ->map(function ($campaign) {
+                // Calculate rates in PHP
+                $campaign->open_rate = $campaign->total_emails_sent > 0
+                    ? ($campaign->total_open_count / $campaign->total_emails_sent) * 100
+                    : 0;
+                $campaign->click_rate = $campaign->total_emails_sent > 0
+                    ? ($campaign->total_click_count / $campaign->total_emails_sent) * 100
+                    : 0;
+                return $campaign;
+            });
 
-        // Return the view with the campaigns data
         return view('campaigns.index', compact('campaigns'));
     }
+
 
     public function create()
     {

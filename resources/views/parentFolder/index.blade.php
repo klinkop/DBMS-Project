@@ -7,12 +7,12 @@
     <div class="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
         {{-- Add Search Form --}}
         <form action="{{ route('parentFolder.index') }}" method="get" class="form-inline my-4">
-            <input type="search" name="squery" class="form-control mr-sm-2" placeholder="Search Parent Folder" aria-label="Search">
+            <input type="search" name="squery" class="form-control mr-sm-2" placeholder="Search Parent Folder"
+                aria-label="Search">
             <button class="btn btn-outline-indigo my-2 my-sm-0" type="submit">{{ __('Search') }}</button>
         </form>
 
         {{-- Add on Title and Create Parent Folder button here! --}}
-        // <h1 class="text-3xl font-bold leading-tight text-gray-900">{{ __('Parent Folders List') }}</h1>
         <a href="{{ route('parentFolder.create') }}"
             class="inline-flex items-center px-4 py-2 mt-4 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
             {{ __('Create Parent Folder') }}

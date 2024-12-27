@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use jdavidbakr\MailTracker\Model\SentEmail;
 use App\Models\NewTemplate;
 
 
@@ -25,6 +26,11 @@ class Campaign extends Model
         'email_body_json',
         'email_body_html',
     ];
+
+    // protected $appends = [
+    //     'open_rate',
+    //     'click_rate'
+    // ];
 
     protected $casts = [
         'scheduled_at' => 'datetime',
@@ -54,4 +60,14 @@ class Campaign extends Model
     {
         return $this->hasMany(Recipient::class);
     }
+
+    public function sentEmails()
+    {
+        return $this->hasMany(SentEmail::class);
+    }
+
+    // public function getOpenRateAttribute()
+    // {
+    //     $totalEmails
+    // }
 }
