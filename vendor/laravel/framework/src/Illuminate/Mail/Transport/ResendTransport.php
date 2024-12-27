@@ -70,12 +70,12 @@ class ResendTransport extends AbstractTransport
 
         if ($email->getAttachments()) {
             foreach ($email->getAttachments() as $attachment) {
-                $attachmentHeaders = $attachment->getPreparedHeaders();
+                $headers = $attachment->getPreparedHeaders();
 
-                $filename = $attachmentHeaders->getHeaderParameter('Content-Disposition', 'filename');
+                $filename = $headers->getHeaderParameter('Content-Disposition', 'filename');
 
                 $item = [
-                    'content_type' => $attachmentHeaders->get('Content-Type')->getBody(),
+                    'content_type' => $headers->get('Content-Type')->getBody(),
                     'content' => str_replace("\r\n", '', $attachment->bodyToString()),
                     'filename' => $filename,
                 ];

@@ -334,13 +334,9 @@ class Validator implements ValidatorContract
      * @param  array  $attributes
      * @return void
      */
-    public function __construct(
-        Translator $translator,
-        array $data,
-        array $rules,
-        array $messages = [],
-        array $attributes = [],
-    ) {
+    public function __construct(Translator $translator, array $data, array $rules,
+                                array $messages = [], array $attributes = [])
+    {
         $this->dotPlaceholder = Str::random();
 
         $this->initialRules = $rules;
@@ -411,19 +407,6 @@ class Validator implements ValidatorContract
             ['.', '*'],
             $value
         );
-    }
-
-    /**
-     * Replace each field parameter dot placeholder with dot.
-     *
-     * @param  string  $value
-     * @return string
-     */
-    protected function replaceDotPlaceholderInParameters(array $parameters)
-    {
-        return array_map(function ($field) {
-            return str_replace($this->dotPlaceholder, '.', $field);
-        }, $parameters);
     }
 
     /**
@@ -949,10 +932,6 @@ class Validator implements ValidatorContract
 
         if (in_array($rule, $this->excludeRules)) {
             return $this->excludeAttribute($attribute);
-        }
-
-        if ($this->dependsOnOtherFields($rule)) {
-            $parameters = $this->replaceDotPlaceholderInParameters($parameters);
         }
 
         $this->messages->add($attribute, $this->makeReplacements(

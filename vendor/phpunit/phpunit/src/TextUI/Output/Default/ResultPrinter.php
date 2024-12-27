@@ -146,6 +146,11 @@ final class ResultPrinter
         }
     }
 
+    public function flush(): void
+    {
+        $this->printer->flush();
+    }
+
     private function printPhpunitErrors(TestResult $result): void
     {
         if (!$result->hasTestTriggeredPhpunitErrorEvents()) {
@@ -389,28 +394,24 @@ final class ResultPrinter
                 $issue->line(),
             );
 
-            $body = trim($issue->description()) . PHP_EOL . PHP_EOL;
+            $body = trim($issue->description()) . PHP_EOL . PHP_EOL . 'Triggered by:';
 
-            if (!$issue->triggeredInTest()) {
-                $body .= 'Triggered by:';
+            $triggeringTests = $issue->triggeringTests();
 
-                $triggeringTests = $issue->triggeringTests();
+            ksort($triggeringTests);
 
-                ksort($triggeringTests);
+            foreach ($triggeringTests as $triggeringTest) {
+                $body .= PHP_EOL . PHP_EOL . '* ' . $triggeringTest['test']->id();
 
-                foreach ($triggeringTests as $triggeringTest) {
-                    $body .= PHP_EOL . PHP_EOL . '* ' . $triggeringTest['test']->id();
+                if ($triggeringTest['count'] > 1) {
+                    $body .= sprintf(
+                        ' (%d times)',
+                        $triggeringTest['count'],
+                    );
+                }
 
-                    if ($triggeringTest['count'] > 1) {
-                        $body .= sprintf(
-                            ' (%d times)',
-                            $triggeringTest['count'],
-                        );
-                    }
-
-                    if ($triggeringTest['test']->isTestMethod()) {
-                        $body .= PHP_EOL . '  ' . $triggeringTest['test']->file() . ':' . $triggeringTest['test']->line();
-                    }
+                if ($triggeringTest['test']->isTestMethod()) {
+                    $body .= PHP_EOL . '  ' . $triggeringTest['test']->file() . ':' . $triggeringTest['test']->line();
                 }
             }
 

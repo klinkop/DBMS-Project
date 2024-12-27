@@ -45,7 +45,7 @@ class Application extends SymfonyApplication implements ApplicationContract
     /**
      * The console application bootstrappers.
      *
-     * @var array<array-key, \Closure($this): void>
+     * @var array
      */
     protected static $bootstrappers = [];
 
@@ -112,7 +112,7 @@ class Application extends SymfonyApplication implements ApplicationContract
     /**
      * Register a console "starting" bootstrapper.
      *
-     * @param  \Closure($this): void  $callback
+     * @param  \Closure  $callback
      * @return void
      */
     public static function starting(Closure $callback)

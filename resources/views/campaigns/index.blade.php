@@ -38,7 +38,7 @@
                 <table class="min-w-full bg-white border-collapse border border-gray-300">
                     <thead>
                         <tr>
-                            <th class="py-2 px-4 border-b border-gray-300 text-left text-gray-600 font-bold">#</th>
+                            <!--<th class="py-2 px-4 border-b border-gray-300 text-left text-gray-600 font-bold">#</th>-->
                             <th class="py-2 px-4 border-b border-gray-300 text-left text-gray-600 font-bold">Name</th>
                             <th class="py-2 px-4 border-b border-gray-300 text-left text-gray-600 font-bold">Open Count
                             </th>
@@ -60,7 +60,7 @@
                     <tbody>
                         @foreach ($campaigns as $campaign)
                             <tr>
-                                <td class="py-2 px-4 border-b border-gray-300">{{ $campaign->id }}</td>
+                                <!--<td class="py-2 px-4 border-b border-gray-300">{{ $campaign->id }}</td>-->
                                 <td class="py-2 px-4 border-b border-gray-300">{{ $campaign->name }}</td>
                                 <td class="py-2 px-4 border-b border-gray-300">{{ $campaign->total_open_count ?? 0 }}
                                 </td>
@@ -108,9 +108,9 @@
                 </table>
             </div>
 
-            {{-- <div class="mt-4">
-                {{ $campaigns->links() }}
-            </div> --}}
+            <div class="mt-4">
+                {{ $campaigns->links('pagination::tailwind') }}
+            </div>
         @endif
 
 

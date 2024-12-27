@@ -195,8 +195,6 @@ abstract class Assert
     }
 
     /**
-     * @phpstan-assert list<mixed> $array
-     *
      * @throws ExpectationFailedException
      */
     final public static function assertIsList(mixed $array, string $message = ''): void
@@ -556,9 +554,9 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      */
-    final public static function assertGreaterThan(mixed $minimum, mixed $actual, string $message = ''): void
+    final public static function assertGreaterThan(mixed $expected, mixed $actual, string $message = ''): void
     {
-        self::assertThat($actual, self::greaterThan($minimum), $message);
+        self::assertThat($actual, self::greaterThan($expected), $message);
     }
 
     /**
@@ -566,11 +564,11 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      */
-    final public static function assertGreaterThanOrEqual(mixed $minimum, mixed $actual, string $message = ''): void
+    final public static function assertGreaterThanOrEqual(mixed $expected, mixed $actual, string $message = ''): void
     {
         self::assertThat(
             $actual,
-            self::greaterThanOrEqual($minimum),
+            self::greaterThanOrEqual($expected),
             $message,
         );
     }
@@ -580,9 +578,9 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      */
-    final public static function assertLessThan(mixed $maximum, mixed $actual, string $message = ''): void
+    final public static function assertLessThan(mixed $expected, mixed $actual, string $message = ''): void
     {
-        self::assertThat($actual, self::lessThan($maximum), $message);
+        self::assertThat($actual, self::lessThan($expected), $message);
     }
 
     /**
@@ -590,9 +588,9 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      */
-    final public static function assertLessThanOrEqual(mixed $maximum, mixed $actual, string $message = ''): void
+    final public static function assertLessThanOrEqual(mixed $expected, mixed $actual, string $message = ''): void
     {
-        self::assertThat($actual, self::lessThanOrEqual($maximum), $message);
+        self::assertThat($actual, self::lessThanOrEqual($expected), $message);
     }
 
     /**
@@ -1198,7 +1196,7 @@ abstract class Assert
      * @throws Exception
      * @throws ExpectationFailedException
      *
-     * @phpstan-assert array<mixed> $actual
+     * @phpstan-assert array $actual
      */
     final public static function assertIsArray(mixed $actual, string $message = ''): void
     {
@@ -1385,7 +1383,7 @@ abstract class Assert
      * @throws Exception
      * @throws ExpectationFailedException
      *
-     * @phpstan-assert iterable<mixed> $actual
+     * @phpstan-assert iterable $actual
      */
     final public static function assertIsIterable(mixed $actual, string $message = ''): void
     {
@@ -1402,7 +1400,7 @@ abstract class Assert
      * @throws Exception
      * @throws ExpectationFailedException
      *
-     * @phpstan-assert !array<mixed> $actual
+     * @phpstan-assert !array $actual
      */
     final public static function assertIsNotArray(mixed $actual, string $message = ''): void
     {
@@ -1589,7 +1587,7 @@ abstract class Assert
      * @throws Exception
      * @throws ExpectationFailedException
      *
-     * @phpstan-assert !iterable<mixed> $actual
+     * @phpstan-assert !iterable $actual
      */
     final public static function assertIsNotIterable(mixed $actual, string $message = ''): void
     {

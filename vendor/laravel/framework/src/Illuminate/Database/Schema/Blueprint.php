@@ -1039,22 +1039,16 @@ class Blueprint
         $column = $column ?: $model->getForeignKey();
 
         if ($model->getKeyType() === 'int' && $model->getIncrementing()) {
-            return $this->foreignId($column)
-                ->table($model->getTable())
-                ->referencesModelColumn($model->getKeyName());
+            return $this->foreignId($column)->table($model->getTable());
         }
 
         $modelTraits = class_uses_recursive($model);
 
         if (in_array(HasUlids::class, $modelTraits, true)) {
-            return $this->foreignUlid($column, 26)
-                ->table($model->getTable())
-                ->referencesModelColumn($model->getKeyName());
+            return $this->foreignUlid($column, 26)->table($model->getTable());
         }
 
-        return $this->foreignUuid($column)
-            ->table($model->getTable())
-            ->referencesModelColumn($model->getKeyName());
+        return $this->foreignUuid($column)->table($model->getTable());
     }
 
     /**
@@ -1462,14 +1456,12 @@ class Blueprint
      * Create a new vector column on the table.
      *
      * @param  string  $column
-     * @param  int|null  $dimensions
+     * @param  int  $dimensions
      * @return \Illuminate\Database\Schema\ColumnDefinition
      */
-    public function vector($column, $dimensions = null)
+    public function vector($column, $dimensions)
     {
-        $options = $dimensions ? compact('dimensions') : [];
-
-        return $this->addColumn('vector', $column, $options);
+        return $this->addColumn('vector', $column, compact('dimensions'));
     }
 
     /**
@@ -1612,18 +1604,6 @@ class Blueprint
     public function rememberToken()
     {
         return $this->string('remember_token', 100)->nullable();
-    }
-
-    /**
-     * Create a new custom column on the table.
-     *
-     * @param  string  $column
-     * @param  string  $definition
-     * @return \Illuminate\Database\Schema\ColumnDefinition
-     */
-    public function rawColumn($column, $definition)
-    {
-        return $this->addColumn('raw', $column, compact('definition'));
     }
 
     /**

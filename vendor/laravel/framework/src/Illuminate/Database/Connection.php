@@ -454,7 +454,7 @@ class Connection implements ConnectionInterface
      * @param  string  $query
      * @param  array  $bindings
      * @param  bool  $useReadPdo
-     * @return \Generator<int, \stdClass>
+     * @return \Generator
      */
     public function cursor($query, $bindings = [], $useReadPdo = true)
     {

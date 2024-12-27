@@ -49,7 +49,7 @@ final class TeamCityLogger
     private readonly Printer $printer;
     private bool $isSummaryTestCountPrinted = false;
     private ?HRTime $time                   = null;
-    private ?int $flowId                    = null;
+    private ?int $flowId;
 
     /**
      * @throws EventFacadeIsSealedException
@@ -299,7 +299,7 @@ final class TeamCityLogger
     {
         $this->printer->print(
             sprintf(
-                '##teamcity[%s',
+                "\n##teamcity[%s",
                 $eventName,
             ),
         );

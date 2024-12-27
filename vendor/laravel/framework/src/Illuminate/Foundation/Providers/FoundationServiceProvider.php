@@ -239,8 +239,6 @@ class FoundationServiceProvider extends AggregateServiceProvider
      */
     protected function registerExceptionRenderer()
     {
-        $this->loadViewsFrom(__DIR__.'/../Exceptions/views', 'laravel-exceptions');
-
         if (! $this->app->hasDebugModeEnabled()) {
             return;
         }

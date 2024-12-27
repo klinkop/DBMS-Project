@@ -547,7 +547,6 @@ final class PhptTestCase implements Reorderable, SelfDescribing, Test
             'EXPECTF',
             'EXPECTREGEX',
         ];
-
         $testDirectory = dirname($this->filename) . DIRECTORY_SEPARATOR;
 
         foreach ($allowSections as $section) {
@@ -562,11 +561,7 @@ final class PhptTestCase implements Reorderable, SelfDescribing, Test
                     );
                 }
 
-                $contents = file_get_contents($testDirectory . $externalFilename);
-
-                assert($contents !== false && $contents !== '');
-
-                $sections[$section] = $contents;
+                $sections[$section] = file_get_contents($testDirectory . $externalFilename);
             }
         }
     }
@@ -699,11 +694,9 @@ final class PhptTestCase implements Reorderable, SelfDescribing, Test
 
         file_put_contents($files['job'], $job);
 
-        $rendered = $template->render();
+        $job = $template->render();
 
-        assert($rendered !== '');
-
-        $job = $rendered;
+        assert($job !== '');
     }
 
     private function cleanupForCoverage(): RawCodeCoverageData

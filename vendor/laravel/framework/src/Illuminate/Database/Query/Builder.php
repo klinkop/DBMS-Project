@@ -256,11 +256,10 @@ class Builder implements BuilderContract
      * @param  \Illuminate\Database\Query\Processors\Processor|null  $processor
      * @return void
      */
-    public function __construct(
-        ConnectionInterface $connection,
-        ?Grammar $grammar = null,
-        ?Processor $processor = null,
-    ) {
+    public function __construct(ConnectionInterface $connection,
+                                ?Grammar $grammar = null,
+                                ?Processor $processor = null)
+    {
         $this->connection = $connection;
         $this->grammar = $grammar ?: $connection->getQueryGrammar();
         $this->processor = $processor ?: $connection->getPostProcessor();
@@ -2277,7 +2276,7 @@ class Builder implements BuilderContract
      */
     public function orWhereFullText($columns, $value, array $options = [])
     {
-        return $this->whereFullText($columns, $value, $options, 'or');
+        return $this->whereFulltext($columns, $value, $options, 'or');
     }
 
     /**
@@ -3110,7 +3109,7 @@ class Builder implements BuilderContract
      * Execute the query as a "select" statement.
      *
      * @param  array|string  $columns
-     * @return \Illuminate\Support\Collection<int, \stdClass>
+     * @return \Illuminate\Support\Collection
      */
     public function get($columns = ['*'])
     {
@@ -3340,7 +3339,7 @@ class Builder implements BuilderContract
     /**
      * Get a lazy collection for the given query.
      *
-     * @return \Illuminate\Support\LazyCollection<int, \stdClass>
+     * @return \Illuminate\Support\LazyCollection
      */
     public function cursor()
     {

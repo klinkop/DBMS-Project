@@ -291,7 +291,7 @@ class ServeCommand extends Command
                 }
 
                 if (str($line)->contains(' Accepted')) {
-                    $requestPort = static::getRequestPortFromLine($line);
+                    $requestPort = $this->getRequestPortFromLine($line);
 
                     $this->requestsPool[$requestPort] = [
                         $this->getDateFromLine($line),
@@ -299,15 +299,15 @@ class ServeCommand extends Command
                         microtime(true),
                     ];
                 } elseif (str($line)->contains([' [200]: GET '])) {
-                    $requestPort = static::getRequestPortFromLine($line);
+                    $requestPort = $this->getRequestPortFromLine($line);
 
                     $this->requestsPool[$requestPort][1] = trim(explode('[200]: GET', $line)[1]);
                 } elseif (str($line)->contains('URI:')) {
-                    $requestPort = static::getRequestPortFromLine($line);
+                    $requestPort = $this->getRequestPortFromLine($line);
 
                     $this->requestsPool[$requestPort][1] = trim(explode('URI: ', $line)[1]);
                 } elseif (str($line)->contains(' Closing')) {
-                    $requestPort = static::getRequestPortFromLine($line);
+                    $requestPort = $this->getRequestPortFromLine($line);
 
                     if (empty($this->requestsPool[$requestPort])) {
                         $this->requestsPool[$requestPort] = [
@@ -374,15 +374,11 @@ class ServeCommand extends Command
      * @param  string  $line
      * @return int
      */
-    public static function getRequestPortFromLine($line)
+    protected function getRequestPortFromLine($line)
     {
-        preg_match('/(\[\w+\s\w+\s\d+\s[\d:]+\s\d{4}\]\s)?:(\d+)\s(?:(?:\w+$)|(?:\[.*))/', $line, $matches);
+        preg_match('/:(\d+)\s(?:(?:\w+$)|(?:\[.*))/', $line, $matches);
 
-        if (! isset($matches[2])) {
-            throw new \InvalidArgumentException("Failed to extract the request port. Ensure the log line contains a valid port: {$line}");
-        }
-
-        return (int) $matches[2];
+        return (int) $matches[1];
     }
 
     /**

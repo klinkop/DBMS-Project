@@ -3,7 +3,6 @@
 namespace Illuminate\Http\Client;
 
 use Closure;
-use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Promise\PromiseInterface;
@@ -166,22 +165,6 @@ class Factory
     }
 
     /**
-     * Create a new connection exception for use during stubbing.
-     *
-     * @param  string|null  $message
-     * @return \GuzzleHttp\Promise\PromiseInterface
-     */
-    public static function failedConnection($message = null)
-    {
-        return function ($request) use ($message) {
-            return Create::rejectionFor(new ConnectException(
-                $message ?? "cURL error 6: Could not resolve host: {$request->toPsrRequest()->getUri()->getHost()} (see https://curl.haxx.se/libcurl/c/libcurl-errors.html) for {$request->toPsrRequest()->getUri()}.",
-                $request->toPsrRequest(),
-            ));
-        };
-    }
-
-    /**
      * Get an invokable object that returns a sequence of responses in order for use during stubbing.
      *
      * @param  array  $responses
@@ -220,11 +203,9 @@ class Factory
 
         $this->stubCallbacks = $this->stubCallbacks->merge(collect([
             function ($request, $options) use ($callback) {
-                $response = $callback;
-
-                while ($response instanceof Closure) {
-                    $response = $response($request, $options);
-                }
+                $response = $callback instanceof Closure
+                                ? $callback($request, $options)
+                                : $callback;
 
                 if ($response instanceof PromiseInterface) {
                     $options['on_stats'](new TransferStats(
@@ -257,7 +238,7 @@ class Factory
      * Stub the given URL using the given callback.
      *
      * @param  string  $url
-     * @param  \Illuminate\Http\Client\Response|\GuzzleHttp\Promise\PromiseInterface|callable|int|string|array  $callback
+     * @param  \Illuminate\Http\Client\Response|\GuzzleHttp\Promise\PromiseInterface|callable  $callback
      * @return $this
      */
     public function stubUrl($url, $callback)
@@ -267,19 +248,9 @@ class Factory
                 return;
             }
 
-            if (is_int($callback) && $callback >= 100 && $callback < 600) {
-                return static::response(status: $callback);
-            }
-
-            if (is_int($callback) || is_string($callback)) {
-                return static::response($callback);
-            }
-
-            if ($callback instanceof Closure || $callback instanceof ResponseSequence) {
-                return $callback($request, $options);
-            }
-
-            return $callback;
+            return $callback instanceof Closure || $callback instanceof ResponseSequence
+                        ? $callback($request, $options)
+                        : $callback;
         });
     }
 
@@ -332,7 +303,7 @@ class Factory
      * Record a request response pair.
      *
      * @param  \Illuminate\Http\Client\Request  $request
-     * @param  \Illuminate\Http\Client\Response|null  $response
+     * @param  \Illuminate\Http\Client\Response  $response
      * @return void
      */
     public function recordRequestResponsePair($request, $response)

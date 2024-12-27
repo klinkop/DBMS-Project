@@ -35,10 +35,9 @@ class ForeignIdColumnDefinition extends ColumnDefinition
      * @param  string|null  $indexName
      * @return \Illuminate\Database\Schema\ForeignKeyDefinition
      */
-    public function constrained($table = null, $column = null, $indexName = null)
+    public function constrained($table = null, $column = 'id', $indexName = null)
     {
         $table ??= $this->table;
-        $column ??= $this->referencesModelColumn ?? 'id';
 
         return $this->references($column, $indexName)->on($table ?? Str::of($this->name)->beforeLast('_'.$column)->plural());
     }

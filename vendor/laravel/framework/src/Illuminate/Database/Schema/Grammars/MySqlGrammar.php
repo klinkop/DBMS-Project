@@ -29,7 +29,7 @@ class MySqlGrammar extends Grammar
     protected $serials = ['bigInteger', 'integer', 'mediumInteger', 'smallInteger', 'tinyInteger'];
 
     /**
-     * The commands to be executed outside of create or alter commands.
+     * The commands to be executed outside of create or alter command.
      *
      * @var string[]
      */
@@ -1128,9 +1128,7 @@ class MySqlGrammar extends Grammar
      */
     protected function typeVector(Fluent $column)
     {
-        return isset($column->dimensions) && $column->dimensions !== ''
-            ? "vector({$column->dimensions})"
-            : 'vector';
+        return "vector($column->dimensions)";
     }
 
     /**

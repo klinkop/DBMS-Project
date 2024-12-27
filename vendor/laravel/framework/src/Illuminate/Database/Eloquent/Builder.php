@@ -1081,17 +1081,6 @@ class Builder implements BuilderContract
     }
 
     /**
-     * Save a new model and return the instance without raising model events.
-     *
-     * @param  array  $attributes
-     * @return TModel
-     */
-    public function createQuietly(array $attributes = [])
-    {
-        return Model::withoutEvents(fn () => $this->create($attributes));
-    }
-
-    /**
      * Save a new model and return the instance. Allow mass-assignment.
      *
      * @param  array  $attributes

@@ -10,7 +10,6 @@ use Illuminate\Database\PostgresConnection;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\SqlServerConnection;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 use Illuminate\Support\InteractsWithTime;
 use Illuminate\Support\Str;
 
@@ -77,14 +76,13 @@ class DatabaseStore implements LockProvider, Store
      * @param  array  $lockLottery
      * @return void
      */
-    public function __construct(
-        ConnectionInterface $connection,
-        $table,
-        $prefix = '',
-        $lockTable = 'cache_locks',
-        $lockLottery = [2, 100],
-        $defaultLockTimeoutInSeconds = 86400,
-    ) {
+    public function __construct(ConnectionInterface $connection,
+                                                    $table,
+                                                    $prefix = '',
+                                                    $lockTable = 'cache_locks',
+                                                    $lockLottery = [2, 100],
+                                                    $defaultLockTimeoutInSeconds = 86400)
+    {
         $this->table = $table;
         $this->prefix = $prefix;
         $this->connection = $connection;
@@ -380,7 +378,7 @@ class DatabaseStore implements LockProvider, Store
      */
     protected function forgetMany(array $keys)
     {
-        $this->table()->whereIn('key', (new Collection($keys))->flatMap(fn ($key) => [
+        $this->table()->whereIn('key', collect($keys)->flatMap(fn ($key) => [
             $this->prefix.$key,
             "{$this->prefix}illuminate:cache:flexible:created:{$key}",
         ])->all())->delete();
@@ -398,7 +396,7 @@ class DatabaseStore implements LockProvider, Store
     protected function forgetManyIfExpired(array $keys, bool $prefixed = false)
     {
         $this->table()
-            ->whereIn('key', (new Collection($keys))->flatMap(fn ($key) => $prefixed ? [
+            ->whereIn('key', collect($keys)->flatMap(fn ($key) => $prefixed ? [
                 $key,
                 $this->prefix.'illuminate:cache:flexible:created:'.Str::chopStart($key, $this->prefix),
             ] : [

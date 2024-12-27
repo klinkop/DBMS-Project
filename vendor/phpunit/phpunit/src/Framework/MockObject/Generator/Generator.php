@@ -468,7 +468,7 @@ final class Generator
 
         try {
             $client   = new SoapClient($wsdlFile, $options);
-            $_methods = array_unique($client->__getFunctions() ?? []);
+            $_methods = array_unique($client->__getFunctions());
 
             unset($client);
         } catch (SoapFault $e) {
@@ -776,7 +776,7 @@ final class Generator
 
         if (is_array($explicitMethods)) {
             foreach ($explicitMethods as $methodName) {
-                if ($class->hasMethod($methodName)) {
+                if ($class !== null && $class->hasMethod($methodName)) {
                     $method = $class->getMethod($methodName);
 
                     if ($this->canMethodBeDoubled($method)) {
@@ -811,9 +811,7 @@ final class Generator
         }
 
         /** @var trait-string[] $traits */
-        $traits = [];
-
-        /** @phpstan-ignore identical.alwaysTrue */
+        $traits  = [];
         $isPhp82 = PHP_MAJOR_VERSION === 8 && PHP_MINOR_VERSION === 2;
 
         if (!$isReadonly && $isPhp82) {
@@ -1101,7 +1099,7 @@ final class Generator
      *
      * @throws ReflectionException
      *
-     * @phpstan-ignore missingType.generics, throws.unusedType
+     * @phpstan-ignore missingType.generics
      */
     private function reflectClass(string $className): ReflectionClass
     {

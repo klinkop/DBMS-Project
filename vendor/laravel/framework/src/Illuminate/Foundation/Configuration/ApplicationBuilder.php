@@ -211,23 +211,9 @@ class ApplicationBuilder
 
             if (is_string($health)) {
                 Route::get($health, function () {
-                    $exception = null;
+                    Event::dispatch(new DiagnosingHealth);
 
-                    try {
-                        Event::dispatch(new DiagnosingHealth);
-                    } catch (\Throwable $e) {
-                        if (app()->hasDebugModeEnabled()) {
-                            throw $e;
-                        }
-
-                        report($e);
-
-                        $exception = $e->getMessage();
-                    }
-
-                    return response(View::file(__DIR__.'/../resources/health-up.blade.php', [
-                        'exception' => $exception,
-                    ]), status: $exception ? 500 : 200);
+                    return View::file(__DIR__.'/../resources/health-up.blade.php');
                 });
             }
 
@@ -282,18 +268,6 @@ class ApplicationBuilder
 
             if ($priorities = $middleware->getMiddlewarePriority()) {
                 $kernel->setMiddlewarePriority($priorities);
-            }
-
-            if ($priorityAppends = $middleware->getMiddlewarePriorityAppends()) {
-                foreach ($priorityAppends as $newMiddleware => $after) {
-                    $kernel->addToMiddlewarePriorityAfter($after, $newMiddleware);
-                }
-            }
-
-            if ($priorityPrepends = $middleware->getMiddlewarePriorityPrepends()) {
-                foreach ($priorityPrepends as $newMiddleware => $before) {
-                    $kernel->addToMiddlewarePriorityBefore($before, $newMiddleware);
-                }
             }
         });
 
