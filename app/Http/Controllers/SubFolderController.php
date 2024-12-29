@@ -45,6 +45,7 @@ class SubFolderController extends Controller
         // Return the view with the subfolders (either filtered or all)
         return view('subFolder.index', [
             'subFolders' => $subFolders,
+            'activePage' => 'subFolder',
         ]);
     }
 

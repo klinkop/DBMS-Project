@@ -2,36 +2,31 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Contracts\Auth\CanResetPassword;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var string[]
+     * @var array<int, string>
      */
     protected $fillable = [
         'name',
         'email',
         'password',
-        'location',
-        'phone',
-        'about',
-        'password_confirmation'
     ];
 
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var array
+     * @var array<int, string>
      */
     protected $hidden = [
         'password',
@@ -39,17 +34,42 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be cast.
+     * Get the attributes that should be cast.
      *
-     * @var array
+     * @return array<string, string>
      */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
-    
-    public function setPasswordAttribute($password)
+    protected function casts(): array
     {
-        $this->attributes['password'] = bcrypt($password);
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
     }
 
+    /**
+     * Add relationship between User model to other models that require the User model:
+     *
+     * 1. Parent Folder
+     * 2. Sub Folder
+     * 3. Contact List
+     */
+    public function parentFolder(): HasMany
+    {
+        return $this->hasMany(ParentFolder::class);
+    }
+
+    public function subFolder(): HasMany
+    {
+        return $this->hasMany(SubFolder::class);
+    }
+
+    public function contactList(): HasMany
+    {
+        return $this->hasMany(ContactList::class);
+    }
+    public function groups()
+    {
+        return $this->hasMany(Group::class);
+    }
 }
+

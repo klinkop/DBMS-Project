@@ -11,7 +11,7 @@ class CreateUsersTable extends Migration
      *
      * @return void
      */
-/*     public function up()
+    public function up()
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
@@ -25,7 +25,7 @@ class CreateUsersTable extends Migration
             $table->rememberToken();
             $table->timestamps();
         });
-    } */
+    }
 
     /**
      * Reverse the migrations.

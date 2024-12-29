@@ -40,6 +40,7 @@ class ParentFolderController extends Controller
         // Return the view with the parent folders (either filtered or all)
         return view('parentFolder.index', [
             'parentFolders' => $parentFolders,
+            'activePage' => 'parentFolder',
         ]);
     }
 
