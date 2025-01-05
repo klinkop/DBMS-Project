@@ -58,55 +58,61 @@
                             </div>
 
                             {{-- Folder Name and Action Button --}}
-                            <div class="flex items-center justify-between">
-                                <p class="mt-4 text-lg text-gray-900">{{ $parentFolder->name }}</p>
-
-                                {{-- Action button container --}}
-                                @if ($parentFolder->user->is(auth()->user()))
-                                    <div class="ml-auto">
-                                        <div class="btn-group">
-                                            <button class="btn btn-info dropdown-toggle" type="button"
-                                                data-bs-toggle="dropdown" aria-expanded="false">
-                                                Action
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                                <li>
-                                                    <a class="dropdown-item text-gray-600 hover:bg-gray-100"
-                                                        href="{{ route('subFolder.create', $parentFolder) }}">
-                                                        Create Sub Folder
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item text-gray-600 hover:bg-gray-100"
-                                                        href="{{ route('parentFolder.edit', $parentFolder) }}">
-                                                        {{ __('Edit') }}
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item text-gray-600 hover:bg-gray-100"
-                                                        href="{{ route('subFolder.index', ['parentFolder' => $parentFolder->id]) }}">
-                                                        {{ __('View Subfolders') }}
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <form action="{{ route('parentFolder.destroy', $parentFolder) }}"
-                                                        method="post">
-                                                        @csrf
-                                                        @method('delete')
-                                                        <a href="#"
-                                                            class="dropdown-item text-danger hover:bg-red-100"
-                                                            onclick="event.preventDefault();
-                                                                    if(confirm('Are you sure you want to delete this folder? This action cannot be undone.')) {
-                                                                        this.closest('form').submit();
-                                                                    }">
-                                                            {{ __('Delete') }}
-                                                        </a>
-                                                    </form>
-                                                </li>
-                                            </ul>
-                                        </div>
+                            <div class="container folder-container">
+                                <div class="row justify-content-between">
+                                    <div class="col-4">
+                                        <p class="mt-4 text-lg text-gray-900">{{ $parentFolder->name }}</p>
                                     </div>
-                                @endif
+                                    <div class="col-4">
+                                        {{-- Action button container --}}
+                                        @if ($parentFolder->user->is(auth()->user()))
+                                            <div class="ml-auto">
+                                                <div class="btn-group">
+                                                    <button class="btn btn-info dropdown-toggle" type="button"
+                                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                                        Action
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                        <li>
+                                                            <a class="dropdown-item text-gray-600 hover:bg-gray-100"
+                                                                href="{{ route('subFolder.create', $parentFolder) }}">
+                                                                Create Sub Folder
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item text-gray-600 hover:bg-gray-100"
+                                                                href="{{ route('parentFolder.edit', $parentFolder) }}">
+                                                                {{ __('Edit') }}
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item text-gray-600 hover:bg-gray-100"
+                                                                href="{{ route('subFolder.index', ['parentFolder' => $parentFolder->id]) }}">
+                                                                {{ __('View Subfolders') }}
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <form
+                                                                action="{{ route('parentFolder.destroy', $parentFolder) }}"
+                                                                method="post">
+                                                                @csrf
+                                                                @method('delete')
+                                                                <a href="#"
+                                                                    class="dropdown-item text-danger hover:bg-red-100"
+                                                                    onclick="event.preventDefault();
+                                                                if(confirm('Are you sure you want to delete this folder? This action cannot be undone.')) {
+                                                                    this.closest('form').submit();
+                                                                }">
+                                                                    {{ __('Delete') }}
+                                                                </a>
+                                                            </form>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
 
                         </div>
