@@ -48,7 +48,7 @@ Route::middleware('auth')->group(function () {
 
     // Specific routes for creating subfolders and contact lists under parent folders
     Route::get('/parent-folders/{parentFolder}/sub-folders/create', [SubFolderController::class, 'create'])->name('subFolder.create');
-    Route::get('/sub-folders/{subFolder}/contact-lists/create', [ContactListController::class, 'create'])->name('contactList.create');
+    Route::get('/sub-folders/{subFolder?}/contact-lists/create', [ContactListController::class, 'create'])->name('contactList.create');
     Route::get('/contactList/{contactList}/edit', [ContactListController::class, 'edit'])->name('contactList.edit');
     Route::put('/contactList/{contactList}', [ContactListController::class, 'update'])->name('contactList.update');
 

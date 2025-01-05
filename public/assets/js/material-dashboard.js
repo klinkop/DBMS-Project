@@ -120,132 +120,250 @@ if (document.querySelector('.fixed-plugin')) {
 
 }
 
-//Set Sidebar Color
+// Set Sidebar Color
 function sidebarColor(a) {
   var parent = document.querySelector(".nav-link.active");
   var color = a.getAttribute("data-color");
 
-  if (parent.classList.contains('bg-gradient-primary')) {
-    parent.classList.remove('bg-gradient-primary');
-  }
-  if (parent.classList.contains('bg-gradient-dark')) {
-    parent.classList.remove('bg-gradient-dark');
-  }
-  if (parent.classList.contains('bg-gradient-info')) {
-    parent.classList.remove('bg-gradient-info');
-  }
-  if (parent.classList.contains('bg-gradient-success')) {
-    parent.classList.remove('bg-gradient-success');
-  }
-  if (parent.classList.contains('bg-gradient-warning')) {
-    parent.classList.remove('bg-gradient-warning');
-  }
-  if (parent.classList.contains('bg-gradient-danger')) {
-    parent.classList.remove('bg-gradient-danger');
-  }
-  parent.classList.add('bg-gradient-' + color);
+  // Remove any existing gradient classes
+  parent.classList.remove(
+    "bg-gradient-primary",
+    "bg-gradient-dark",
+    "bg-gradient-info",
+    "bg-gradient-success",
+    "bg-gradient-warning",
+    "bg-gradient-danger"
+  );
+
+  // Add the selected gradient class
+  parent.classList.add("bg-gradient-" + color);
+
+  // Save the selected color to localStorage
+  localStorage.setItem("sidebarColor", color);
 }
 
-// Set Sidebar Type
+// Apply Sidebar Color on Page Load
+function applySidebarColor() {
+  var parent = document.querySelector(".nav-link.active");
+  var savedColor = localStorage.getItem("sidebarColor");
+
+  if (savedColor) {
+    // Remove any existing gradient classes
+    parent.classList.remove(
+      "bg-gradient-primary",
+      "bg-gradient-dark",
+      "bg-gradient-info",
+      "bg-gradient-success",
+      "bg-gradient-warning",
+      "bg-gradient-danger"
+    );
+
+    // Add the saved gradient class
+    parent.classList.add("bg-gradient-" + savedColor);
+  }
+}
+
+// Call the function on page load
+document.addEventListener("DOMContentLoaded", applySidebarColor);
+
+
 function sidebarType(a) {
-  var parent = a.parentElement.children;
-  var color = a.getAttribute("data-class");
-  var body = document.querySelector("body");
-  var bodyWhite = document.querySelector("body:not(.dark-version)");
-  var bodyDark = body.classList.contains('dark-version');
+    var parent = a.parentElement.children;
+    var color = a.getAttribute("data-class");
+    var body = document.querySelector("body");
+    var bodyWhite = !body.classList.contains('dark-version');
+    var bodyDark = body.classList.contains('dark-version');
 
-  var colors = [];
+    var colors = [];
 
-  for (var i = 0; i < parent.length; i++) {
-    parent[i].classList.remove('active');
-    colors.push(parent[i].getAttribute('data-class'));
-  }
-
-  if (!a.classList.contains('active')) {
-    a.classList.add('active');
-  } else {
-    a.classList.remove('active');
-  }
-
-  var sidebar = document.querySelector('.sidenav');
-
-  for (var i = 0; i < colors.length; i++) {
-    sidebar.classList.remove(colors[i]);
-  }
-
-  sidebar.classList.add(color);
-
-
-  // Remove text-white/text-dark classes
-  if (color == 'bg-transparent' || color == 'bg-white') {
-    var textWhites = document.querySelectorAll('.sidenav .text-white');
-    for (let i = 0; i < textWhites.length; i++) {
-      textWhites[i].classList.remove('text-white');
-      textWhites[i].classList.add('text-dark');
+    // Reset all siblings' active class
+    for (var i = 0; i < parent.length; i++) {
+        parent[i].classList.remove('active');
+        colors.push(parent[i].getAttribute('data-class'));
     }
-  } else {
-    var textDarks = document.querySelectorAll('.sidenav .text-dark');
-    for (let i = 0; i < textDarks.length; i++) {
-      textDarks[i].classList.add('text-white');
-      textDarks[i].classList.remove('text-dark');
+
+    // Toggle active class for the clicked element
+    if (!a.classList.contains('active')) {
+        a.classList.add('active');
+    } else {
+        a.classList.remove('active');
     }
-  }
 
-  if (color == 'bg-transparent' && bodyDark) {
-    var textDarks = document.querySelectorAll('.navbar-brand .text-dark');
-    for (let i = 0; i < textDarks.length; i++) {
-      textDarks[i].classList.add('text-white');
-      textDarks[i].classList.remove('text-dark');
+    var sidebar = document.querySelector('.sidenav');
+
+    // Remove any previous sidebar color classes and dark-related classes
+    for (var i = 0; i < colors.length; i++) {
+        sidebar.classList.remove(colors[i]);
     }
-  }
 
-  // Remove logo-white/logo-dark
+    // Remove dark mode classes
+    sidebar.classList.remove('bg-gradient-dark', 'text-dark');
+    sidebar.classList.add(color); // Add the new color class
 
-  if ((color == 'bg-transparent' || color == 'bg-white') && bodyWhite) {
+    // Update text color based on sidebar type
+    if (color == 'bg-transparent' || color == 'bg-white') {
+        var textWhites = document.querySelectorAll('.sidenav .text-white');
+        for (let i = 0; i < textWhites.length; i++) {
+            textWhites[i].classList.remove('text-white');
+            textWhites[i].classList.add('text-dark');
+        }
+    } else {
+        var textDarks = document.querySelectorAll('.sidenav .text-dark');
+        for (let i = 0; i < textDarks.length; i++) {
+            textDarks[i].classList.add('text-white');
+            textDarks[i].classList.remove('text-dark');
+        }
+    }
+
+    if (color == 'bg-transparent' && bodyDark) {
+        var textDarks = document.querySelectorAll('.navbar-brand .text-dark');
+        for (let i = 0; i < textDarks.length; i++) {
+            textDarks[i].classList.add('text-white');
+            textDarks[i].classList.remove('text-dark');
+        }
+    }
+
+    // Update logo based on sidebar type
     var navbarBrand = document.querySelector('.navbar-brand-img');
     var navbarBrandImg = navbarBrand.src;
 
-    if (navbarBrandImg.includes('logo-ct.png')) {
-      var navbarBrandImgNew = navbarBrandImg.replace("logo-ct", "logo-ct-dark");
-      navbarBrand.src = navbarBrandImgNew;
+    if ((color == 'bg-transparent' || color == 'bg-white') && bodyWhite) {
+        if (navbarBrandImg.includes('logo-ct.png')) {
+            var navbarBrandImgNew = navbarBrandImg.replace("logo-ct", "logo-ct-dark");
+            navbarBrand.src = navbarBrandImgNew;
+        }
+    } else {
+        if (navbarBrandImg.includes('logo-ct-dark.png')) {
+            var navbarBrandImgNew = navbarBrandImg.replace("logo-ct-dark", "logo-ct");
+            navbarBrand.src = navbarBrandImgNew;
+        }
     }
-  } else {
-    var navbarBrand = document.querySelector('.navbar-brand-img');
-    var navbarBrandImg = navbarBrand.src;
-    if (navbarBrandImg.includes('logo-ct-dark.png')) {
-      var navbarBrandImgNew = navbarBrandImg.replace("logo-ct-dark", "logo-ct");
-      navbarBrand.src = navbarBrandImgNew;
-    }
-  }
 
-  if (color == 'bg-white' && bodyDark) {
-    var navbarBrand = document.querySelector('.navbar-brand-img');
-    var navbarBrandImg = navbarBrand.src;
-
-    if (navbarBrandImg.includes('logo-ct.png')) {
-      var navbarBrandImgNew = navbarBrandImg.replace("logo-ct", "logo-ct-dark");
-      navbarBrand.src = navbarBrandImgNew;
+    if (color == 'bg-white' && bodyDark) {
+        if (navbarBrandImg.includes('logo-ct.png')) {
+            var navbarBrandImgNew = navbarBrandImg.replace("logo-ct", "logo-ct-dark");
+            navbarBrand.src = navbarBrandImgNew;
+        }
     }
-  }
+
+    // Save selected sidebar type to localStorage
+    localStorage.setItem('sidebarType', color);
 }
+
+// Apply saved Sidebar Type on Page Load
+function applySidebarType() {
+    const savedSidebarType = localStorage.getItem('sidebarType');
+    const sidebar = document.querySelector('.sidenav');
+    const buttons = document.querySelectorAll('[data-class]');
+
+    if (savedSidebarType) {
+        // Remove all sidebar color classes and dark-related classes before applying
+        sidebar.classList.remove('text-dark', 'bg-gradient-dark');
+        sidebar.classList.add(savedSidebarType);
+
+        // Update button active state
+        buttons.forEach(button => {
+            if (button.getAttribute('data-class') === savedSidebarType) {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
+        });
+
+        // Update text and logo based on the saved type
+        if (savedSidebarType == 'bg-transparent' || savedSidebarType == 'bg-white') {
+            var textWhites = document.querySelectorAll('.sidenav .text-white');
+            for (let i = 0; i < textWhites.length; i++) {
+                textWhites[i].classList.remove('text-white');
+                textWhites[i].classList.add('text-dark');
+            }
+        } else {
+            var textDarks = document.querySelectorAll('.sidenav .text-dark');
+            for (let i = 0; i < textDarks.length; i++) {
+                textDarks[i].classList.add('text-white');
+                textDarks[i].classList.remove('text-dark');
+            }
+        }
+    }
+}
+
+// Call the function on page load
+document.addEventListener("DOMContentLoaded", function() {
+    applySidebarType();
+});
+
 
 // Set Navbar Fixed
 function navbarFixed(el) {
-  let classes = ['position-sticky', 'blur', 'shadow-blur', 'mt-4', 'left-auto', 'top-1', 'z-index-sticky'];
-  const navbar = document.getElementById('navbarBlur');
+  let classes = [
+    "position-sticky",
+    "blur",
+    "shadow-blur",
+    "mt-4",
+    "left-auto",
+    "top-1",
+    "z-index-sticky",
+  ];
+  const navbar = document.getElementById("navbarBlur");
 
   if (!el.getAttribute("checked")) {
     navbar.classList.add(...classes);
-    navbar.setAttribute('navbar-scroll', 'true');
-    navbarBlurOnScroll('navbarBlur');
+    navbar.setAttribute("navbar-scroll", "true");
+    navbarBlurOnScroll("navbarBlur");
     el.setAttribute("checked", "true");
+
+    // Save state to localStorage
+    localStorage.setItem("navbarFixed", "true");
   } else {
     navbar.classList.remove(...classes);
-    navbar.setAttribute('navbar-scroll', 'false');
-    navbarBlurOnScroll('navbarBlur');
+    navbar.setAttribute("navbar-scroll", "false");
+    navbarBlurOnScroll("navbarBlur");
     el.removeAttribute("checked");
+
+    // Remove state from localStorage
+    localStorage.setItem("navbarFixed", "false");
   }
-};
+}
+
+// Apply Navbar Fixed State on Page Load
+function applyNavbarFixed() {
+  let classes = [
+    "position-sticky",
+    "blur",
+    "shadow-blur",
+    "mt-4",
+    "left-auto",
+    "top-1",
+    "z-index-sticky",
+  ];
+  const navbar = document.getElementById("navbarBlur");
+  const navbarState = localStorage.getItem("navbarFixed");
+  const toggleButton = document.querySelector("[data-navbar-toggle]");
+
+  if (navbarState === "true") {
+    navbar.classList.add(...classes);
+    navbar.setAttribute("navbar-scroll", "true");
+    navbarBlurOnScroll("navbarBlur");
+
+    // Set toggle button checked state
+    if (toggleButton) {
+      toggleButton.setAttribute("checked", "true");
+    }
+  } else {
+    navbar.classList.remove(...classes);
+    navbar.setAttribute("navbar-scroll", "false");
+    navbarBlurOnScroll("navbarBlur");
+
+    // Reset toggle button checked state
+    if (toggleButton) {
+      toggleButton.removeAttribute("checked");
+    }
+  }
+}
+
+// Call the function on page load
+document.addEventListener("DOMContentLoaded", applyNavbarFixed);
+
 
 
 // Set Navbar Minimized
@@ -651,159 +769,62 @@ function sidenavTypeOnResize() {
   }
 }
 
+document.addEventListener("DOMContentLoaded", function () {
+    // Check saved mode on page load
+    const savedMode = localStorage.getItem("mode");
+    const body = document.getElementsByTagName('body')[0];
+
+    if (savedMode === "dark") {
+      body.classList.add("dark-version");
+      applyDarkMode(true); // Function to apply dark mode styles
+    } else {
+      body.classList.remove("dark-version");
+      applyDarkMode(false); // Function to apply light mode styles
+    }
+  });
 
 // Light Mode / Dark Mode
 function darkMode(el) {
-  const body = document.getElementsByTagName('body')[0];
-  const hr = document.querySelectorAll('div:not(.sidenav) > hr');
-  const hr_card = document.querySelectorAll('div:not(.bg-gradient-dark) hr');
-  const text_btn = document.querySelectorAll('button:not(.btn) > .text-dark');
-  const text_span = document.querySelectorAll('span.text-dark, .breadcrumb .text-dark');
-  const text_span_white = document.querySelectorAll('span.text-white, .breadcrumb .text-white');
-  const text_strong = document.querySelectorAll('strong.text-dark');
-  const text_strong_white = document.querySelectorAll('strong.text-white');
-  const text_nav_link = document.querySelectorAll('a.nav-link.text-dark');
-  const text_nav_link_white = document.querySelectorAll('a.nav-link.text-white');
-  const secondary = document.querySelectorAll('.text-secondary');
-  const bg_gray_100 = document.querySelectorAll('.bg-gray-100');
-  const bg_gray_600 = document.querySelectorAll('.bg-gray-600');
-  const btn_text_dark = document.querySelectorAll('.btn.btn-link.text-dark, .material-icons.text-dark');
-  const btn_text_white = document.querySelectorAll('.btn.btn-link.text-white, .material-icons.text-white');
-  const card_border = document.querySelectorAll('.card.border');
-  const card_border_dark = document.querySelectorAll('.card.border.border-dark');
+    const body = document.getElementsByTagName('body')[0];
+    const isDarkMode = body.classList.contains("dark-version");
 
-  const svg = document.querySelectorAll('g');
-
-  if (!el.getAttribute("checked")) {
-    body.classList.add('dark-version');
-    for (var i = 0; i < hr.length; i++) {
-      if (hr[i].classList.contains('dark')) {
-        hr[i].classList.remove('dark');
-        hr[i].classList.add('light');
-      }
+    if (!isDarkMode) {
+      body.classList.add("dark-version");
+      applyDarkMode(true); // Apply dark mode styles
+      localStorage.setItem("mode", "dark"); // Save preference
+      el.setAttribute("checked", "true");
+    } else {
+      body.classList.remove("dark-version");
+      applyDarkMode(false); // Apply light mode styles
+      localStorage.setItem("mode", "light"); // Save preference
+      el.removeAttribute("checked");
     }
-
-    for (var i = 0; i < hr_card.length; i++) {
-      if (hr_card[i].classList.contains('dark')) {
-        hr_card[i].classList.remove('dark');
-        hr_card[i].classList.add('light');
-      }
-    }
-    for (var i = 0; i < text_btn.length; i++) {
-      if (text_btn[i].classList.contains('text-dark')) {
-        text_btn[i].classList.remove('text-dark');
-        text_btn[i].classList.add('text-white');
-      }
-    }
-    for (var i = 0; i < text_span.length; i++) {
-      if (text_span[i].classList.contains('text-dark')) {
-        text_span[i].classList.remove('text-dark');
-        text_span[i].classList.add('text-white');
-      }
-    }
-    for (var i = 0; i < text_strong.length; i++) {
-      if (text_strong[i].classList.contains('text-dark')) {
-        text_strong[i].classList.remove('text-dark');
-        text_strong[i].classList.add('text-white');
-      }
-    }
-    for (var i = 0; i < text_nav_link.length; i++) {
-      if (text_nav_link[i].classList.contains('text-dark')) {
-        text_nav_link[i].classList.remove('text-dark');
-        text_nav_link[i].classList.add('text-white');
-      }
-    }
-    for (var i = 0; i < secondary.length; i++) {
-      if (secondary[i].classList.contains('text-secondary')) {
-        secondary[i].classList.remove('text-secondary');
-        secondary[i].classList.add('text-white');
-        secondary[i].classList.add('opacity-8');
-      }
-    }
-    for (var i = 0; i < bg_gray_100.length; i++) {
-      if (bg_gray_100[i].classList.contains('bg-gray-100')) {
-        bg_gray_100[i].classList.remove('bg-gray-100');
-        bg_gray_100[i].classList.add('bg-gray-600');
-      }
-    }
-    for (var i = 0; i < btn_text_dark.length; i++) {
-      btn_text_dark[i].classList.remove('text-dark');
-      btn_text_dark[i].classList.add('text-white');
-    }
-    for (var i = 0; i < svg.length; i++) {
-      if (svg[i].hasAttribute('fill')) {
-        svg[i].setAttribute('fill', '#fff');
-      }
-    }
-    for (var i = 0; i < card_border.length; i++) {
-      card_border[i].classList.add('border-dark');
-    }
-    el.setAttribute("checked", "true");
-  } else {
-    body.classList.remove('dark-version');
-    for (var i = 0; i < hr.length; i++) {
-      if (hr[i].classList.contains('light')) {
-        hr[i].classList.add('dark');
-        hr[i].classList.remove('light');
-      }
-    }
-    for (var i = 0; i < hr_card.length; i++) {
-      if (hr_card[i].classList.contains('light')) {
-        hr_card[i].classList.add('dark');
-        hr_card[i].classList.remove('light');
-      }
-    }
-    for (var i = 0; i < text_btn.length; i++) {
-      if (text_btn[i].classList.contains('text-white')) {
-        text_btn[i].classList.remove('text-white');
-        text_btn[i].classList.add('text-dark');
-      }
-    }
-    for (var i = 0; i < text_span_white.length; i++) {
-      if (text_span_white[i].classList.contains('text-white') && !text_span_white[i].closest('.sidenav') && !text_span_white[i].closest('.card.bg-gradient-dark')) {
-        text_span_white[i].classList.remove('text-white');
-        text_span_white[i].classList.add('text-dark');
-      }
-    }
-    for (var i = 0; i < text_strong_white.length; i++) {
-      if (text_strong_white[i].classList.contains('text-white')) {
-        text_strong_white[i].classList.remove('text-white');
-        text_strong_white[i].classList.add('text-dark');
-      }
-    }
-    for (var i = 0; i < text_nav_link_white.length; i++) {
-      if (text_nav_link_white[i].classList.contains('text-white') && !text_nav_link_white[i].closest('.sidenav')) {
-        text_nav_link_white[i].classList.remove('text-white');
-        text_nav_link_white[i].classList.add('text-dark');
-      }
-    }
-    for (var i = 0; i < secondary.length; i++) {
-      if (secondary[i].classList.contains('text-white')) {
-        secondary[i].classList.remove('text-white');
-        secondary[i].classList.remove('opacity-8');
-        secondary[i].classList.add('text-dark');
-      }
-    }
-    for (var i = 0; i < bg_gray_600.length; i++) {
-      if (bg_gray_600[i].classList.contains('bg-gray-600')) {
-        bg_gray_600[i].classList.remove('bg-gray-600');
-        bg_gray_600[i].classList.add('bg-gray-100');
-      }
-    }
-    for (var i = 0; i < svg.length; i++) {
-      if (svg[i].hasAttribute('fill')) {
-        svg[i].setAttribute('fill', '#252f40');
-      }
-    }
-    for (var i = 0; i < btn_text_white.length; i++) {
-      if (!btn_text_white[i].closest('.card.bg-gradient-dark')) {
-        btn_text_white[i].classList.remove('text-white');
-        btn_text_white[i].classList.add('text-dark');
-      }
-    }
-    for (var i = 0; i < card_border_dark.length; i++) {
-      card_border_dark[i].classList.remove('border-dark');
-    }
-    el.removeAttribute("checked");
   }
-};
+
+  function applyDarkMode(isDark) {
+    // Apply dark or light mode based on isDark
+    const hr = document.querySelectorAll('div:not(.sidenav) > hr');
+    const text_btn = document.querySelectorAll('button:not(.btn) > .text-dark');
+    const text_span = document.querySelectorAll('span.text-dark, .breadcrumb .text-dark');
+    const text_span_white = document.querySelectorAll('span.text-white, .breadcrumb .text-white');
+    const card_border = document.querySelectorAll('.card.border');
+    const card_border_dark = document.querySelectorAll('.card.border.border-dark');
+    const svg = document.querySelectorAll('g');
+    const table = document.getElementById('myTable'); // Target your table
+
+    if (isDark) {
+      for (let i = 0; i < hr.length; i++) hr[i].classList.replace("dark", "light");
+      for (let i = 0; i < text_btn.length; i++) text_btn[i].classList.replace("text-dark", "text-white");
+      for (let i = 0; i < text_span.length; i++) text_span[i].classList.replace("text-dark", "text-white");
+      for (let i = 0; i < card_border.length; i++) card_border[i].classList.add("border-dark");
+      for (let i = 0; i < svg.length; i++) svg[i].setAttribute("fill", "#fff");
+      if (table) table.classList.add("dark-table"); // Add dark class to the table
+    } else {
+      for (let i = 0; i < hr.length; i++) hr[i].classList.replace("light", "dark");
+      for (let i = 0; i < text_btn.length; i++) text_btn[i].classList.replace("text-white", "text-dark");
+      for (let i = 0; i < text_span_white.length; i++) text_span_white[i].classList.replace("text-white", "text-dark");
+      for (let i = 0; i < card_border_dark.length; i++) card_border_dark[i].classList.remove("border-dark");
+      for (let i = 0; i < svg.length; i++) svg[i].setAttribute("fill", "#252f40");
+      if (table) table.classList.remove("dark-table"); // Remove dark class from the table
+    }
+  }

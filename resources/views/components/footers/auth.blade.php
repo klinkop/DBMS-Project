@@ -6,10 +6,12 @@
                     © <script>
                         document.write(new Date().getFullYear())
 
-                    </script>,
-                    made with <i class="fa fa-heart"></i> by
-                    <a href="#" class="font-weight-bold" target="_blank">Creative Raj</a> &
-                    <a href="#" class="font-weight-bold" target="_blank"> Asrap</a>
+                    </script>
+                    Copyright <a href="https://bluedale.com.my/" class="font-weight-bold">Bluedale Group Of Companies</a>. Designed, developed & maintained by Bluedale Group Of Companies
+                    Designed <i class="fa fa-heart"></i> by
+                    <a href="#" class="font-weight-bold" target="_blank">
+                        </a>
+                    <a href="https://bluedale.com.my/" class="font-weight-bold" target="_blank"> Bluedale</a>
                     for a better web.
                 </div>
             </div>
@@ -17,10 +19,10 @@
                 <ul class="nav nav-footer justify-content-center justify-content-lg-end">
                     <li class="nav-item">
                         <a href="#" class="nav-link text-muted" target="_blank">Creative
-                            Raj</a>
+                            </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#" class="nav-link text-muted" target="_blank">Asrap</a>
+                        <a href="#" class="nav-link text-muted" target="_blank"></a>
                     </li>
                 </ul>
             </div>

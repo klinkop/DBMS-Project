@@ -24,6 +24,7 @@ class CampaignController extends Controller
         $campaigns = Campaign::withSum('sentEmails as total_open_count', 'opens')
             ->withSum('sentEmails as total_click_count', 'clicks')
             ->withCount('sentEmails as total_emails_sent')
+            ->orderBy('created_at', 'desc') // Sort campaigns by creation date (most recent first)
             ->paginate(10);
 
         // Transform the paginated items
@@ -276,6 +277,7 @@ class CampaignController extends Controller
         // Update the campaign's status to 'sent'
         $campaign->update([
             'status' => 'sent',
+            'time_sent' => Carbon::now(), // Sets the current timestamp
         ]);
 
         return redirect()->route('campaigns.show', $campaign->id)

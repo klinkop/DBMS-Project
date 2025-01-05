@@ -1,18 +1,5 @@
-<!--
-=========================================================
-* Material Dashboard 2 - v3.0.0
-=========================================================
 
-* Product Page: https://www.creative-tim.com/product/material-dashboard
-* Copyright 2021 Creative Tim (https://www.creative-tim.com) & UPDIVISION (https://www.updivision.com)
-* Licensed under MIT (https://www.creative-tim.com/license)
-* Coded by www.creative-tim.com & www.updivision.com
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
--->
-@props(['bodyClass'])
+@props(['bodyClass' => 'g-sidenav-show bg-gray-200 full-height'])
 <!DOCTYPE html>
 <html lang="en">
 
@@ -37,6 +24,13 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <!-- CSS Files -->
     <link id="pagestyle" href="{{ asset('assets') }}/css/material-dashboard.css?v=3.0.0" rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.css" />
+    <style>
+        .full-height {
+            height: 100vh;
+        }
+    </style>
 </head>
 <body class="{{ $bodyClass }}">
 
@@ -46,6 +40,19 @@
 <script src="{{ asset('assets') }}/js/core/bootstrap.min.js"></script>
 <script src="{{ asset('assets') }}/js/plugins/perfect-scrollbar.min.js"></script>
 <script src="{{ asset('assets') }}/js/plugins/smooth-scrollbar.min.js"></script>
+<script src="{{ asset('build/assets') }}/app-BISr5N8G.css"></script>
+<script src="{{ asset('build/assets') }}/app-DCrXoRMQ.js"></script>
+<script src="{{ asset('build/assets') }}/app-g6dgYUiZ.css"></script>
+<script src="{{ asset('build/assets') }}/app-DXvZ2WrF.css"></script>
+<script src="{{ asset('build/assets') }}/app-Ke9dhrTl.css"></script>
+<script src="{{ asset('build/assets') }}/main-B_SY1GJM.css"></script>
+
+@vite([
+    /* 'resources/css/app.css', */
+    'resources/js/app.js',
+    'resources/css/main.css',
+    ])
+
 @stack('js')
 <script>
     var win = navigator.platform.indexOf('Win') > -1;
@@ -60,6 +67,6 @@
 <!-- Github buttons -->
 <script async defer src="https://buttons.github.io/buttons.js"></script>
 <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
-<script src="{{ asset('assets') }}/js/material-dashboard.min.js?v=3.0.0"></script>
+<script src="{{ asset('assets') }}/js/material-dashboard.js?v=3.0.0"></script>
 </body>
 </html>

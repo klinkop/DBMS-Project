@@ -1,12 +1,17 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Edit Campaign') }}
-        </h2>
-    </x-slot>
+<x-layout bodyClass="g-sidenav-show  bg-gray-200">
 
-    <div class="container mx-auto py-8">
-        <h2 class="text-2xl font-semibold mb-6">Edit Campaign</h2>
+    <x-navbars.sidebar activePage='Campaign'></x-navbars.sidebar>
+
+    <main class="main-content position-relative mix-height-vh-100 h-100 border-radius-lg ">
+        <!-- Navbar -->
+        <x-navbars.navs.auth titlePage="Edit Campaign"></x-navbars.navs.auth>
+        <!-- End Navbar -->
+
+    <div class="container mx-auto py-2">
+        <a href="{{ route('campaigns.index') }}"
+            class="rounded bg-gray-500 px-4 py-2 font-bold text-white hover:bg-gray-600">
+            Back to List
+        </a>
 
         <!-- Display validation errors -->
         @if ($errors->any())
@@ -24,40 +29,40 @@
             class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
             @csrf
             @method('PUT')
+            <div class="row">
+                <div class="mb-3 col-md-6">
+                    <label for="name" class="form-label">Campaign Name</label>
+                    <input type="text" name="name"
+                        class="form-control border border-2 p-2"
+                        placeholder="Enter campaign name" value="{{ old('name', $campaign->name) }}" required>
+                </div>
 
-            <div class="mb-4">
-                <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Campaign Name</label>
-                <input type="text" name="name"
-                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    placeholder="Enter campaign name" value="{{ old('name', $campaign->name) }}" required>
+                <div class="mb-3 col-md-6">
+                    <label for="description" class="form-label">Description (Optional)</label>
+                    <textarea name="description"
+                        class="form-control border border-2 p-2"
+                        rows="3"
+                        placeholder="Enter a brief description">{{ old('description', $campaign->description) }}</textarea>
+                </div>
+
+                <div class="mb-3 col-md-6">
+                    <label for="sender_name" class="form-label">Sender Name</label>
+                    <input type="text" name="sender_name"
+                        class="form-control border border-2 p-2"
+                        placeholder="Enter Sender Name" value="{{ old('sender_name', $campaign->sender_name) }}" required>
+                </div>
+
+                <div class="mb-3 col-md-6">
+                    <label for="email_subject" class="form-label">Email Subject</label>
+                    <input type="text" name="email_subject"
+                        class="form-control border border-2 p-2"
+                        placeholder="Enter email subject" value="{{ old('email_subject', $campaign->email_subject) }}" required>
+                </div>
             </div>
-
-            <div class="mb-4">
-                <label for="description" class="block text-gray-700 text-sm font-bold mb-2">Description (Optional)</label>
-                <textarea name="description"
-                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    rows="3"
-                    placeholder="Enter a brief description">{{ old('description', $campaign->description) }}</textarea>
-            </div>
-
-            <div class="mb-4">
-                <label for="sender_name" class="block text-gray-700 text-sm font-bold mb-2">Sender Name</label>
-                <input type="text" name="sender_name"
-                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    placeholder="Enter Sender Name" value="{{ old('sender_name', $campaign->sender_name) }}" required>
-            </div>
-
-            <div class="mb-4">
-                <label for="email_subject" class="block text-gray-700 text-sm font-bold mb-2">Email Subject</label>
-                <input type="text" name="email_subject"
-                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    placeholder="Enter email subject" value="{{ old('email_subject', $campaign->email_subject) }}" required>
-            </div>
-
             <!-- Email builder -->
             <div class="mb-4">
-                <label for="email_body" class="block text-gray-700 text-sm font-bold mb-2">Email Body</label>
-                <div id="editor" class="border rounded shadow-md" style="height: 600px;"></div>
+                <label for="email_body" class="form-label">Email Body test</label>
+                <div id="editor" class="card card-body border" style="height: 600px;"></div>
                 <input type="hidden" name="email_body_json" id="email_body_json" value="{{ old('email_body_json', $campaign->email_body_json ?? '') }}">
                 <input type="hidden" name="email_body_html" id="email_body_html" value="{{ old('email_body_html', $campaign->email_body_html ?? '') }}">
             </div>
@@ -73,7 +78,10 @@
             </div>
         </form>
     </div>
-
+    <div class="botts"><x-footers.auth></x-footers.auth></div>
+    </main>
+    <x-plugins></x-plugins>
+    </div>
     <!-- Include Unlayer -->
     <script src="https://editor.unlayer.com/embed.js"></script>
     <script>

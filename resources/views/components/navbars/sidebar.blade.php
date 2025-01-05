@@ -8,7 +8,7 @@
             aria-hidden="true" id="iconSidenav"></i>
         <a class="navbar-brand m-0 d-flex text-wrap align-items-center" href=" {{ route('dashboard') }} ">
             <img src="{{ asset('assets') }}/img/logo.jpg" class="navbar-brand-img h-100" alt="main_logo">
-            <span class="ms-2 font-weight-bold text-white">DBMS Dashboard</span>
+            <b class="nav-link text-white">DBMS Dashboard</b>
         </a>
     </div>
     <hr class="horizontal light mt-0 mb-2">
@@ -41,7 +41,7 @@
                     <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
                         <i class="material-icons opacity-10">folder_copy</i>
                     </div>
-                    <span class="nav-link-text ms-1">Sub Folder</span>
+                    <span class="nav-link-text ms-1">Sub Folders</span>
                 </a>
             </li>
             <li class="nav-item">

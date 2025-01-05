@@ -1,5 +1,5 @@
 @props(['value'])
 
-<label {{ $attributes->merge(['class' => 'input-group input-group-outline my-3']) }}>
+<label {{ $attributes->merge(['class' => 'form-label']) }}>
     {{ $value ?? $slot }}
 </label>

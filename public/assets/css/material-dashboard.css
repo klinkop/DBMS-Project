@@ -1771,6 +1771,11 @@ progress {
   color: #000;
   border-color: #d8dadd; }
 
+#myTable {
+    background-color: white; /* Default background color */
+    color: #333; /* Default text color for light mode */
+  }
+
 .table-dark {
   --bs-table-bg: #344767;
   --bs-table-striped-bg: #3e506f;
@@ -1781,6 +1786,22 @@ progress {
   --bs-table-hover-color: #fff;
   color: #fff;
   border-color: #485976; }
+
+  .dark-table {
+    background-color: #1a202c !important; /* Dark gray background */
+    color: #f7fafc !important; /* Light text color */
+    border-color: #2d3748; /* Dark border color */
+  }
+
+  .dark-table th,
+  .dark-table td {
+    border-color: #2d3748; /* Adjust border colors for cells */
+  }
+
+  .dark-table th {
+    background-color: #2d3748; /* Slightly darker background for header */
+    color: #edf2f7; /* Light text for header */
+  }
 
 .table-responsive {
   overflow-x: auto;
@@ -16069,7 +16090,7 @@ html * {
 
 body {
   font-weight: 400;
-  line-height: 1.6; }
+  line-height: 1.4; }
 
 h1, .h1, .h1 {
   font-size: 3rem;
