@@ -54,56 +54,63 @@
                                 @endunless
                             </div>
                             {{-- SubFolder name --}}
-                            <div class="flex items-center justify-between">
-                                <p class="mt-4 text-lg text-gray-900">{{ $subFolder->name }}</p>
-
-                                {{-- Action button --}}
-                                @if ($subFolder->user->is(auth()->user()))
-                                    <div class="ml-auto">
-                                        <div class="btn-group">
-                                            <button class="btn btn-info dropdown-toggle" type="button"
-                                                data-bs-toggle="dropdown" aria-expanded="false">
-                                                Action
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                                <li>
-                                                    <a href="{{ route('contactList.create', $subFolder) }}"
-                                                        class="dropdown-item text-gray-600 hover:bg-gray-100">
-                                                        {{ __('Add Contact') }}
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a href="{{ route('subFolder.edit', $subFolder) }}"
-                                                        class="dropdown-item text-gray-600 hover:bg-gray-100">
-                                                        {{ __('Edit') }}
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a href="{{ route('contactList.index', ['subFolder' => $subFolder->id]) }}"
-                                                        class="dropdown-item text-gray-600 hover:bg-gray-100">
-                                                        {{ __('View Contacts') }}
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <form method="POST"
-                                                        action="{{ route('subFolder.destroy', $subFolder) }}"
-                                                        style="display: inline;">
-                                                        @csrf
-                                                        @method('delete')
-                                                        <a href="#"
-                                                            class="dropdown-item text-danger hover:bg-red-100"
-                                                            onclick="event.preventDefault();
-                                                                    if(confirm('Are you sure you want to delete this subfolder? This action cannot be undone.')) {
-                                                                        this.closest('form').submit();
-                                                                    }">
-                                                            {{ __('Delete') }}
-                                                        </a>
-                                                    </form>
-                                                </li>
-                                            </ul>
-                                        </div>
+                            <div class="container subfolder-container">
+                                <div class="row justify-content-between">
+                                    <div class="col-4">
+                                        <p class="mt-4 text-lg text-gray-900">{{ $subFolder->name }}</p>
                                     </div>
-                                @endif
+                                    <div class="col-4">
+                                        {{-- Action button --}}
+                                        @if ($subFolder->user->is(auth()->user()))
+                                            <div class="ml-auto">
+                                                <div class="btn-group">
+                                                    <button class="btn btn-info dropdown-toggle" type="button"
+                                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                                        Action
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                        <li>
+                                                            <a href="{{ route('contactList.create', $subFolder) }}"
+                                                                class="dropdown-item text-gray-600 hover:bg-gray-100">
+                                                                {{ __('Add Contact') }}
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="{{ route('subFolder.edit', $subFolder) }}"
+                                                                class="dropdown-item text-gray-600 hover:bg-gray-100">
+                                                                {{ __('Edit') }}
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="{{ route('contactList.index', ['subFolder' => $subFolder->id]) }}"
+                                                                class="dropdown-item text-gray-600 hover:bg-gray-100">
+                                                                {{ __('View Contacts') }}
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <form method="POST"
+                                                                action="{{ route('subFolder.destroy', $subFolder) }}"
+                                                                style="display: inline;">
+                                                                @csrf
+                                                                @method('delete')
+                                                                <a href="#"
+                                                                    class="dropdown-item text-danger hover:bg-red-100"
+                                                                    onclick="event.preventDefault();
+                                                                if(confirm('Are you sure you want to delete this subfolder? This action cannot be undone.')) {
+                                                                    this.closest('form').submit();
+                                                                }">
+                                                                    {{ __('Delete') }}
+                                                                </a>
+                                                            </form>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+
+
                             </div>
 
                         </div>
