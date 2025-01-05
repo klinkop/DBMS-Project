@@ -24,21 +24,22 @@ class CampaignController extends Controller
         $campaigns = Campaign::withSum('sentEmails as total_open_count', 'opens')
             ->withSum('sentEmails as total_click_count', 'clicks')
             ->withCount('sentEmails as total_emails_sent')
-            ->paginate(10)
-            ->map(function ($campaign) {
-                // Calculate rates in PHP
-                $campaign->open_rate = $campaign->total_emails_sent > 0
-                    ? ($campaign->total_open_count / $campaign->total_emails_sent) * 100
-                    : 0;
-                $campaign->click_rate = $campaign->total_emails_sent > 0
-                    ? ($campaign->total_click_count / $campaign->total_emails_sent) * 100
-                    : 0;
-                return $campaign;
-            });
+            ->paginate(10);
+
+        // Transform the paginated items
+        $campaigns->getCollection()->transform(function ($campaign) {
+            // Calculate rates in PHP
+            $campaign->open_rate = $campaign->total_emails_sent > 0
+                ? ($campaign->total_open_count / $campaign->total_emails_sent) * 100
+                : 0;
+            $campaign->click_rate = $campaign->total_emails_sent > 0
+                ? ($campaign->total_click_count / $campaign->total_emails_sent) * 100
+                : 0;
+            return $campaign;
+        });
 
         return view('campaigns.index', compact('campaigns'));
     }
-
 
     public function create()
     {

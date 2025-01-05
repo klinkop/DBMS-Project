@@ -45,6 +45,7 @@ class SubFolderController extends Controller
         // Return the view with the subfolders (either filtered or all)
         return view('subFolder.index', [
             'subFolders' => $subFolders,
+            'activePage' => 'subFolder'
         ]);
     }
 
@@ -57,6 +58,7 @@ class SubFolderController extends Controller
     {
         return view('subFolder.create', [
             'parentFolder' => $parentFolder,
+            'activePage' => 'parentFolder',
         ]);
     }
 
@@ -96,6 +98,7 @@ class SubFolderController extends Controller
 
         return view('subFolder.edit', [
             'subFolder' => $subFolder,
+            'activePage' => 'subFolder'
         ]);
     }
 

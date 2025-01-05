@@ -122,7 +122,16 @@ class ContactListController extends Controller
         $cities = $stateId ? City::where('state_id', $stateId)->get() : collect();
 
         // Return the view with the required data
-        return view('contactList.index', compact('contactLists', 'subFolders', 'statuses', 'types', 'states', 'cities', 'subFolderId'));
+        return view('contactList.index', [
+            'contactLists' => $contactLists,
+            'subFolders' => $subFolders,
+            'statuses' => $statuses,
+            'types' => $types,
+            'states' => $states,
+            'cities' => $cities,
+            'subFolderId' => $subFolderId,
+            'activePage' => 'contactList'
+        ]);
     }
 
     /**

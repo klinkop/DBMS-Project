@@ -7,7 +7,11 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/js/app.js',
-                'resources/css/main.css'
+                'resources/css/main.css',
+                'resources/css/material-dashboard.css',
+                'resources/js/material-dashboard.min.js',
+                'resources/css/nucleo-icons.css',
+                'resources/css/nucleo-svg.css'
             ],
             refresh: true,
         }),

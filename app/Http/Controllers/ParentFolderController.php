@@ -40,16 +40,19 @@ class ParentFolderController extends Controller
         // Return the view with the parent folders (either filtered or all)
         return view('parentFolder.index', [
             'parentFolders' => $parentFolders,
+            'activePage' => 'parentFolder'
         ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): View
     {
         //
-        return view('parentFolder.create');
+        return view('parentFolder.create',[
+            'activePage' => 'parentFolder'
+        ]);
     }
 
     /**
@@ -86,6 +89,7 @@ class ParentFolderController extends Controller
         Gate::authorize('update', $parentFolder);
         return view('parentFolder.edit', [
             'parentFolder' => $parentFolder,
+            'activePage' => 'parentFolder',
         ]);
     }
 
