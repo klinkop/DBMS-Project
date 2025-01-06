@@ -7,11 +7,12 @@
         <x-navbars.navs.auth titlePage="Edit Campaign"></x-navbars.navs.auth>
         <!-- End Navbar -->
 
-    <div class="container mx-auto py-2">
-        <a href="{{ route('campaigns.index') }}"
-            class="rounded bg-gray-500 px-4 py-2 font-bold text-white hover:bg-gray-600">
-            Back to List
-        </a>
+        <button type="button" onclick="history.back()"
+            class="btn bg-gradient-dark">
+            Back
+        </button>
+
+        <div class="card card-body container mx-auto py-2">
 
         <!-- Display validation errors -->
         @if ($errors->any())
@@ -26,7 +27,7 @@
 
         <!-- Campaign edit form -->
         <form action="{{ route('campaigns.update', $campaign->id) }}" method="POST" id="campaignForm"
-            class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            class="shadow-md rounded px-4 pt-6 pb-8 mb-4">
             @csrf
             @method('PUT')
             <div class="row">
@@ -72,7 +73,7 @@
 
             <div class="flex items-center justify-between">
                 <button type="submit"
-                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    class="btn bg-gradient-dark">
                     Save Changes
                 </button>
             </div>

@@ -5,15 +5,70 @@
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
 
         <style>
-            .hidden{
-                display: none
-            }
             .flex{
                 display: flex
             }
+            .hover\:text-red-800:hover {
+                --tw-text-opacity: 1;
+                color: rgb(153 27 27 / var(--tw-text-opacity));
+            }
+            #scheduleModal {
+                display: none;
+                position: fixed;
+                inset: 0;
+                z-index: 50;
+                align-items: center;
+                justify-content: center;
+                background: rgba(0, 0, 0, 0.5); /* Dimmed background */
+                backdrop-filter: blur(5px); /* Blurred background */
+            }
+
+            #scheduleModal.active {
+                display: flex; /* Show modal when active */
+            }
+
+            #scheduleModal .card {
+                position: relative;
+                width: 90%; /* Adjust as needed */
+                max-width: 400px;
+                padding: 20px;
+                background: #fff; /* Modal background */
+                border-radius: 8px;
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+                animation: scaleIn 0.3s ease-in-out;
+            }
+
+            /* Animation for modal appearance */
+            @keyframes scaleIn {
+                0% {
+                    transform: scale(0.8);
+                    opacity: 0;
+                }
+                100% {
+                    transform: scale(1);
+                    opacity: 1;
+                }
+            }
+
+            /* Close button styling */
+            #closeScheduleModal {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background: transparent;
+                border: none;
+                color: #000;
+                cursor: pointer;
+                font-size: 18px;
+            }
+
+            #closeScheduleModal:hover {
+                color: red;
+            }
+
         </style>
 
-        <x-navbars.navs.auth titlePage="Campaign"></x-navbars.navs.auth>
+        <x-navbars.navs.auth titlePage="Manage Campaign"></x-navbars.navs.auth>
 
         <div class="container mx-auto">
 
@@ -23,7 +78,7 @@
                     <div class="col-md-4">
                         <a href="{{ route('campaigns.index') }}"
                             class="btn bg-gradient-dark">
-                            Back to List
+                            Back
                         </a>
                     </div>
                     <div class="col-md-4">
@@ -54,10 +109,10 @@
                     </div>
                     <div class="card-body p-3">
                         <div class="row">
-                            <p class="mb-3 col-md-6""><strong>Description:</strong> {{ $campaign->description }}</p>
-                            <p class="mb-3 col-md-6""><strong>Sender Name:</strong> {{ $campaign->sender_name ?? config('mail.from.name') }}</p>
-                            <p class="mb-3 col-md-6""><strong>Email Subject:</strong> {{ $campaign->email_subject }}</p>
-                            <p class="mb-3 col-md-6""><strong>Scheduled At:</strong>
+                            <p class="mb-3 col-md-6"><strong>Description:</strong> {{ $campaign->description }}</p>
+                            <p class="mb-3 col-md-6"><strong>Sender Name:</strong> {{ $campaign->sender_name ?? config('mail.from.name') }}</p>
+                            <p class="mb-3 col-md-6"><strong>Email Subject:</strong> {{ $campaign->email_subject }}</p>
+                            <p class="mb-3 col-md-6"><strong>Scheduled At:</strong>
                                 {{ $campaign->scheduled_at ? \Carbon\Carbon::parse($campaign->scheduled_at)->format('Y-m-d H:i') : 'Not Scheduled' }}
                             </p>
                             <p class="mb-3 col-md-6""><strong>Status:</strong> {{ ucfirst($campaign->status) }}</p>
@@ -74,10 +129,11 @@
             </div>
 
             <!-- Action Buttons -->
-            <div class="my-6 flex flex-wrap">
+            <div class="mb-2 flex-wrap mt-4 gap-4">
+                <div class="flex gap-2">
                 @if ($campaign->status !== 'sent' && $campaign->status !== 'scheduled')
                     <a href="{{ route('campaigns.edit', $campaign->id) }}"
-                        class="rounded bg-yellow-500 px-4 py-2 font-bold text-white hover:bg-yellow-600">
+                        class="btn bg-gradient-dark">
                         Edit Campaign
                     </a>
 
@@ -85,7 +141,7 @@
                         onsubmit="return confirm('Are you sure you want to delete this campaign?')">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="rounded bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-600">
+                        <button type="submit" class="btn btn-danger">
                             Delete Campaign
                         </button>
                     </form>
@@ -93,89 +149,73 @@
                     <!-- Send to All Recipients -->
                     <form action="{{ route('campaigns.sendAll', $campaign->id) }}" method="POST">
                         @csrf
-                        <button type="submit" class="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-600">
+                        <button type="submit" class="btn bg-gradient-dark">
                             Send Now
                         </button>
                     </form>
 
                     <!-- Schedule Button -->
-                    <button id="scheduleButton"
-                        class="rounded bg-purple-500 px-4 py-2 font-bold text-white hover:bg-purple-600">
+                    <button id="openScheduleModal"
+                        class="btn bg-gradient-dark">
                         Schedule Campaign
                     </button>
                 @else
                     <p class="font-bold text-red-500">This campaign has already been sent or scheduled and cannot be edited or
                         rescheduled.</p>
                 @endif
+                </div>
 
-                <!-- Schedule Modal -->
-                <div id="scheduleModal"
-                    class="fixed inset-0 z-50 flex hidden items-center justify-center bg-black bg-opacity-50">
-                    <div class="w-full max-w-sm rounded-lg bg-white p-6 shadow-lg">
-                        <h2 class="mb-4 text-lg font-semibold">Schedule Campaign</h2>
-                        <form action="{{ route('campaigns.schedule', $campaign->id) }}" method="POST">
-                            @csrf
-                            <div class="mb-4">
-                                <label for="schedule_time" class="mb-2 block font-bold text-gray-700">Schedule Time</label>
-                                <input type="datetime-local" name="schedule_time"
-                                    class="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
-                                    required>
-                            </div>
-                            <button type="submit"
-                                class="rounded bg-purple-500 px-4 py-2 font-bold text-white hover:bg-purple-600">
-                                Schedule Campaign
-                            </button>
-                        </form>
-                        <div class="mt-4">
-                            <button id="closeScheduleModal"
-                                class="rounded bg-gray-500 px-4 py-2 font-bold text-white hover:bg-gray-600">
-                                Close
+                    <!-- Schedule Modal -->
+                    <div id="scheduleModal">
+                        <div class="card card-body">
+                            <h2 class="mb-4 text-lg font-semibold">Schedule Campaign</h2>
+                            <form action="{{ route('campaigns.schedule', $campaign->id) }}" method="POST">
+                                @csrf
+                                <div class="mb-4">
+                                    <label for="schedule_time" class="mb-2 block font-bold text-gray-700">Schedule Time</label>
+                                    <input type="datetime-local" name="schedule_time"
+                                        class="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
+                                        required>
+                                </div>
+                                <button type="submit" class="btn bg-gradient-dark">
+                                    Schedule Campaign
+                                </button>
+                            </form>
+                            <button id="closeScheduleModal" class="btn btn-danger btn-link">
+                                <i class="material-icons">close</i>
                             </button>
                         </div>
                     </div>
-                </div>
 
                 <!-- Modal for Success Message -->
                 @if (session('success'))
-                    <div id="successModal"
-                        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                        <div class="w-full max-w-sm rounded-lg bg-white p-6">
-                            <h2 class="text-lg font-semibold">Success!</h2>
-                            <p>{{ session('success') }}</p>
-                            <div class="mt-4">
-                                <button id="closeModal"
-                                    class="btn btn-danger btn-link">
-                                    <i class="material-icons">close</i>
-                                </button>
-                            </div>
-                        </div>
+                <div id="successModal"
+                    style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 50; display: none; align-items: center; justify-content: center; background-color: rgba(0, 0, 0, 0.5);">
+                    <div style="width: 100%; max-width: 24rem; border-radius: 8px; background-color: #ffffff; padding: 1.5rem; position: relative;">
+                        <!-- Close button positioned at the top-right corner -->
+                        <button id="closeModal"
+                            style="position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: #dc3545; cursor: pointer; font-size: 1.5rem;">
+                            <i class="material-icons">close</i>
+                        </button>
+
+                        <h2 style="font-size: 1.125rem; font-weight: 600;">Success!</h2>
+                        <p>{{ session('success') }}</p>
                     </div>
+                </div>
                 @endif
             </div>
 
             <!-- Add Recipients Section -->
             @if ($campaign->status !== 'sent' && $campaign->status !== 'scheduled')
-            <div class="rounded-lg bg-white p-6 shadow-md">
+            <div class="card card-body">
                 <h3 class="mb-4 text-lg font-semibold">Manage Recipients</h3>
                 <form action="{{ route('campaigns.addRecipient', $campaign->id) }}" method="POST">
                     @csrf
-                    {{-- <div class="mb-4">
-                        <label for="name" class="block text-gray-700 font-bold mb-2">Recipient Name</label>
-                        <input type="text" name="name"
-                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                            placeholder="Enter recipient name" required>
-                    </div> --}}
-                    {{-- <div class="mb-4">
-                        <label for="email" class="block text-gray-700 font-bold mb-2">Recipient Email</label>
-                        <input type="email" name="email"
-                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                            placeholder="Enter recipient email" required>
-                    </div> --}}
 
                     <div class="mb-4">
-                        <label for="sub_folder_id" class="block text-sm font-medium text-gray-700">Sub Folder:</label>
+                        <label for="sub_folder_id" class="form-label">Sub Folder:</label>
                         <select name="sub_folder_id" id="sub_folder_id"
-                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            class="form-control border border-2 p-2">
                             <option value="">-- Add Recipient --</option>
                             @foreach ($subFolders as $subFolder)
                                 @if (!empty($subFolder) && isset($subFolder->id))
@@ -185,7 +225,7 @@
                         </select>
                     </div>
 
-                    <button type="submit" class="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-600">
+                    <button type="submit" class="btn bg-gradient-dark">
                         Add Recipient
                     </button>
                 </form>
@@ -203,15 +243,10 @@
                 @if ($campaign->recipients && $campaign->recipients->isEmpty())
                     <p>No recipients added yet.</p>
                 @elseif ($campaign->recipients)
-                    {{-- <ul class="list-disc pl-5">
-                        @foreach ($campaign->recipients as $recipient)
-                            <li>
-                                {{ $recipient->name ?? 'Unnamed Recipient' }} ({{ $recipient->email ?? 'No Email' }})
-                            </li>
-                        @endforeach
-                    </ul> --}}
-                    <div class="mt-4 overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
+
+                <div class="card-body px-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0">
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th>No.</th>
@@ -226,7 +261,7 @@
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-200 bg-white">
+                            <tbody class="">
                                 @php
                                     $count = 0;
                                 @endphp
@@ -239,14 +274,14 @@
                                             </div>
                                         </td>
                                         <td class="whitespace-nowrap px-2 py-4 text-center">
-                                            <div class="flex justify-center">
-                                                <button class="text-blue-600 hover:text-blue-800"
+                                            <div class="">
+                                                <button class="btn bg-gradient-dark"
                                                     onclick="toggleDropdown('dropdown-{{ $recipient->subFolder->id }}')">
                                                     View Emails
                                                 </button>
                                             </div>
                                             <div id="dropdown-{{ $recipient->subFolder->id }}"
-                                                class="mt-2 hidden rounded-lg bg-gray-100 p-2">
+                                                class="card card-body hidden">
                                                 <ul>
                                                     @foreach ($recipient->subFolder->contactLists as $contactList)
                                                         <li class="text-gray-900">{{ $contactList->email }}</li>
@@ -255,11 +290,11 @@
                                             </div>
                                         </td>
                                         <td class="whitespace-nowrap px-2 py-4 text-center">
-                                            <div class="flex justify-center space-x-2">
+                                            <div class="justify-center space-x-2">
                                                 <!-- Show icon for contact list -->
                                                 <a href="{{ route('contactList.index', ['subFolder' => $recipient->subFolder->id]) }}"
-                                                    class="text-blue-600 hover:text-blue-800" title="Show Contact List">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                                    class="pb-2" title="Show Contact List">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6"
                                                         fill="none" viewBox="0 0 24 24" stroke="currentColor"
                                                         stroke-width="2">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -277,8 +312,8 @@
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="text-red-600 hover:text-red-800"
-                                                        title="Delete Recipient">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                                        title="Delete Recipient" style="border: transparent; background: transparent;">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8"
                                                             fill="none" viewBox="0 0 24 24" stroke="currentColor"
                                                             stroke-width="2">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -293,6 +328,7 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
                 @else
                     <p>No recipient information available.</p>
                 @endif
@@ -315,31 +351,39 @@
             const closeModalButton = document.getElementById('closeModal');
 
             if (successModal) {
-                // Show the modal when the page loads
-                successModal.classList.remove('hidden');
+                // Show the modal when the page loads by setting display to flex
+                successModal.style.display = 'flex';
 
-                // Hide the modal when the close button is clicked
-                closeModalButton.addEventListener('click', function() {
-                    successModal.classList.add('hidden');
-                });
+                // Hide the modal when the close button is clicked by setting display to none
+                if (closeModalButton) {
+                    closeModalButton.addEventListener('click', function() {
+                        successModal.style.display = 'none';
+                    });
+                }
             }
         });
     </script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const scheduleModal = document.getElementById('scheduleModal');
-            const scheduleButton = document.getElementById('scheduleButton');
-            const closeScheduleModalButton = document.getElementById('closeScheduleModal');
+            const openScheduleModal = document.getElementById('openScheduleModal');
+            const closeScheduleModal = document.getElementById('closeScheduleModal');
 
-            // Show the schedule modal when the button is clicked
-            scheduleButton.addEventListener('click', function() {
-                scheduleModal.classList.remove('hidden');
+            if (!scheduleModal || !openScheduleModal || !closeScheduleModal) {
+                console.error('Modal elements not found. Check your HTML IDs.');
+                return;
+            }
+
+            // Open modal
+            openScheduleModal.addEventListener('click', function () {
+                scheduleModal.classList.add('active');
             });
 
-            // Hide the schedule modal when the close button is clicked
-            closeScheduleModalButton.addEventListener('click', function() {
-                scheduleModal.classList.add('hidden');
+            // Close modal
+            closeScheduleModal.addEventListener('click', function () {
+                scheduleModal.classList.remove('active');
             });
         });
     </script>
+
 </x-app-layout>

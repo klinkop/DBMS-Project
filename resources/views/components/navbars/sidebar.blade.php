@@ -7,7 +7,7 @@
         <i class="fas fa-times p-3 cursor-pointer text-white opacity-5 position-absolute end-0 top-0 d-none d-xl-none"
             aria-hidden="true" id="iconSidenav"></i>
         <a class="navbar-brand m-0 d-flex text-wrap align-items-center" href=" {{ route('dashboard') }} ">
-            <img src="{{ asset('assets') }}/img/logo.jpg" class="navbar-brand-img h-100" alt="main_logo">
+            <img src="{{ asset('assets') }}/img/bgoc1.svg" class="navbar-brand-img" style="width: 120px; height: auto;" alt="main_logo">
             <b class="nav-link text-white">DBMS Dashboard</b>
         </a>
     </div>
