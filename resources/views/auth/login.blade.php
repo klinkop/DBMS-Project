@@ -43,17 +43,17 @@
                                     @csrf
 
                                     <!-- Email Address -->
-                                    <div class="" >
+                                    <div class="input-group-outline mb-3" >
                                         <x-input-label for="email" :value="__('Email')" />
-                                        <x-text-input id="email" class="form-label" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
+                                        <x-text-input id="email" class="form-control" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
                                         <x-input-error :messages="$errors->get('email')" class="mt-2" />
                                     </div>
 
                                     <!-- Password -->
-                                    <div class="mt-4">
+                                    <div class="input-group-outline mb-3">
                                         <x-input-label for="password" :value="__('Password')" />
 
-                                        <x-text-input id="password" class="form-label"
+                                        <x-text-input id="password" class="form-control"
                                                         type="password"
                                                         name="password"
                                                         required autocomplete="current-password" />
@@ -89,5 +89,33 @@
             <x-footers.guest></x-footers.guest>
         </div>
     </main>
+    @push('styles')
+    <style>
+        .has-value {
+            color: white !important;
+        }
+    </style>
+    @endpush
 
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const emailInput = document.getElementById('email');
+
+            // Check if the input has a value on page load
+            if (emailInput.value) {
+                emailInput.classList.add('has-value'); // Add a custom class
+            }
+
+            // Optionally, you can also add/remove class when the input value changes
+            emailInput.addEventListener('input', function () {
+                if (this.value) {
+                    this.classList.add('has-value');
+                } else {
+                    this.classList.remove('has-value');
+                }
+            });
+        });
+    </script>
+    @endpush
 </x-layout>

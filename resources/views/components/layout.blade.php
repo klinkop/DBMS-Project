@@ -26,10 +26,25 @@
     <link id="pagestyle" href="{{ asset('assets') }}/css/material-dashboard.css?v=3.0.0" rel="stylesheet" />
 
     <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.css" />
+
+    @stack('styles')
+
     <style>
         .full-height {
             height: 100vh;
         }
+
+        .botts{
+            position: absolute;
+            width: 100%;
+        }
+
+        .botdash{
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+        }
+
     </style>
 </head>
 <body class="{{ $bodyClass }}">
@@ -54,6 +69,7 @@
     ])
 
 @stack('js')
+@stack('scripts')
 <script>
     var win = navigator.platform.indexOf('Win') > -1;
     if (win && document.querySelector('#sidenav-scrollbar')) {

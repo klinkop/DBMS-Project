@@ -25,7 +25,7 @@ class CampaignController extends Controller
             ->withSum('sentEmails as total_click_count', 'clicks')
             ->withCount('sentEmails as total_emails_sent')
             ->orderBy('created_at', 'desc') // Sort campaigns by creation date (most recent first)
-            ->paginate(10);
+            ->paginate(8);
 
         // Transform the paginated items
         $campaigns->getCollection()->transform(function ($campaign) {

@@ -1,4 +1,4 @@
-<x-layout bodyClass="g-sidenav-show bg-gray-200">
+<x-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Edit Sub Folder') }}
@@ -69,5 +69,7 @@
                 </form>
             </div>
         </div>
+        <div class="botdash"><x-footers.auth></x-footers.auth></div>
     </main>
+    <x-plugins></x-plugins>
 </x-layout>

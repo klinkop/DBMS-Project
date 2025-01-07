@@ -1,4 +1,4 @@
-<x-layout bodyClass="g-sidenav-show  bg-gray-200">
+<x-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Campaigns') }}
@@ -22,6 +22,7 @@
 
         table th, table td {
             height: 50px;  /* Set fixed height for each cell */
+            white-space: normal !important;
         }
 
         .reoutline {
@@ -60,7 +61,7 @@
             </a>
         </div>
         @endif
-            <div class="overflow-x-auto round px-5">
+            <div class="round px-5">
                 <table id="myTable" class="display min-w-full border-collapse border border-gray-300 round table">
                     <thead>
                         <tr>
@@ -92,7 +93,7 @@
                                     <!-- Dropdown Button -->
                                     <div class="">
                                         <button type="button" class="reoutline" data-dropdown="dropdown-{{ $campaign->id }}">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-30 w-30" viewBox="0 0 20 20" fill="currentColor">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" viewBox="0 0 20 20" fill="currentColor">
                                                 <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
                                             </svg>
                                         </button>
@@ -124,6 +125,7 @@
         @endif
 
     </div>
+    <div class="botdash"><x-footers.auth></x-footers.auth></div>
     </main>
     <x-plugins></x-plugins>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

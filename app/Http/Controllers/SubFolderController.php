@@ -40,7 +40,7 @@ class SubFolderController extends Controller
         }
 
         // Get the final list of subfolders, ordered by the latest
-        $subFolders = $subFolderQuery->latest()->get();
+        $subFolders = $subFolderQuery->latest()->paginate(6);
 
         // Return the view with the subfolders (either filtered or all)
         return view('subFolder.index', [

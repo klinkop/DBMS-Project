@@ -1,4 +1,4 @@
-<x-layout bodyClass="g-sidenav-show bg-gray-200">
+<x-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Folder') }}
@@ -35,9 +35,10 @@
                 <button type="submit" class="btn btn-outline-indigo ms-2">{{ __('Search') }}</button>
             </form>
 
+            <div class="row gap-4">
             @foreach ($parentFolders as $parentFolder)
                 <div
-                    class="card col-lg-8 col-md-6 mt-4 mb-4 p-4">
+                    class="card col-lg-5 col-md-4 mt-4 mb-4 p-4">
                     {{-- text and dropdown --}}
                     <div class="flex-1 rounded-lg">
                         <div class="flex justify-between items-start rounded-lg">
@@ -66,8 +67,8 @@
                                     <div class="col-4">
                                         {{-- Action button container --}}
                                         @if ($parentFolder->user->is(auth()->user()))
-                                            <div class="ml-auto">
-                                                <div class="btn-group">
+                                            <div class="row">
+                                                <div class="mb-3 col-md-6">
                                                     <button class="btn btn-info dropdown-toggle" type="button"
                                                         data-bs-toggle="dropdown" aria-expanded="false">
                                                         Action
@@ -119,8 +120,12 @@
                     </div>
                 </div>
             @endforeach
+            </div>
+            <div class="mt-4">
+                {{ $parentFolders->links() }}
+            </div>
         </div>
+        <div class="botdash"><x-footers.auth></x-footers.auth></div>
     </main>
-
     <x-plugins></x-plugins>
 </x-layout>

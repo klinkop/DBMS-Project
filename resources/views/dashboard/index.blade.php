@@ -1,13 +1,6 @@
 <x-layout>
     <x-navbars.sidebar activePage='dashboard'></x-navbars.sidebar>
     <main class="main-content position-relative min-height-vh-100 h-100 border-radius-lg" style="height: 100vh;">
-        <style>
-            .botts{
-                position: absolute;
-                bottom: 0;
-                width: 100%;
-            }
-        </style>
         <!-- Navbar -->
         <x-navbars.navs.auth titlePage="Dashboard"></x-navbars.navs.auth>
         <!-- End Navbar -->
@@ -115,7 +108,8 @@
             </div>
 
         </div>
-        <div class="botts"><x-footers.auth></x-footers.auth></div>
+
+        <div class="botdash"><x-footers.auth></x-footers.auth></div>
 
     </main>
     <x-plugins></x-plugins>

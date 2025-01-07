@@ -27,7 +27,7 @@
 
         <!-- Campaign edit form -->
         <form action="{{ route('campaigns.update', $campaign->id) }}" method="POST" id="campaignForm"
-            class="shadow-md rounded px-4 pt-6 pb-8 mb-4">
+            class="shadow-md rounded px-4 pt-6 pb-2 mb-4">
             @csrf
             @method('PUT')
             <div class="row">
@@ -63,7 +63,7 @@
             <!-- Email builder -->
             <div class="mb-4">
                 <label for="email_body" class="form-label">Email Body test</label>
-                <div id="editor" class="card card-body border" style="height: 600px;"></div>
+                <div id="editor" class="border rounded shadow-md {{-- card card-body border --}}" style="height: 600px;"></div>
                 <input type="hidden" name="email_body_json" id="email_body_json" value="{{ old('email_body_json', $campaign->email_body_json ?? '') }}">
                 <input type="hidden" name="email_body_html" id="email_body_html" value="{{ old('email_body_html', $campaign->email_body_html ?? '') }}">
             </div>
@@ -79,7 +79,7 @@
             </div>
         </form>
     </div>
-    <div class="botts"><x-footers.auth></x-footers.auth></div>
+    <x-footers.auth></x-footers.auth>
     </main>
     <x-plugins></x-plugins>
     </div>

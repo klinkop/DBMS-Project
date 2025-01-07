@@ -199,6 +199,7 @@
             </div>
         </div>
     </div>
+    <div class="botts"><x-footers.auth></x-footers.auth></div>
     </main>
     <x-plugins></x-plugins>
     </div>

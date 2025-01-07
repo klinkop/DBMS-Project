@@ -1,4 +1,4 @@
-<x-layout bodyClass="g-sidenav-show  bg-gray-200">
+<x-layout bodyClass="g-sidenav-show bg-gray-200">
     <x-navbars.sidebar activePage='createCamapaign'></x-navbars.sidebar>
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
         <!-- Navbar -->
@@ -10,7 +10,7 @@
             class="btn bg-gradient-dark">
             Back
         </button>
-        
+
     <div class="card card-body container mx-auto py-2">
 
         <!-- Display validation errors -->
@@ -78,10 +78,10 @@
             </div>
         </form>
     </div>
-    <x-footers.auth></x-footers.auth>
+    <div class="botts"><x-footers.auth></x-footers.auth></div>
     </main>
     <x-plugins></x-plugins>
-    </div>
+
     <!-- Include Unlayer -->
     <script src="https://editor.unlayer.com/embed.js"></script>
     <script>
