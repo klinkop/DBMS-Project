@@ -1,11 +1,6 @@
 <x-layout>
-    <x-slot name="header">
-        <h2 class="text-xl font-semibold leading-tight text-gray-800">
-            {{ __('Contact List') }}
-        </h2>
-    </x-slot>
 
-    <x-navbars.sidebar activePage='contactList'></x-navbars.sidebar>
+    <x-navbars.sidebar activePage="{{ $subFolderId ? 'none' : 'contactList' }}"></x-navbars.sidebar>
 
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
     <style>
@@ -208,16 +203,24 @@
         #myTable th:nth-child(15) { /* First column header */
             min-width: 350px;
         }
-        #myTable th:nth-child(2) { /* First column header */
-            min-width: 140px;
-        }
-        #myTable th:nth-child(10) { /* First column header */
+        #myTable th:nth-child(2),
+        #myTable th:nth-child(3),
+        #myTable th:nth-child(6),
+        #myTable th:nth-child(7),
+        #myTable th:nth-child(8),
+        #myTable th:nth-child(10),
+        #myTable th:nth-child(11),
+        #myTable th:nth-child(16) {
             min-width: 140px;
         }
 
     </style>
 
-    <x-navbars.navs.auth titlePage="Contact List"></x-navbars.navs.auth>
+    <x-navbars.navs.auth titlePage="{{ $subFolderId ? 'Contact List' : 'All Contact List' }}"></x-navbars.navs.auth>
+
+        @if ($subFolderId)
+        <h5>{{ \App\Models\SubFolder::find($subFolderId)->name }}</h5>
+        @endif
 
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 pb-7">
         <button id="toggle-search-button"
@@ -432,7 +435,11 @@
             <!-- Submit Button -->
             <button type="submit"
                 class="btn bg-gradient-dark">
-                Import Contacts</button>
+                Import Contacts
+            </button>
+            <!-- Button to download the empty Excel template -->
+            <a href="{{ route('contactList.downloadTemplate') }}" class="btn bg-gradient-dark">Download Template</a>
+
         </form>
         @endif
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -552,7 +559,7 @@
                     'pic' => request()->query('pic'),
                     'email' => request()->query('email'),
                     'address' => request()->query('address'),
-                ])->links('pagination::tailwind') }}
+                ])->links() }}
         </div>
 
         <div class="modal-overlay" id="modal-overlay"></div>

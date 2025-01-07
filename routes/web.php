@@ -19,7 +19,7 @@ use App\Http\Controllers\SessionsController;
 
 Route::get('/', function () {
     return redirect()->route('parentFolder.index');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'verified']);
 
 Route::middleware('auth')->group(function () {
     // Profile routes
@@ -99,6 +99,8 @@ Route::middleware('auth')->group(function () {
     return 'Email sent successfully!';
 
     });
+
+    Route::get('/contact-list/template', [ContactListController::class, 'downloadTemplate'])->name('contactList.downloadTemplate');
 
     Route::resource('campaigns', CampaignController::class);
 

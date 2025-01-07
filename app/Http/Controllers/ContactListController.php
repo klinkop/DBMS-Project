@@ -16,6 +16,7 @@ use App\Exports\ContactListsExport;
 use App\Imports\ContactListsImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Log;
+use App\Exports\TemplateExport;
 
 class ContactListController extends Controller
 {
@@ -365,5 +366,19 @@ class ContactListController extends Controller
         ContactList::whereIn('id', $contactIds)->update($filteredData);
 
         return redirect()->back()->with('success', 'Contacts updated successfully!');
+    }
+
+    public function downloadTemplate()
+    {
+        $headers = [
+            'resources', 'status', 'type', 'industry', 'company',
+            'product', 'bgoc_product', 'pic', 'email', 'contact1', 'contact2',
+            'address', 'city', 'state', 'remarks'
+        ];
+
+        $template = collect([$headers]); // Create a collection with the headers as the first row
+
+        // Create and download the Excel file
+        return Excel::download(new \App\Exports\TemplateExport($template), 'contact_list_template.xlsx');
     }
 }

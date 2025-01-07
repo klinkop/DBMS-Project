@@ -125,7 +125,7 @@
                 {{ $parentFolders->links() }}
             </div>
         </div>
-        <div class="botdash"><x-footers.auth></x-footers.auth></div>
+        <div class="botts"><x-footers.auth></x-footers.auth></div>
     </main>
     <x-plugins></x-plugins>
 </x-layout>

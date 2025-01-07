@@ -7,6 +7,6 @@
 </head>
 <body>
     <p>{!! $campaign->email_body_html !!}</p>
-    <p style="display: none;">{{ $campaign->id }}</p>
+    <meta name="campaign-id" content="{{ $campaign->id }}">
 </body>
 </html>

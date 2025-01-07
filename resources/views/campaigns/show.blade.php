@@ -5,6 +5,9 @@
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
 
         <style>
+            .hidden{
+                display: none
+            }
             .flex{
                 display: flex
             }
