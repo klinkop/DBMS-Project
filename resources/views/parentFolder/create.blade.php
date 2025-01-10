@@ -63,7 +63,13 @@
                         <x-input-error :messages="$errors->get('name')" class="mt-2" />
                     </div>
 
-                    <x-primary-button class="mt-4">{{ __('Add Parent Folder') }}</x-primary-button>
+                    <div class="mt-4 space-x-2">
+                        <x-primary-button>{{ __('Add Parent Folder') }}</x-primary-button>
+                        <button type="button" onclick="history.back()"
+                                        class="btn btn-danger">
+                                        Cancel
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>

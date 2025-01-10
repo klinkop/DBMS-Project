@@ -13,80 +13,66 @@ use Illuminate\Support\Facades\Cache;
 class DashboardController extends Controller
 {
     public function index()
-        {
-            // Log the user ID when they attempt to access the dashboard
-            Log::info('Accessing dashboard by user ID: ' . auth()->id());
+    {
+        // Log the user ID when accessing the dashboard
+        $userId = auth()->id();
+        Log::info('Accessing dashboard by user ID: ' . $userId);
 
-                // Get the latest campaign, checking both the scheduled_at and time_sent columns
-            $latestCampaign = Cache::remember('latest_campaign', now()->addMinutes(10), function () {
-                return \App\Models\Campaign::where('status', 'sent')
-                    ->whereNotNull('time_sent')
-                    ->orderByRaw('GREATEST(scheduled_at, time_sent) DESC')
-                    ->first();
-            });
+        // Get the latest campaign for the authenticated user
+        $latestCampaign = Cache::remember('latest_campaign_user_' . $userId, now()->addMinutes(10), function () use ($userId) {
+            return Campaign::where('user_id', $userId) // Filter campaigns by user ID
+                ->where('status', 'sent')
+                ->whereNotNull('time_sent')
+                ->orderByRaw('GREATEST(scheduled_at, time_sent) DESC')
+                ->first();
+        });
 
-            $message = '';
-            $recipientCount = 0;
-            $subFolderNames = [];
-            $totalEmailsSent = 0;
-            $parentFolderCount = 0;
-            $subFolderCount = 0;
+        // Initialize default values
+        $message = 'No campaigns have been sent yet.';
+        $recipientCount = 0;
+        $subFolderNames = [];
+        $totalEmailsSent = 0;
 
-            if ($latestCampaign) {
-                    $message = 'No campaigns have been sent yet.';
-                    $recipientCount = 0;
-                    $subFolderNames = [];
-                    $totalEmailsSent = 0;
-                // Compare the 'time_sent' and 'scheduled_at' timestamps
-                if ($latestCampaign->time_sent && $latestCampaign->time_sent > $latestCampaign->scheduled_at) {
-                    // If 'time_sent' is newer than 'scheduled_at', pass the campaign info
-                    $message = 'Campaign sent at ' . \Carbon\Carbon::parse($latestCampaign->time_sent)->format('l, F j, Y \a\t h:i A');
-                } else {
-                    // If 'scheduled_at' is newer or no 'time_sent', pass the campaign info
-                    $message = 'Campaign sent as per the scheduled time at ' . \Carbon\Carbon::parse($latestCampaign->scheduled_at)->format('l, F j, Y \a\t h:i A') . '.';
-                }
+        // If a latest campaign exists, process its details
+        if ($latestCampaign) {
+            $timeSent = $latestCampaign->time_sent;
+            $scheduledAt = $latestCampaign->scheduled_at;
 
-                // Get the recipients and subfolder names
-                $recipients = \App\Models\Recipient::where('campaign_id', $latestCampaign->id)->get();
-                $recipientCount = $recipients->count();
-                $subFolderNames = $recipients->map(function ($recipient) {
-                    return $recipient->subFolder->name;
-                })->unique()->toArray(); // Get unique subfolder names
-
-                // Calculate total emails sent (assuming you have a sentEmails relationship)
-                $totalEmailsSent = $latestCampaign->sentEmails()->count();
-
+            // Determine the message based on timestamps
+            if ($timeSent && $timeSent > $scheduledAt) {
+                $message = 'Campaign sent at ' . \Carbon\Carbon::parse($timeSent)->format('l, F j, Y \a\t h:i A');
             } else {
-                $message = 'No campaigns have been sent yet.';
+                $message = 'Campaign sent as per the scheduled time at ' . \Carbon\Carbon::parse($scheduledAt)->format('l, F j, Y \a\t h:i A') . '.';
             }
 
-            // Fetch additional data (campaign count, contact count)
-            $campaignCount = Campaign::count();
-            $contactCount = ContactList::count();
-            $parentFolderCount = ParentFolder::count();
-            $subFolderCount = SubFolder::count();
+            // Fetch recipient details for the campaign
+            $recipients = \App\Models\Recipient::where('campaign_id', $latestCampaign->id)->get();
 
-            // Return the dashboard view, passing necessary data
-            if (!$latestCampaign) {
-                // Set default values for the view when no campaign exists
-                $latestCampaign = null;
-                $message = 'No campaigns have been sent yet.';
-                $recipientCount = 0;
-                $subFolderNames = [];
-                $totalEmailsSent = 0;
-            }
+            $recipientCount = $recipients->count();
+            $subFolderNames = $recipients->map(fn($recipient) => $recipient->subFolder->name)->unique()->toArray();
 
-            return view('dashboard.index', compact(
-                'latestCampaign',
-                'message',
-                'campaignCount',
-                'contactCount',
-                'recipientCount',
-                'subFolderNames',
-                'totalEmailsSent',
-                'parentFolderCount',
-                'subFolderCount'
-            ));
+            // Calculate the total number of emails sent
+            $totalEmailsSent = $latestCampaign->sentEmails()->count();
         }
+
+        // Fetch additional data for the user's account
+        $campaignCount = Campaign::where('user_id', $userId)->count();
+        $contactCount = ContactList::where('user_id', $userId)->count();
+        $parentFolderCount = ParentFolder::where('user_id', $userId)->count();
+        $subFolderCount = SubFolder::where('user_id', $userId)->count();
+
+        // Return the dashboard view, passing the necessary data
+        return view('dashboard.index', compact(
+            'latestCampaign',
+            'message',
+            'campaignCount',
+            'contactCount',
+            'recipientCount',
+            'subFolderNames',
+            'totalEmailsSent',
+            'parentFolderCount',
+            'subFolderCount'
+        ));
+    }
 
 }

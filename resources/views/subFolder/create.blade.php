@@ -52,7 +52,7 @@
         <!-- End Navbar -->
 
         <div class="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
-            <div class="form-container">
+            <div class="form-container card card-body">
                 <form method="POST" action="{{ route('subFolder.store') }}">
                     @csrf
                     <div class="mb-4 row">
@@ -73,7 +73,15 @@
                     <input type="hidden" name="parent_folder_id" value="{{ $parentFolder->id }}" />
 
                     <x-input-error :messages="$errors->get('name')" class="mt-2" />
-                    <x-primary-button class="mt-4">{{ __('Add Sub Folder') }}</x-primary-button>
+
+                    <div class="mt-4 space-x-2">
+                        <x-primary-button>{{ __('Add Sub Folder') }}</x-primary-button>
+                        <button type="button" onclick="history.back()"
+                                    class="btn btn-danger">
+                                    Cancel
+                        </button>
+                    </div>
+
                 </form>
             </div>
         </div>

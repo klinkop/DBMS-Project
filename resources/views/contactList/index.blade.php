@@ -214,6 +214,11 @@
             min-width: 140px;
         }
 
+        .flexin{
+            display: flex;
+            margin-bottom: -60px;
+        }
+
     </style>
 
     <x-navbars.navs.auth titlePage="{{ $subFolderId ? 'Contact List' : 'All Contact List' }}"></x-navbars.navs.auth>
@@ -450,10 +455,16 @@
 
                 <table id="myTable" class="display min-w-full border-collapse border border-gray-300 round">
                     <div id="action-buttons" class="p-2 gap-2" style="display: none">
-                        <button id="edit-button"
-                            class="btn btn-success btn-link">Edit</button>
-                        <button id="delete-button"
-                            class="btn btn-danger btn-link">Delete</button>
+                            <div class="flexin gap-2">
+                                <button id="edit-button"
+                                class="btn btn-success btn-link">Edit</button>
+                                <form id="delete-form" action="{{ route('contacts.deleteMultiple') }}" method="POST" style="display: none;">
+                                    <!-- Add CSRF token if you're using Laravel or another framework that requires it -->
+                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" id="contact-ids" name="contact_ids" value="">
+                                    <button type="submit" id="delete-button" class="btn btn-danger btn-link">Delete</button>
+                                </form>
+                            </div>
                     </div>
                     <thead>
                         <tr>
@@ -819,14 +830,17 @@
         function updateActionButtonVisibility() {
             const selectedContacts = Array.from(document.querySelectorAll('.contact-checkbox:checked'));
             const actionButtons = document.getElementById('action-buttons');
+            const deleteForm = document.getElementById('delete-form');
 
             // Toggle the action buttons visibility based on checkbox selection
             if (selectedContacts.length > 0) {
+                deleteForm.style.display = 'block'; // Show the delete form
                 actionButtons.style.display = 'block'; // Show the action buttons
                 // Update the hidden input with the selected contact IDs
                 const contactIds = selectedContacts.map(cb => cb.value).join(',');
                 document.getElementById('contact-ids').value = contactIds;
             } else {
+                deleteForm.style.display = 'none'; // Hide the delete form
                 actionButtons.style.display = 'none'; // Hide the action buttons
                 document.getElementById('contact-ids').value = '';
             }

@@ -47,7 +47,7 @@
         <div class="text-center text-gray-500">
             <p>No campaigns have been created yet.</p>
             <a href="{{ route('campaigns.create') }}"
-                class="mt-4 inline-block px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                class="btn bg-gradient-dark">
                 Create Your First Campaign
             </a>
         </div>

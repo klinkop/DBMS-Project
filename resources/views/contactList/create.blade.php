@@ -159,7 +159,10 @@
 
                             <div class="mt-4 space-x-2">
                                 <x-primary-button>{{ __('Create') }}</x-primary-button>
-                                <a href="{{ route('contactList.index', ['subFolder' => $subFolder->id ]) }}">{{ __('Cancel') }}</a>
+                                <button type="button" onclick="history.back()"
+                                    class="btn btn-danger">
+                                    Cancel
+                                </button>
                             </div>
                         </form>
                     </div>

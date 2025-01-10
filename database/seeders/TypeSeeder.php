@@ -17,6 +17,7 @@ class TypeSeeder extends Seeder
             ['name' => 'A1'],
             ['name' => 'A2'],
             ['name' => 'Ongoing'],
+            ['id' => 999, 'name' => 'Others'],
         ];
 
         foreach ($types as $type) {

@@ -191,7 +191,7 @@
 
                             <div class="flex justify-end">
                                 <x-primary-button>{{ __('Save') }}</x-primary-button>
-                                <a href="{{ route('contactList.index', ['subFolder' => $subFolderId]) }}" class="ml-4">{{ __('Cancel') }}</a>
+                                <a href="{{ route('contactList.index', ['subFolder' => $subFolderId]) }}" class="btn btn-danger">{{ __('Cancel') }}</a>
                             </div>
                         </div>
                     </form>

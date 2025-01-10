@@ -100,6 +100,7 @@ Route::middleware('auth')->group(function () {
 
     });
 
+    Route::post('/delete-multiple', [ContactListController::class, 'deleteMultiple'])->name('contacts.deleteMultiple');
     Route::get('/contact-list/template', [ContactListController::class, 'downloadTemplate'])->name('contactList.downloadTemplate');
 
     Route::resource('campaigns', CampaignController::class);

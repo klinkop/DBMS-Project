@@ -64,7 +64,7 @@
 
                     <div class="mt-4 space-x-5">
                         <x-primary-button>{{ __('Save') }}</x-primary-button>
-                        <a href="{{ route('subFolder.index') }}">{{ __('Cancel') }}</a>
+                        <a href="{{ route('subFolder.index') }}" class="btn btn-danger">{{ __('Cancel') }}</a>
                     </div>
                 </form>
             </div>

@@ -185,8 +185,8 @@ class ContactListController extends Controller
 
         // Set default values for required fields if they are not provided
         $contactList->sub_folder_id = $validated['sub_folder_id'] ?? null;
-        $contactList->status_id = $validated['status_id'] ?? null;
-        $contactList->type_id = $validated['type_id'] ?? null;
+        $contactList->status_id = $validated['status_id'] ?? 999;
+        $contactList->type_id = $validated['type_id'] ?? 999;
         $contactList->industry = $validated['industry'] ?? null;
         $contactList->resources = $validated['resources'] ?? null;
         $contactList->company = $validated['company'] ?? null;
@@ -380,5 +380,13 @@ class ContactListController extends Controller
 
         // Create and download the Excel file
         return Excel::download(new \App\Exports\TemplateExport($template), 'contact_list_template.xlsx');
+    }
+
+    public function deleteMultiple(Request $request)
+    {
+        $contactIds = explode(',', $request->input('contact_ids'));
+        ContactList::whereIn('id', $contactIds)->delete();
+
+        return redirect()->back()->with('success', 'Contacts deleted successfully.');
     }
 }

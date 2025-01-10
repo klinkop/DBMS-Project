@@ -120,34 +120,32 @@ if (document.querySelector('.fixed-plugin')) {
 
 }
 
-// Set Sidebar Color
-function sidebarColor(a) {
-  var parent = document.querySelector(".nav-link.active");
-  var color = a.getAttribute("data-color");
+// Apply Sidebar Color Immediately
+(function applyInstantSidebarColor() {
+    var parent = document.querySelector(".nav-link.active");
+    var savedColor = localStorage.getItem("sidebarColor");
 
-  // Remove any existing gradient classes
-  parent.classList.remove(
-    "bg-gradient-primary",
-    "bg-gradient-dark",
-    "bg-gradient-info",
-    "bg-gradient-success",
-    "bg-gradient-warning",
-    "bg-gradient-danger"
-  );
+    if (parent && savedColor) {
+      // Remove any existing gradient classes
+      parent.classList.remove(
+        "bg-gradient-primary",
+        "bg-gradient-dark",
+        "bg-gradient-info",
+        "bg-gradient-success",
+        "bg-gradient-warning",
+        "bg-gradient-danger"
+      );
 
-  // Add the selected gradient class
-  parent.classList.add("bg-gradient-" + color);
+      // Add the saved gradient class
+      parent.classList.add("bg-gradient-" + savedColor);
+    }
+  })();
 
-  // Save the selected color to localStorage
-  localStorage.setItem("sidebarColor", color);
-}
+  // Set Sidebar Color
+  function sidebarColor(a) {
+    var parent = document.querySelector(".nav-link.active");
+    var color = a.getAttribute("data-color");
 
-// Apply Sidebar Color on Page Load
-function applySidebarColor() {
-  var parent = document.querySelector(".nav-link.active");
-  var savedColor = localStorage.getItem("sidebarColor");
-
-  if (savedColor) {
     // Remove any existing gradient classes
     parent.classList.remove(
       "bg-gradient-primary",
@@ -158,13 +156,21 @@ function applySidebarColor() {
       "bg-gradient-danger"
     );
 
-    // Add the saved gradient class
-    parent.classList.add("bg-gradient-" + savedColor);
-  }
-}
+    // Add the selected gradient class
+    parent.classList.add("bg-gradient-" + color);
 
-// Call the function on page load
-document.addEventListener("DOMContentLoaded", applySidebarColor);
+    // Save the selected color to localStorage
+    localStorage.setItem("sidebarColor", color);
+  }
+
+  // Apply Sidebar Color on Page Load
+  function applySidebarColor() {
+    // This will already be handled by the immediate function above
+  }
+
+  // Call the function on page load for safety (in case of dynamic content)
+  document.addEventListener("DOMContentLoaded", applySidebarColor);
+
 
 
 function sidebarType(a) {
