@@ -1,13 +1,4 @@
 <x-layout bodyClass="bg-gray-200">
-{{--     <div class="container position-sticky z-index-sticky top-0">
-        <div class="row">
-            <div class="col-12">
-                <!-- Navbar -->
-                <x-navbars.navs.guest signin='static-sign-in' signup='static-sign-up'></x-navbars.navs.guest>
-                <!-- End Navbar -->
-            </div>
-        </div>
-    </div> --}}
     <main class="main-content  mt-0">
         <div class="page-header align-items-start min-vh-100"
             style="background-image: url('https://images.unsplash.com/photo-1497294815431-9365093b7331?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1950&q=80');">
@@ -89,7 +80,7 @@
             <x-footers.guest></x-footers.guest>
         </div>
     </main>
-    @push('styles')
+{{--     @push('styles')
     <style>
         .has-value {
             color: white !important;
@@ -117,5 +108,5 @@
             });
         });
     </script>
-    @endpush
+    @endpush --}}
 </x-layout>

@@ -459,9 +459,9 @@
                                 <button id="edit-button"
                                 class="btn btn-success btn-link">Edit</button>
                                 <form id="delete-form" action="{{ route('contacts.deleteMultiple') }}" method="POST" style="display: none;">
-                                    <!-- Add CSRF token if you're using Laravel or another framework that requires it -->
+                                    @csrf
                                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                    <input type="hidden" id="contact-ids" name="contact_ids" value="">
+                                    <input type="hidden" id="delete_contact_ids" name="contact_ids">
                                     <button type="submit" id="delete-button" class="btn btn-danger btn-link">Delete</button>
                                 </form>
                             </div>
@@ -584,7 +584,7 @@
                 </button>
                 <form id="mass-edit-form" method="POST" action="{{ route('contacts.mass_edit') }}">
                     @csrf
-                    <input type="hidden" name="contact_ids" id="contact-ids">
+                    <input type="hidden" name="contact_ids" id="contact_ids">
                     <h1 class="text-lg font-semibold text-center mb-3">Mass Edit Form</h1>
 
                     <div class="grid grid-cols-1 gap-2">
@@ -639,7 +639,7 @@
                         </div>
                         <div>
                             <label for="pic" class="block text-gray-700 padds">PIC:</label>
-                            <input type="pic" name="pic" id="pic"
+                            <input type="text" name="pic" id="pic"
                                 class="w-full rounded-lg border padds py-1 focus:outline-none focus:ring-2 focus:ring-blue-600">
                         </div>
                         <div>
@@ -685,6 +685,7 @@
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/default-passive-events"></script>
     <script>
         $(document).ready(function() {
             $('#myTable').DataTable({
@@ -826,68 +827,75 @@
     </script>
     {{-- MassEdit Checkbox --}}
     <script>
-      // Function to handle individual checkbox changes and update button visibility
-        function updateActionButtonVisibility() {
-            const selectedContacts = Array.from(document.querySelectorAll('.contact-checkbox:checked'));
-            const actionButtons = document.getElementById('action-buttons');
+        document.addEventListener('DOMContentLoaded', function () {
+            const selectAllCheckbox = document.getElementById('select-all-checkbox');
             const deleteForm = document.getElementById('delete-form');
+            const actionButtons = document.getElementById('action-buttons');
+            const massEditContactIdsInput = document.getElementById('contact_ids');
+            const deleteContactIdsInput = document.getElementById('delete_contact_ids');
 
-            // Toggle the action buttons visibility based on checkbox selection
-            if (selectedContacts.length > 0) {
-                deleteForm.style.display = 'block'; // Show the delete form
-                actionButtons.style.display = 'block'; // Show the action buttons
-                // Update the hidden input with the selected contact IDs
-                const contactIds = selectedContacts.map(cb => cb.value).join(',');
-                document.getElementById('contact-ids').value = contactIds;
-            } else {
-                deleteForm.style.display = 'none'; // Hide the delete form
-                actionButtons.style.display = 'none'; // Hide the action buttons
-                document.getElementById('contact-ids').value = '';
+            function updateActionButtonVisibility() {
+                console.log("Updating action button visibility...");
+                const selectedContacts = Array.from(document.querySelectorAll('.contact-checkbox:checked')).map(cb => cb.value);
+                console.log("Selected contacts:", selectedContacts);
+
+                if (selectedContacts.length > 0) {
+                    deleteForm.style.display = 'block';
+                    actionButtons.style.display = 'block';
+                    massEditContactIdsInput.value = selectedContacts.join(',');
+                    deleteContactIdsInput.value = selectedContacts.join(',');
+                } else {
+                    deleteForm.style.display = 'none';
+                    actionButtons.style.display = 'none';
+                    massEditContactIdsInput.value = '';
+                    deleteContactIdsInput.value = '';
+                }
+
+                // Update "Select All" checkbox
+                const allCheckboxes = document.querySelectorAll('.contact-checkbox');
+                selectAllCheckbox.checked = selectedContacts.length === allCheckboxes.length;
             }
 
-            // Ensure "Select All" checkbox reflects the state
-            const allCheckboxes = document.querySelectorAll('.contact-checkbox');
-            const selectAllCheckbox = document.getElementById('select-all-checkbox');
-            selectAllCheckbox.checked = selectedContacts.length === allCheckboxes.length;
-        }
+            function toggleSelectAll(event) {
+                console.log('"Select All" checkbox changed:', event.target.checked);
+                document.querySelectorAll('.contact-checkbox').forEach(cb => cb.checked = event.target.checked);
+                updateActionButtonVisibility();
+            }
 
-        // Function to handle "Select All" checkbox change
-        function toggleSelectAll(event) {
-            const allCheckboxes = document.querySelectorAll('.contact-checkbox');
-            allCheckboxes.forEach(checkbox => {
-                checkbox.checked = event.target.checked;
+            document.addEventListener('change', function (event) {
+                if (event.target.classList.contains('contact-checkbox')) updateActionButtonVisibility();
+                if (event.target.id === 'select-all-checkbox') toggleSelectAll(event);
             });
-            updateActionButtonVisibility();
-        }
 
-        // Add event listeners for individual checkboxes
-        document.querySelectorAll('.contact-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('change', updateActionButtonVisibility);
+            // Edit button functionality
+            const editButton = document.getElementById('edit-button');
+            if (editButton) {
+                editButton.addEventListener('click', function () {
+                    document.getElementById('mass-edit-form-container').style.display = 'block';
+                    document.getElementById('modal-overlay').style.display = 'block';
+                    actionButtons.style.display = 'none';
+                });
+            }
+
+            // Modal close functionality
+            const closeButton = document.getElementById('closeMassEditForm');
+            if (closeButton) {
+                closeButton.addEventListener('click', function () {
+                    document.getElementById('mass-edit-form-container').style.display = 'none';
+                    document.getElementById('modal-overlay').style.display = 'none';
+                });
+            }
+
+            const modalOverlay = document.getElementById('modal-overlay');
+            if (modalOverlay) {
+                modalOverlay.addEventListener('click', function () {
+                    document.getElementById('mass-edit-form-container').style.display = 'none';
+                    this.style.display = 'none';
+                });
+            }
         });
-
-        // Add event listener for "Select All" checkbox
-        document.getElementById('select-all-checkbox').addEventListener('change', toggleSelectAll);
-
-        // Show the mass edit form when the "Edit" button is clicked
-        document.getElementById('edit-button').addEventListener('click', function () {
-            document.getElementById('mass-edit-form-container').style.display = 'block'; // Show the form
-            document.getElementById('modal-overlay').style.display = 'block'; // Show the overlay
-            document.getElementById('action-buttons').style.display = 'none'; // Hide action buttons
-        });
-
-        // Hide the modal when the close button is clicked
-        document.getElementById('closeMassEditForm').addEventListener('click', function () {
-            document.getElementById('mass-edit-form-container').style.display = 'none'; // Hide the form
-            document.getElementById('modal-overlay').style.display = 'none'; // Hide the overlay
-        });
-
-        // Hide the modal if the overlay is clicked
-        document.getElementById('modal-overlay').addEventListener('click', function () {
-            document.getElementById('mass-edit-form-container').style.display = 'none';
-            this.style.display = 'none';
-        });
-
     </script>
+
     {{-- Toggle Search Button --}}
     <script>
         function toggleSearchForm() {

@@ -290,6 +290,7 @@ class ContactListController extends Controller
         // Log all request parameters
         Log::info('Export Request Parameters:', $request->all());
 
+
         // Get filters from the request
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
@@ -351,21 +352,67 @@ class ContactListController extends Controller
 
     public function massEdit(Request $request)
     {
+        Log::info('Mass edit request received.', ['request' => $request->all()]);
+        //dd($request->all()); // Stop execution and show request data
+
+        // Validate incoming request
+        $validated = $request->validate([
+            'contact_ids' => 'required|string',
+            'status_id' => 'nullable|integer',
+            'resources' => 'nullable|string',
+            'product' => 'nullable|string',
+            'type_id' => 'nullable|integer',
+            'bgoc_product' => 'nullable|string',
+            'company' => 'nullable|string',
+            'pic' => 'nullable|string',
+            'industry' => 'nullable|string',
+            'city_id' => 'nullable|integer',
+            'state_id' => 'nullable|integer',
+        ]);
+
+        Log::info('Request validated successfully.', ['validated' => $validated]);
+
         // Extract selected contact IDs
-        $contactIds = explode(',', $request->input('contact_ids'));
+        $contactIds = array_filter(explode(',', $request->input('contact_ids')));
+        Log::info('Extracted contact IDs.', ['contactIds' => $contactIds]);
+
+        // Ensure there are valid contact IDs
+        if (empty($contactIds)) {
+            Log::warning('No valid contact IDs provided.');
+            return redirect()->back()->with('error', 'No contacts selected for updating.');
+        }
 
         // Prepare data for update
-        $data = $request->only(['status_id','resources','product','type_id','bgoc_product','company','pic','industry', 'city_id', 'state_id']);
+        $filteredData = array_filter($request->only([
+            'status_id', 'resources', 'product', 'type_id',
+            'bgoc_product', 'company', 'pic', 'industry',
+            'city_id', 'state_id'
+        ]), fn($value) => !is_null($value) && $value !== '');
 
-        // Filter out any null or empty fields
-        $filteredData = array_filter($data, function ($value) {
-            return !is_null($value) && $value !== '';
-        });
+        Log::info('Filtered data for update.', ['filteredData' => $filteredData]);
 
-        // Update the selected contacts
-        ContactList::whereIn('id', $contactIds)->update($filteredData);
+        // Ensure there's at least one valid field to update
+        if (empty($filteredData)) {
+            Log::warning('No valid fields provided for update.');
+            return redirect()->back()->with('warning', 'No valid fields provided for update.');
+        }
 
-        return redirect()->back()->with('success', 'Contacts updated successfully!');
+        // Attempt to update contacts
+        try {
+            $updated = ContactList::whereIn('id', $contactIds)->update($filteredData);
+            Log::info('Database update executed.', ['updatedRows' => $updated]);
+
+            if ($updated) {
+                Log::info('Contacts updated successfully.');
+                return redirect()->back()->with('success', 'Contacts updated successfully!');
+            } else {
+                Log::warning('No contacts were updated.');
+                return redirect()->back()->with('warning', 'No contacts were updated. Please check the provided data.');
+            }
+        } catch (\Exception $e) {
+            Log::error('Error updating contacts.', ['error' => $e->getMessage()]);
+            return redirect()->back()->with('error', 'An error occurred while updating contacts.');
+        }
     }
 
     public function downloadTemplate()
@@ -384,9 +431,23 @@ class ContactListController extends Controller
 
     public function deleteMultiple(Request $request)
     {
-        $contactIds = explode(',', $request->input('contact_ids'));
-        ContactList::whereIn('id', $contactIds)->delete();
+        // Log the incoming request
+        Log::info('Delete multiple contacts request received.', ['request_data' => $request->all()]);
 
-        return redirect()->back()->with('success', 'Contacts deleted successfully.');
+        // Retrieve contact IDs from the correct hidden input field
+        $contactIds = explode(',', $request->input('contact_ids', ''));
+
+        // Log the extracted contact IDs
+        Log::info('Extracted contact IDs for deletion.', ['contact_ids' => $contactIds]);
+
+        // Check if there are valid contact IDs before attempting deletion
+        if (!empty($contactIds) && count($contactIds) > 0 && !empty($contactIds[0])) {
+            ContactList::whereIn('id', $contactIds)->delete();
+            Log::info('Contacts successfully deleted.', ['deleted_ids' => $contactIds]);
+            return redirect()->back()->with('success', 'Contacts deleted successfully.');
+        }
+
+        Log::warning('No valid contact IDs found for deletion.');
+        return redirect()->back()->with('error', 'No contacts selected for deletion.');
     }
 }
