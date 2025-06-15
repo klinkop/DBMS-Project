@@ -28,18 +28,6 @@ class ContactListsImport implements ToModel, WithHeadingRow
         // Log the row data for debugging
         Log::info('Importing row: ', $row);  // This will log the entire row data
 
-        // Skip processing if row is empty
-        /* if (empty(array_filter($row))) {
-            Log::info('Skipped header row');
-            return null;
-        }
-
-        // Normalize headers to ensure correct detection
-        if ($this->isHeaderRow($row)) {
-            Log::info('Skipped header row');
-            return null; // Ignore header row
-        } */
-
         // Get status ID based on status name or fallback to default
         $statusId = $this->getStatusId($row['status'] ?? $row[1] ?? '999');
 
@@ -56,8 +44,7 @@ class ContactListsImport implements ToModel, WithHeadingRow
         return new ContactList([
             'user_id'         => $this->userId,
             'sub_folder_id'   => $this->subFolderId,
-            'name'            => $row['name'] ?? $row[0] ?? '-',
-            'resources'       => $row['resources'] ?? $row[1] ?? '-',  // Ensure proper mapping for resources
+            'resources'       => $row['resources'] ?? $row[0] ?? '-',  // Ensure proper mapping for resources
             'status_id'       => $statusId,
             'type_id'         => $typeId,
             'industry'        => $row['industry'] ?? $row[3] ?? '-',
@@ -84,7 +71,7 @@ class ContactListsImport implements ToModel, WithHeadingRow
     protected function isHeaderRow(array $row): bool
     {
         // Define expected header names in lowercase
-        $expectedHeaders = ['name', 'resources', 'status', 'type', 'industry', 'company', 'product', 'bgoc_product', 'pic', 'email', 'contact1', 'contact2', 'address', 'city', 'state', 'remarks'];
+        $expectedHeaders = ['resources', 'status', 'type', 'industry', 'company', 'product', 'bgoc_product', 'pic', 'email', 'contact1', 'contact2', 'address', 'city', 'state', 'remarks'];
 
         // Normalize and convert row keys to lowercase
         $rowKeys = array_map(function ($key) {

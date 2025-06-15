@@ -22,6 +22,7 @@ class StatusSeeder extends Seeder
             ['name' => 'KL-TG Ongoing'],
             ['name' => 'KL-TG Potential'],
             ['name' => 'KL-TG Existing'],
+            ['id' => 999, 'name' => 'Others'],
         ];
 
         foreach ($statuses as $status) {

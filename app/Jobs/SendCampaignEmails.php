@@ -58,6 +58,7 @@ class SendCampaignEmails implements ShouldQueue
 
         if ($recipients->isEmpty()) {
             // Optionally, log or handle the case when no recipients are found
+            Log::info('No recipients found for Campaign ID: ' . $this->campaign->id);
             return;
         }
 
@@ -65,11 +66,19 @@ class SendCampaignEmails implements ShouldQueue
 
         foreach ($recipients as $recipient) {
             foreach ($recipient->subFolder->contactLists as $contactList) {
+                $email = $contactList->email;
+
+                // Skip if email is null or invalid
+                if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    Log::warning('Skipped invalid or null email for Contact ID: ' . $contactList->id);
+                    continue;
+                }
+
                 try {
-                    Mail::to($contactList->email)->send(new CampaignMail($this->campaign));
+                    Mail::to($email)->send(new CampaignMail($this->campaign));
                 } catch (Exception $e) {
                     // Log the error and set the failed flag to true
-                    Log::error('Failed to send email to ' . $contactList->email . ' for Campaign ID: ' . $this->campaign->id . '. Error: ' . $e->getMessage());
+                    Log::error('Failed to send email to ' . $email . ' for Campaign ID: ' . $this->campaign->id . '. Error: ' . $e->getMessage());
                     $failed = true;
                 }
             }

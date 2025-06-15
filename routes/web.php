@@ -12,16 +12,22 @@ use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\RecipientController;
 use Illuminate\Support\Facades\Mail;
+use jdavidbakr\MailTracker\MailTrackerController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\SessionsController;
 
 Route::get('/', function () {
     return redirect()->route('parentFolder.index');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'verified']);
 
 Route::middleware('auth')->group(function () {
     // Profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // Remove Comment to access Material Dashboard
+    //Route::get('profile', [ProfileController::class, 'create'])->name('profile');
 
     // ParentFolder routes with search functionality
     Route::resource('parentFolder', ParentFolderController::class)
@@ -42,7 +48,7 @@ Route::middleware('auth')->group(function () {
 
     // Specific routes for creating subfolders and contact lists under parent folders
     Route::get('/parent-folders/{parentFolder}/sub-folders/create', [SubFolderController::class, 'create'])->name('subFolder.create');
-    Route::get('/sub-folders/{subFolder}/contact-lists/create', [ContactListController::class, 'create'])->name('contactList.create');
+    Route::get('/sub-folders/{subFolder?}/contact-lists/create', [ContactListController::class, 'create'])->name('contactList.create');
     Route::get('/contactList/{contactList}/edit', [ContactListController::class, 'edit'])->name('contactList.edit');
     Route::put('/contactList/{contactList}', [ContactListController::class, 'update'])->name('contactList.update');
 
@@ -94,6 +100,9 @@ Route::middleware('auth')->group(function () {
 
     });
 
+    Route::post('/delete-multiple', [ContactListController::class, 'deleteMultiple'])->name('contacts.deleteMultiple');
+    Route::get('/contact-list/template', [ContactListController::class, 'downloadTemplate'])->name('contactList.downloadTemplate');
+
     Route::resource('campaigns', CampaignController::class);
 
     Route::get('/campaigns/create', [CampaignController::class, 'create'])->name('campaigns.create');
@@ -112,6 +121,59 @@ Route::middleware('auth')->group(function () {
     Route::get('/email-templates', [EmailTemplateController::class, 'index'])->name('email_templates.index');
     Route::get('/email-templates/create', [EmailTemplateController::class, 'create'])->name('email_templates.create');
     Route::post('/email-templates', [EmailTemplateController::class, 'store'])->name('email_templates.store');
+
+    Route::get('/', function () {return redirect('sign-in');})->middleware('guest');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
+    Route::get('sign-up', [RegisterController::class, 'create'])->middleware('guest')->name('register');
+    Route::post('sign-up', [RegisterController::class, 'store'])->middleware('guest');
+    Route::get('sign-in', [SessionsController::class, 'create'])->middleware('guest')->name('login');
+    Route::post('sign-in', [SessionsController::class, 'store'])->middleware('guest');
+    Route::post('verify', [SessionsController::class, 'show'])->middleware('guest');
+    Route::post('reset-password', [SessionsController::class, 'update'])->middleware('guest')->name('password.update');
+    Route::get('verify', function () {
+        return view('sessions.password.verify');
+    })->middleware('guest')->name('verify');
+    Route::get('/reset-password/{token}', function ($token) {
+        return view('sessions.password.reset', ['token' => $token]);
+    })->middleware('guest')->name('password.reset');
+
+    Route::post('sign-out', [SessionsController::class, 'destroy'])->middleware('auth')->name('logout');
+    Route::post('user-profile', [ProfileController::class, 'update'])->middleware('auth');
+    Route::group(['middleware' => 'auth'], function () {
+        Route::get('billing', function () {
+            return view('pages.billing');
+        })->name('billing');
+        Route::get('tables', function () {
+            return view('pages.tables');
+        })->name('tables');
+        Route::get('rtl', function () {
+            return view('pages.rtl');
+        })->name('rtl');
+        Route::get('virtual-reality', function () {
+            return view('pages.virtual-reality');
+        })->name('virtual-reality');
+        Route::get('notifications', function () {
+            return view('pages.notifications');
+        })->name('notifications');
+        Route::get('static-sign-in', function () {
+            return view('pages.static-sign-in');
+        })->name('static-sign-in');
+        Route::get('static-sign-up', function () {
+            return view('pages.static-sign-up');
+        })->name('static-sign-up');
+        Route::get('user-management', function () {
+            return view('pages.laravel-examples.user-management');
+        })->name('user-management');
+        Route::get('user-profile', function () {
+            return view('pages.laravel-examples.user-profile');
+        })->name('user-profile');
+    });
+
+
 });
 
 require __DIR__.'/auth.php';
+
+
+
+

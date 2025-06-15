@@ -28,18 +28,19 @@ class ParentFolderController extends Controller
                 ->where('user_id', $userId)
                 ->where('name', 'LIKE', "%{$query}%")
                 ->latest()
-                ->get();
+                ->paginate(6); // Paginate results, 5 folders per page
         } else {
             // Otherwise, get all parent folders for the authenticated user and include the user relationship
             $parentFolders = ParentFolder::with('user')
                 ->where('user_id', $userId)
                 ->latest()
-                ->get();
+                ->paginate(6); // Paginate results, 5 folders per page
         }
 
         // Return the view with the parent folders (either filtered or all)
         return view('parentFolder.index', [
             'parentFolders' => $parentFolders,
+            'activePage' => 'parentFolder',
         ]);
     }
 

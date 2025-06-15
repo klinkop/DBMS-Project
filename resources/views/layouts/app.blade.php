@@ -15,7 +15,15 @@
        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
-        @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/main.css'])
+    @vite([
+        'resources/css/app.css',
+        'resources/js/app.js',
+        'resources/css/main.css',
+        'resources/css/material-dashboard.css',
+        'resources/js/material-dashboard.min.js',
+        'resources/css/nucleo-icons.css',
+        'resources/css/nucleo-svg.css'
+        ])
 
     </head>
     <body class="font-sans antialiased">

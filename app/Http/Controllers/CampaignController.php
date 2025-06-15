@@ -14,15 +14,32 @@ use App\Mail\CampaignEmail;
 use App\Models\SubFolder;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CampaignController extends Controller
 {
     public function index()
     {
-        // Fetch campaigns with pagination (10 per page)
-        $campaigns = Campaign::paginate(10);
+        // Fetch campaigns belonging to the authenticated user with calculated totals
+        $campaigns = Campaign::where('user_id', auth()->id()) // Filter by the authenticated user's ID
+            ->withSum('sentEmails as total_open_count', 'opens')
+            ->withSum('sentEmails as total_click_count', 'clicks')
+            ->withCount('sentEmails as total_emails_sent')
+            ->orderBy('created_at', 'desc') // Sort campaigns by creation date (most recent first)
+            ->paginate(8);
 
-        // Return the view with the campaigns data
+        // Transform the paginated items
+        $campaigns->getCollection()->transform(function ($campaign) {
+            // Calculate rates in PHP
+            $campaign->open_rate = $campaign->total_emails_sent > 0
+                ? ($campaign->total_open_count / $campaign->total_emails_sent) * 100
+                : 0;
+            $campaign->click_rate = $campaign->total_emails_sent > 0
+                ? ($campaign->total_click_count / $campaign->total_emails_sent) * 100
+                : 0;
+            return $campaign;
+        });
+
         return view('campaigns.index', compact('campaigns'));
     }
 
@@ -254,46 +271,28 @@ class CampaignController extends Controller
         // Send emails to all recipients
         foreach ($recipients as $recipient) {
             foreach ($recipient->subFolder->contactLists as $contactList) {
-                Mail::to($contactList->email)->send(new CampaignMail($campaign));
+
+                $email = $contactList->email;
+
+                // Skip if email is null or invalid
+                if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    continue;
+                }
+
+                // Send email
+                Mail::to($email)->send(new CampaignMail($campaign));
             }
         }
 
         // Update the campaign's status to 'sent'
         $campaign->update([
             'status' => 'sent',
+            'time_sent' => Carbon::now(), // Sets the current timestamp
         ]);
 
         return redirect()->route('campaigns.show', $campaign->id)
                         ->with('success', 'Campaign sent to all recipients.');
     }
-
-
-   /*  public function sendToAll(Campaign $campaign)
-    {
-        // Check if the campaign is scheduled
-        if ($campaign->scheduled_at && now()->lt($campaign->scheduled_at)) {
-            return redirect()->route('campaigns.show', $campaign->id)
-                            ->with('error', 'The campaign is scheduled to be sent later.');
-        }
-
-        // Get all recipients of the campaign
-        $recipients = Recipient::where('campaign_id', $campaign->id)->get();
-
-        if ($recipients->isEmpty()) {
-            return redirect()->route('campaigns.show', $campaign->id)
-                            ->with('error', 'No recipients found for this campaign.');
-        }
-
-        foreach ($recipients as $recipient) {
-            Mail::to($recipient->email)->send(new CampaignMail($campaign));
-
-            // Mark the email as sent
-            $recipient->update(['sent' => true]);
-        }
-
-        return redirect()->route('campaigns.show', $campaign->id)
-                        ->with('success', 'Campaign sent to all recipients.');
-    } */
 
     public function schedule(Request $request, Campaign $campaign)
     {

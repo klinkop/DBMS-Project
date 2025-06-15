@@ -148,7 +148,7 @@ class ContactListsExport implements FromQuery, WithHeadings, WithMapping, WithCh
     {
         Log::info('Generating export headings.');
         return [
-            'Name', 'Resources', 'Status', 'Type', 'Industry', 'Company', 'Product', 'BGOC_Product',
+            'Resources', 'Status', 'Type', 'Industry', 'Company', 'Product', 'BGOC_Product',
             'PIC', 'Email', 'Contact1', 'Contact2', 'Address', 'City', 'State', 'Remarks'
         ];
     }
@@ -158,7 +158,6 @@ class ContactListsExport implements FromQuery, WithHeadings, WithMapping, WithCh
         try {
             Log::info('Mapping contactList ID: ' . $contactList->id);
             return [
-                $contactList->name,
                 $contactList->resources ? $contactList->resources : '-',
                 $contactList->status ? $contactList->status->name : '-',
                 $contactList->type ? $contactList->type->name : '-',
